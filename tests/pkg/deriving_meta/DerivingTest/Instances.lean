@@ -102,3 +102,12 @@ instance : GenRandom String where
   random := return String.ofList (← GenRandom.random (Array Char)).toList
 
 deriving instance GenRandom for ByteArray
+
+instance : Default Nat where default := 0
+instance : Default Int where default := 0
+instance : Default UInt8 where default := 0
+instance : Default UInt16 where default := 0
+instance : Default UInt32 where default := 0
+instance : Default UInt64 where default := 0
+instance : Default USize where default := 0
+instance : Default String where default := ""

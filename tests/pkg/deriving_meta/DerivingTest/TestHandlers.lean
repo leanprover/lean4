@@ -17,12 +17,12 @@ The deriving handlers can derive instances for inductives without trouble, inclu
 inductives like `Syntax`.
 -/
 
-deriving instance ToData, FirstDiff, CompareCtorIdx, Bounds, Secret, ULiftCtorIdx, Const, GenRandom
-  for List, Data, String.Pos.Raw, Bool, Substring.Raw, SourceInfo, Name, Syntax.Preresolved, Syntax,
-    FVarId, MVarId, LevelMVarId, BinderInfo, Literal, Prod, DataValue, KVMap, Level, Expr,
-    ConstantVal, AxiomVal, ReducibilityHints, DefinitionSafety, DefinitionVal, TheoremVal,
-    OpaqueVal, QuotKind, QuotVal, InductiveVal, ConstructorVal, RecursorRule, RecursorVal,
-    ConstantInfo, Constructor, InductiveType, Declaration, Option, IO.Error, Sigma
+deriving instance AllGeneralClasses, OtherDataClasses for
+  List, Data, String.Pos.Raw, Bool, Substring.Raw, SourceInfo, Name, Syntax.Preresolved, Syntax,
+  FVarId, MVarId, LevelMVarId, BinderInfo, Literal, Prod, DataValue, KVMap, Level, Expr,
+  ConstantVal, AxiomVal, ReducibilityHints, DefinitionSafety, DefinitionVal, TheoremVal, OpaqueVal,
+  QuotKind, QuotVal, InductiveVal, ConstructorVal, RecursorRule, RecursorVal, ConstantInfo,
+  Constructor, InductiveType, Declaration, Option, IO.Error, Sigma
 
 /-!
 ... including the law type classes; although we have to exclude `Data` and `Syntax` because they
@@ -37,7 +37,7 @@ deriving instance IsSmallToData for Nat, Int, String, UInt8, UInt16, UInt32, UIn
 set_option warn.sorry false in
 instance : IsSmallToData Syntax := sorry
 
-deriving instance IsSmallToData, LawfulBounds, ToDataDepLaw for
+deriving instance OtherLawClasses for
   List, String.Pos.Raw, Bool, Substring.Raw, SourceInfo, Name, Syntax.Preresolved, FVarId, MVarId,
   LevelMVarId, BinderInfo, Literal, Prod, DataValue, KVMap, Level, Expr, ConstantVal, AxiomVal,
   ReducibilityHints, DefinitionSafety, DefinitionVal, TheoremVal, OpaqueVal, QuotKind, QuotVal,
@@ -125,18 +125,15 @@ The deriving handlers also work on mutual inductives
 
 mutual
 
-inductive Mutual1 (α : Type) where
+inductive Mutual1 (α β : Type) where
   | base (a : α)
-  | other (x : Mutual2 α)
--- For here and later: You can't specify `Secret` here or it will complain
-deriving ToData, FirstDiff, CompareCtorIdx, Bounds, ULiftCtorIdx, Const, GenRandom, IsSmallToData,
-  LawfulBounds, ToDataDepLaw
+  | other (x : Mutual2 α β)
+deriving AllGeneralClasses, OtherDataClasses, OtherLawClasses
 
-inductive Mutual2 (α : Type) where
-  | base (a : Nat)
-  | other (x : Mutual1 α)
-deriving ToData, FirstDiff, CompareCtorIdx, Bounds, ULiftCtorIdx, Const, GenRandom, IsSmallToData,
-  LawfulBounds, ToDataDepLaw
+inductive Mutual2 (α β : Type) where
+  | base (a : Nat) (b : β)
+  | other (x : Mutual1 α β)
+deriving AllGeneralClasses, OtherDataClasses, OtherLawClasses
 
 end
 
@@ -157,13 +154,8 @@ inductive OtherMutual2 (α : Type) where
 
 end
 
--- Note: `LawfulBounds, ToDataDepLaw` works because it is non-recursive (`nonRec := true`)
-deriving instance ToData, FirstDiff, CompareCtorIdx, Bounds, Secret, ULiftCtorIdx, Const, GenRandom,
-    LawfulBounds
-  for OtherMutual1
-deriving instance ToData, FirstDiff, CompareCtorIdx, Bounds, Secret, ULiftCtorIdx, Const, GenRandom,
-    LawfulBounds
-  for OtherMutual2
+deriving instance AllGeneralClasses for OtherMutual1
+deriving instance AllGeneralClasses for OtherMutual2
 
 /--
 error: Could not find helper declaration `instToDataOtherMutual2.convert` inside an instance.
@@ -177,27 +169,52 @@ in a comma-separated list
 deriving instance IsSmallToData for OtherMutual1
 
 /-!
+For the non-recursive type classes (`nonRec := true`), here `Default`, the instance requirements
+only come from each inductive individually, not both
+-/
+
+-- Note that there is no `[Default β]` here which `Default` on `Mutual2` needs
+/--
+info: @[instance_reducible, expose] def instDefaultMutual1 : {α β : Type} → [Default α] → Default (Mutual1 α β)
+-/
+#guard_msgs in
+#print sig instDefaultMutual1
+
+/--
+info: @[instance_reducible, expose] def instDefaultMutual2 : {α β : Type} → [Default β] → Default (Mutual2 α β)
+-/
+#guard_msgs in
+#print sig instDefaultMutual2
+
+/-!
 The deriving handlers also work on indexed inductives
 -/
 
 inductive Vec (α : Type) : Nat → Type where
   | nil : Vec α 0
   | cons : α → Vec α n → Vec α (n + 1)
--- `GenRandom` specifically doesn't work with indices
-deriving ToData, FirstDiff, CompareCtorIdx, Bounds, ULiftCtorIdx, Const, IsSmallToData,
-  LawfulBounds, ToDataDepLaw
+deriving AllGeneralClasses, OtherLawClasses
+
+instance : LawfulFirstDiff Bool where
+  of_firstDiff_eq_none := by decide
+
+inductive Two : Bool → Type where
+  | a : Two true
+  | b (x : Two true) : Two false
+deriving AllGeneralClasses, OtherLawClasses
+
+inductive Flip : Bool → Type where
+  | a : Flip true
+  | b (y : Bool) (x : Flip y) : Flip false
+deriving AllGeneralClasses, OtherLawClasses
 
 /-!
 The deriving handlers also work on complex dependent types
 -/
 
-instance : LawfulFirstDiff Bool where
-  of_firstDiff_eq_none := by decide
-
 structure SigmaField (γ : Bool → Type) where
   val : (b : Bool) × List (γ b)
-deriving ToData, FirstDiff, CompareCtorIdx, Bounds, ULiftCtorIdx, Const, GenRandom, IsSmallToData,
-  LawfulBounds, ToDataDepLaw
+deriving AllGeneralClasses, OtherDataClasses, OtherLawClasses
 
 /-!
 The deriving handlers also work on types parameterized using structures
@@ -210,8 +227,7 @@ structure Params where
 structure TestParams (p : Params) where
   fst : p.Type1
   snd : p.Type2
-deriving ToData, FirstDiff, CompareCtorIdx, Bounds, ULiftCtorIdx, Const, GenRandom, IsSmallToData,
-  LawfulBounds, ToDataDepLaw
+deriving AllGeneralClasses, OtherDataClasses, OtherLawClasses
 
 /--
 info: @[instance_reducible, expose] def instToDataTestParamsOfType1OfType2 : {p : Params} →
@@ -221,20 +237,22 @@ info: @[instance_reducible, expose] def instToDataTestParamsOfType1OfType2 : {p 
 #print sig instToDataTestParamsOfType1OfType2
 
 /-!
-More examples for indexed inductives
+More complex parameterization
 -/
 
-inductive Two : Bool → Type where
-  | a : Two true
-  | b (x : Two true) : Two false
-deriving ToData, FirstDiff, CompareCtorIdx, Bounds, ULiftCtorIdx, Const, IsSmallToData,
-  LawfulBounds, ToDataDepLaw
+structure InnerParams where
+  Type1 : Type
+  Type2 : Nat → Type
 
-inductive Flip : Bool → Type where
-  | a : Flip true
-  | b (y : Bool) (x : Flip y) : Flip false
-deriving ToData, FirstDiff, CompareCtorIdx, Bounds, ULiftCtorIdx, Const, IsSmallToData,
-  LawfulBounds, ToDataDepLaw
+structure OuterParams extends InnerParams where
+  Other : Nat → InnerParams
+
+structure TestMoreParams (p : OuterParams) (β : Nat → Type) where
+  val1 : p.Type1
+  val2 : p.Type2 3
+  val3 : (p.Other 20).Type2 4
+  val4 : β 3
+deriving AllGeneralClasses, OtherDataClasses, OtherLawClasses
 
 /-!
 Redundant instances are detected and omitted
@@ -243,8 +261,7 @@ Redundant instances are detected and omitted
 inductive TestRedundantForward (β : Bool → Type) where
   | veryGeneral (a : Bool) (x : β a)
   | verySpecific (x : β true) (y : List (β false))
-deriving ToData, FirstDiff, CompareCtorIdx, Bounds, ULiftCtorIdx, Const, GenRandom, IsSmallToData,
-  LawfulBounds, ToDataDepLaw
+deriving AllGeneralClasses, OtherDataClasses, OtherLawClasses
 
 -- would be `[∀ a, ToData (β a)] [ToData (β true)] [ToData (List (β false))]`
 -- without processing but with the redundancy check, we get:
@@ -263,8 +280,7 @@ info: @[instance_reducible, expose] def instToDataTestRedundantForward : {β : B
 inductive TestRedundantBackward (β : Bool → Type) where
   | verySpecific (x : β true) (y : List (β false))
   | veryGeneral (a : Bool) (x : β a)
-deriving ToData, FirstDiff, CompareCtorIdx, Bounds, ULiftCtorIdx, Const, GenRandom, IsSmallToData,
-  LawfulBounds, ToDataDepLaw
+deriving AllGeneralClasses, OtherDataClasses, OtherLawClasses
 
 -- would be `[ToData (β true)] [ToData (List (β false))] [∀ a, ToData (β a)]`
 -- without processing but with the redundancy check, we get:
@@ -368,7 +384,7 @@ deriving ToData
 
 private structure TestPrivate where
   thing : Nat
-deriving ToData
+deriving AllGeneralClasses, OtherDataClasses, OtherLawClasses
 
 /-- info: @[instance_reducible] private def instToDataTestPrivate : ToData TestPrivate -/
 #guard_msgs in
@@ -407,20 +423,14 @@ meta def declareWide (name : Name) (n : Nat) : CommandElabM Unit := do
   let fields := (List.range n).toArray.map fun i => mkIdent (.mkSimple s!"f{i}")
   elabCommand <| ← `(structure $(mkIdent name):ident where $[($fields : Nat)]*)
 
-run_cmd declareWide `Wide 100
+run_cmd declareWide `Wide 200
 
--- `IsSmallToData` fails because 400 is not small :-)
-deriving instance ToData, FirstDiff, CompareCtorIdx, Bounds, ULiftCtorIdx, Const, LawfulBounds,
-    ToDataDepLaw
-  for Wide
-
--- `GenRandom` seems to require a higher recursion depth
-set_option maxRecDepth 0 in
-deriving instance GenRandom for Wide
+-- `IsSmallToData` fails because 200 is not small :-)
+deriving instance AllGeneralClasses, OtherDataClasses, ToDataDepLaw for Wide
 
 /--
 error: Error while processing constructor Wide.mk:
-  Failed to derive `IsSmallToData`, field count 100 is not smaller than 32
+  Failed to derive `IsSmallToData`, field count 200 is not smaller than 32
 -/
 #guard_msgs in
 deriving instance IsSmallToData for Wide
@@ -435,8 +445,7 @@ set_option inductive.autoPromoteIndices false in
 inductive Term : Nat → Type where
   | var (n : Nat) (i : Fin n) : Term n
   | app (n : Nat) (f : Term n) (x : Term n) : Term n
-deriving ToData, FirstDiff, CompareCtorIdx, Bounds, ULiftCtorIdx, Const, IsSmallToData,
-  LawfulBounds, ToDataDepLaw
+deriving AllGeneralClasses, OtherLawClasses
 
 /--
 We use `Eq.ndrec` calls to eliminate forward dependencies in the deriving handler, detect them here.
@@ -469,8 +478,8 @@ structure ThreeFins where
   a : Fin n
   b : Fin n
   c : Fin n
-deriving ToData, FirstDiff, CompareCtorIdx, Bounds, ULiftCtorIdx, Const, IsSmallToData,
-  LawfulBounds, ToDataDepLaw
+-- `ThreeFins` is not inhabited with `n = 0` so `Default` doesn't work
+deriving AllGeneralClasses, GenRandom, OtherLawClasses
 
 -- There is just one `Eq.ndrec` call and it is applied to `a`, `b` and `c`
 -- i.e. `a`, `b`, `c` transitively depend on `n` and there are no other dependencies
@@ -484,8 +493,7 @@ It's important to make dependencies transitive because dependencies can "hide"
 
 inductive Hide (n : Nat) where
   | mk (val : Nat)
-deriving ToData, FirstDiff, CompareCtorIdx, Bounds, ULiftCtorIdx, Const, IsSmallToData,
-  LawfulBounds, ToDataDepLaw
+deriving AllGeneralClasses, OtherDataClasses, OtherLawClasses
 
 instance : LawfulFirstDiff (Hide n) where
   of_firstDiff_eq_none := by
@@ -496,8 +504,8 @@ structure Chain where
   n : Nat
   b : Hide n
   c : Fin b.1 -- `c` sneakily depends on `n` here but this is not obvious in the term structure
-deriving ToData, FirstDiff, CompareCtorIdx, Bounds, ULiftCtorIdx, Const, IsSmallToData,
-  LawfulBounds, ToDataDepLaw
+-- like above, `Fin _` is preventing `Default` from working
+deriving AllGeneralClasses, GenRandom, OtherLawClasses
 
 -- i.e. `b` and `c` depend on `n`; `c` depends on `b`
 /--
@@ -516,13 +524,11 @@ mutual
 
 inductive A.T where
   | mk
-deriving ToData, FirstDiff, CompareCtorIdx, Bounds, ULiftCtorIdx, Const, IsSmallToData,
-  LawfulBounds, ToDataDepLaw
+deriving AllGeneralClasses, OtherDataClasses, OtherLawClasses
 
 inductive B.T where
   | mk
-deriving ToData, FirstDiff, CompareCtorIdx, Bounds, ULiftCtorIdx, Const, IsSmallToData,
-  LawfulBounds, ToDataDepLaw
+deriving AllGeneralClasses, OtherDataClasses, OtherLawClasses
 
 end
 

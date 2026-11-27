@@ -121,6 +121,47 @@ class GenRandom (α : Type) where
   random (α) : IO α
 
 /-!
+A non-recursive class like `Inhabited`
+-/
+
+class Default (α : Sort u) where
+  default : α
+
+/-!
+Convenience type class whose deriving handler calls the deriving handler of all classes that don't
+have special assumptions about the type (i.e. work on almost every non-`Prop` inductive with
+sufficient existing instances).
+
+We don't include `Secret` in the list here because it is private but we still derive it
+automatically.
+-/
+
+class AllGeneralClasses (α : Type u)
+    extends FirstDiff α, CompareCtorIdx α, Bounds α, LawfulBounds α, ULiftCtorIdx α, Const α where
+  -- we use `ToData` as the simplest class to test most error messages but with this as a parent,
+  -- this is always an instance for `ToData α` so we'd never get the "missing instance" error
+  -- message and only the "unsuitable instance" one
+  toToData : ToData α
+
+/-!
+Convenience type class for data classes not included in `AllGeneralClasses`, including `GenRandom`
+which requires `Type` and no indices and `Default` which doesn't always behave well with indices
+-/
+
+class OtherDataClasses (α : Type) extends GenRandom α, Default α where
+
+/-!
+Convenience type class for law type classes that are not included in `AllGeneralClasses`, including
+`IsSmallToData` which doesn't work for nested types or when the type is not actually "small"
+(i.e. `< 32` fields and constructors), and `ToDataDepLaw` which doesn't work for nested types
+because the deriving handler assumes that we're trying to prove "something interesting" recursively
+about `ToData` (which doesn't work because of the `partial`).
+-/
+
+class OtherLawClasses (α : Type u)
+  extends AllGeneralClasses α, ToDataDepLaw α, IsSmallToData α where
+
+/-!
 The deriving handlers
 -/
 
@@ -463,6 +504,102 @@ meta partial def deriveGenRandom : DerivingHandler :=
       | _ => .unhandled
     return true
 
+meta def deriveDefault : DerivingHandler :=
+  mkInductiveDerivingHandler ``Default do
+    makeInstancesUsingCtor (nonRec := true) fun
+      | ``Default.default => fun input => do
+        let info ← getConstInfoInduct input.induct
+        let mut remaining := info.numCtors
+        let mut ok := false
+        for ctor in info.ctors do
+          let oldState ← get
+          let oldMCtx ← getMCtx
+          let oldCache := (← getThe Meta.State).cache
+          try
+            let ctorApp := mkAppN (.const ctor (← read).indLParams) (← read).indParams
+            let (vars, _bis, body) ← forallMetaTelescope (← inferType ctorApp)
+            unless ← isDefEq body input.typeApp do
+              throwError "Constructor `{.ofConstName ctor}` is not generalized for all indices"
+            for var in vars do
+              let type ← instantiateMVars (← inferType var)
+              forallTelescope type fun params type => do
+                let u ← getLevel type
+                let inst ← synthInstanceDeriving (.app (.const ``Default [u]) type)
+                let default := mkApp2 (.const ``Default.default [u]) type inst
+                var.mvarId!.assign (← mkLambdaFVars params default)
+            let ctorApp := mkAppN ctorApp vars
+            if isPrivateName ctor then
+              return .usingHelper fun _ _ => pure ctorApp
+            return .inline ctorApp
+          catch ex =>
+            set oldState
+            modifyThe Meta.State ({ · with cache := oldCache, mctx := oldMCtx })
+            remaining := remaining - 1
+            if remaining = 0 then
+              throwError m!"All attempts to generate a `{.ofConstName ``Default}` \
+                instance failed, the last error was:{indentD ex.toMessageData}"
+        throwError "Failed to generate `{.ofConstName ``Default}` instance, \
+          there are no constructors"
+      | _ => .unhandled
+    return true
+
+/-!
+At the same time, this is also a good test for `.synthesize` and `derivePrerequisite`
+-/
+
+open AllGeneralClasses in
+meta def deriveAllGeneralClasses : DerivingHandler :=
+  let inner : DerivingHandler :=
+    mkInductiveDerivingHandler ``AllGeneralClasses do
+      makeInstancesUsingCtor (nonRec := true) fun
+        | ``toToData
+        | ``toFirstDiff
+        | ``toCompareCtorIdx
+        | ``toBounds
+        | ``toLawfulBounds
+        | ``toULiftCtorIdx
+        | ``toConst =>
+          .synthesize
+        | _ => .unhandled
+      return true
+  -- the `--` comments prevent the autoformatter from putting multiple calls into one line
+  derivePrerequisite ``ToData deriveToData <| --
+    derivePrerequisite ``FirstDiff deriveFirstDiff <| --
+      derivePrerequisite ``CompareCtorIdx deriveCompareCtorIdx <| --
+        derivePrerequisite ``Bounds deriveBounds <| --
+          derivePrerequisite ``LawfulBounds deriveLawfulBounds <| --
+            derivePrerequisite ``Secret deriveSecret <| --
+              derivePrerequisite ``ULiftCtorIdx deriveULiftCtorIdx <| --
+                derivePrerequisite ``Const deriveConst <| --
+                  inner
+
+open OtherDataClasses in
+meta def deriveOtherDataClasses : DerivingHandler :=
+  let inner : DerivingHandler :=
+    mkInductiveDerivingHandler ``OtherDataClasses do
+      makeInstancesUsingCtor (nonRec := true) fun
+        | ``toGenRandom | ``toDefault => .synthesize
+        | _ => .unhandled
+      return true
+  derivePrerequisite ``GenRandom deriveGenRandom <| --
+    derivePrerequisite ``Default deriveDefault <| --
+      inner
+
+open OtherLawClasses in
+meta def deriveOtherLawClasses : DerivingHandler :=
+  let inner : DerivingHandler :=
+    mkInductiveDerivingHandler ``OtherLawClasses do
+      makeInstancesUsingCtor (nonRec := true) fun
+        | ``toAllGeneralClasses => .synthesize
+        | ``toToDataDepLaw => .synthesize
+        | ``toIsSmallToData => .synthesize
+        | _ => .unhandled
+      return true
+  derivePrerequisite ``AllGeneralClasses deriveAllGeneralClasses <| --
+    derivePrerequisite ``ToDataDepLaw deriveToDataDepLaw <| --
+      derivePrerequisite ``IsSmallToData deriveIsSmallToData <| --
+        inner
+
 meta initialize
   registerDerivingHandler ``ToData deriveToData
   registerDerivingHandler ``IsSmallToData deriveIsSmallToData
@@ -475,3 +612,7 @@ meta initialize
   registerDerivingHandler ``Const deriveConst
   registerDerivingHandler ``ToDataDepLaw deriveToDataDepLaw
   registerDerivingHandler ``GenRandom deriveGenRandom
+  registerDerivingHandler ``Default deriveDefault
+  registerDerivingHandler ``AllGeneralClasses deriveAllGeneralClasses
+  registerDerivingHandler ``OtherDataClasses deriveOtherDataClasses
+  registerDerivingHandler ``OtherLawClasses deriveOtherLawClasses

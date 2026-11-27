@@ -331,16 +331,49 @@ private def goodKeys (keys : Array DiscrTree.Key) (env : Environment) : Bool := 
     | _ => return false
   return specialFragment.isSome
 
-private def goodHypothesisKeys (keys : Array DiscrTree.Key) (env : Environment) : Bool := Id.run do
-  let some (.const _ _ : DiscrTree.Key) := keys[0]?
-    | return false
-  return keys.all (start := 1) fun key =>
-    match key with
-    | .star => true
-    | .proj .. => true
-    | .fvar .. => true
-    | .const nm _ => isIgnoredConstant nm env
-    | _ => false
+private partial def goodHypothesisKeys
+    (keys : Array DiscrTree.Key) (outerLCtx : LocalContext) (env : Environment)
+    : Bool :=
+  Option.isSome do
+    let .const _ nargs ← keys[0]?
+      | failure
+    let n ← go 1 nargs
+    guard <| n == keys.size
+where
+  -- essentially "tree" traversal but with the tree given in prefix order
+  go (i : Nat) (nrelevant : Nat) : Option Nat := do
+    if nrelevant > 0 then
+      let key ← keys[i]?
+      let i := i + 1
+      let nrelevant := nrelevant - 1
+      match key with
+      | .star => go i nrelevant
+      | .proj _ _ nargs =>
+        -- skip any arguments (we allow e.g. `params.MyType 3`)
+        let i ← skip i nargs
+        -- but make sure that the structure is good (we don't allow `myStructDef.MyType`)
+        let i ← go i 1
+        go i nrelevant
+      | .fvar fvar nargs =>
+        -- we accept a free variable parameter but not a bound variable as in `[∀ α, BEq α]`
+        guard <| outerLCtx.contains fvar
+        -- skip any arguments (we allow e.g. `β 3`)
+        let i ← skip i nargs
+        go i nrelevant
+      | .const nm nargs =>
+        -- make sure it's one of the special ignored constants
+        -- (i.e. instance projections and `Eq`)
+        guard <| isIgnoredConstant nm env
+        go i (nrelevant + nargs)
+      | _ => failure
+    else
+      return i
+  skip (i : Nat) (nskip : Nat) : Option Nat := do
+    if nskip > 0 then
+      let key ← keys[i]?
+      skip (i + 1) (nskip - 1 + key.arity)
+    else
+      i
 
 /-- The error type for the internal function `tryApplyCanonicalInstance` -/
 inductive CanonicalInstanceFailure where
@@ -471,7 +504,7 @@ private def tryApplyCanonicalInstance (instType : Expr)
     -- parameters, like with `deriving.univPoly true`
     let some idx ← chooseInstance (successes.map (·.1))
       | return .error (.nonUnique matching filtered)
-    let (_, state, res, outVars) := successes[idx]'(by simpa using idx.2)
+    let (entry, state, res, outVars) := successes[idx]'(by simpa using idx.2)
     state.restore
     let mut outVars : Array (MVarId × Bool) := outVars
     -- If we have additional variables from `forallTelescopeReducing` here, we have to revert them
@@ -481,7 +514,16 @@ private def tryApplyCanonicalInstance (instType : Expr)
           let mvarApp ← mkFreshRevertedMVarAt lctx linsts (← outVar.getType)
           outVar.assign mvarApp
           return (mvarApp.getAppFn.mvarId!, allowMore)
-    trace[Elab.Deriving] "Result: {res}, {outVars}"
+    if ← isTracingEnabledFor `Elab.Deriving.reduceInstances then
+      let mut msg := m!"Applied `{.ofConstName entry.globalName?.get!}` to{indentExpr instType}"
+      if outVars.isEmpty then
+        msg := msg ++ m!"\nwith no subgoals"
+      else
+        let subgoalInfos ←
+          outVars.toList.mapM fun (var, b) =>
+            if b then return m!"{← var.getType}" else return m!"{← var.getType} (no more reduction)"
+        msg := msg ++ m!"\nwith subgoal(s):{indentD <| .joinSep subgoalInfos "\n"}"
+      addTrace `Elab.Deriving.reduceInstances msg
     return .ok (← mkLambdaFVars vars res, outVars)
 where
   tryInstance (instEntry : InstanceEntry) (body : Expr)
@@ -501,7 +543,7 @@ where
             let (_, _, body) ← forallMetaTelescopeReducing argType
             DiscrTree.mkPath body
         arg.mvarId!.setKind .syntheticOpaque
-        outVars := outVars.push (arg.mvarId!, goodHypothesisKeys keys (← getEnv))
+        outVars := outVars.push (arg.mvarId!, goodHypothesisKeys keys (← getLCtx) (← getEnv))
     unless ← withReducibleAndInstances <| isDefEq instBody body do
       return .error (.unifyFailed instEntry)
     let c ← instantiateMVars c
@@ -820,7 +862,9 @@ private def checkInstanceHypotheses (instanceHyps : Array MVarId) : DerivingM Un
     withReducible do←
       forallTelescopeReducing type (whnfType := true) fun _ body => do←
         let path ← DiscrTree.mkPath body
-        unless goodHypothesisKeys path (← getEnv) do
+        trace[Elab.Deriving.checkInstanceHypotheses] "Checking{indentExpr body}\
+          \nwith path{indentD (← DiscrTree.keysAsPattern path)}"
+        unless goodHypothesisKeys path (← read).paramLCtx (← getEnv) do
           let reason? := ((← get).splitFailures.find? (·.1 == mvar)).map (·.2)
           complexHyps := complexHyps.push (type, reason?)
   unless complexHyps.isEmpty do
@@ -1004,13 +1048,14 @@ private def MakeInstancesState.add : MakeInstancesState → Name → MakeInstanc
 
 /--
 Creates instances by first running `preHelpers` with all recursive instances in the local context
-and then creating a mutual block with all helpers provided in `infos` (marking declarations as
-partial by default) and finally creating all instances individually.
+(unless `nonRec` is true) and then creating a mutual block with all helpers provided in `infos`
+(marking declarations as partial by default) and finally creating all instances individually.
 
 `preHelpers` can be used for one-time computations that only need the instances in scope.
 -/
 def makeInstancesUsingMutualBlock
-    (infos : Array (InstanceInfo α)) (preHelpers : DerivingM α := by exact pure ())
+    (infos : Array (InstanceInfo α))
+    (preHelpers : DerivingM α := by exact pure ()) (nonRec : Bool := false)
     : DerivingM Unit :=
   -- We want to keep track of the new declarations we're adding
   -- to make sure we don't have collisions
@@ -1025,7 +1070,10 @@ def makeInstancesUsingMutualBlock
         return { info with extendedHelpers, value := ← info.mkValue helperMVars }
     let instanceValues := infos.map (·.value)
     let instVarInfos :=
-      infos.mapIdx fun idx info => ((`recinst).appendIndexAfter (idx + 1), info.type)
+      if nonRec then
+        #[]
+      else
+        infos.mapIdx fun idx info => ((`recinst).appendIndexAfter (idx + 1), info.type)
     withLocalDeclsDND instVarInfos fun recInsts => do
       let mut infos := infos
       -- 2. run `preHelpers`
@@ -1036,11 +1084,12 @@ def makeInstancesUsingMutualBlock
           let extendedHelpers ←
             info.extendedHelpers.mapM fun helper => do
               let mut shouldExport ← pure (← getEnv).isExporting <&&> notM (isProp helper.type)
-              let value ←
+              let mut value ←
                 withExporting (isExporting := shouldExport) (helper.mkValue recInsts globalCompute)
-              let value :=
-                (← value.abstractM recInsts).instantiateBetaRevRange 0 instanceValues.size
-                  instanceValues
+              unless nonRec do
+                value :=
+                  (← value.abstractM recInsts).instantiateBetaRevRange 0 instanceValues.size
+                    instanceValues
               return { helper with value }
           return { info with extendedHelpers }
       let instHyps ← produceInstanceHyps
@@ -1186,6 +1235,13 @@ more information.
 def FieldHelperProvider.unhandled : FieldHelperProvider α := fun input => do
   throwError "Internal error in deriving handler for `{.ofConstName <| (← read).className}`:\n\
     Unhandled field `{.ofConstName input.fieldName}`"
+
+/--
+Try to synthesize the field. Meant to be used for parent projections in combination with
+`derivePrerequisite`.
+-/
+def FieldHelperProvider.synthesize : FieldHelperProvider α := fun input => do
+  return .inline <| ← synthInstanceDeriving input.expectedType
 
 /--
 Creates a helper that matches on the first argument, calling `perCtor` for each constructor with
@@ -1737,16 +1793,29 @@ private def recurrenceError
   return none
 
 /--
+Returns the binder index of the first binder that refers to a bound variable `.bvar i` with
+`i >= .bvar bvarIdx`, shifted by `bvarIdx`.
+-/
+private def identifySourceBinderBVar (e : Expr) (bvarIdx : Nat := 0) : Option Nat := do
+  match e with
+  | .forallE _ t b _ =>
+    if bvarIdx < t.looseBVarRange then
+      bvarIdx
+    else
+      identifySourceBinderBVar b (bvarIdx + 1)
+  | _ => none
+
+/--
 General version of `InstanceInfo.usingCtor` that allows specifying the precise type and type class
 applications and variables to be abstracted (usually the indices).
 -/
 def InstanceInfo.usingCtorCore
     (perField : Name → FieldHelperProvider α) (induct : Name) (typeApp classApp : Expr)
     (additionalVars : Array Expr)
-    (supportsRec : Bool := true) (supportsPartial := true)
+    (supportsRec : Bool := true) (supportsNested := false) (supportsPartial := true)
     : DerivingM (InstanceInfo α) := do
   let usePartial :=
-    ((← isNestedOrReflexive) || !supportsRec)
+    (((← isNestedOrReflexive) && !supportsNested) || !supportsRec)
       -- if we support partial but not recursion with termination
       -- we may as well use it for non-recursive inductives to be safe
       && ((← isRecursive) || supportsPartial)
@@ -1778,22 +1847,30 @@ def InstanceInfo.usingCtorCore
     let mut fieldHelperInfos : Array (FieldHelperInfo α) := {}
     let mut helpers : Array (HelperInfo α) := #[]
     let additionalVarDecls := (← additionalVars.mapM (·.fvarId!.getDecl)).toList
+    let mut ctorType ← inferType (mkAppN (.const ctor classLParams) classParams)
     for h : i in 0...structInfo.fieldNames.size do
+      let .forallE _ expectedType ctorTypeBody _ := ctorType
+        | throwError "Malformed structure info: Constructor only has {i} field(s) but structure \
+            info claims that there are {structInfo.fieldNames.size}"
       let some projFn := structInfo.getProjFn? i
         | unreachable!
       let fieldInfo ← getConstVal projFn
-      let expectedType ← Core.instantiateTypeLevelParams fieldInfo classLParams
-      let expectedType ← instantiateForall expectedType classParams
-      let .forallE _ _ expectedType _ := expectedType
-        | unreachable!
-      if expectedType.hasLooseBVars then
-        throwError "Invalid use of `{.ofConstName decl_name%}`: This function can currently only \
-          be used for non-dependent fields but `{.ofConstName projFn}` \
-          depends on previous fields."
       let input := { classLParams, classParams, typeApp, fieldInfo, expectedType }
       let fieldHelperInfo ← perField projFn input
       fieldHelperInfos := fieldHelperInfos.push fieldHelperInfo
-      if let .usingHelper mkValue := fieldHelperInfo then
+      match fieldHelperInfo with
+      | .usingHelper mkValue =>
+        if ctorTypeBody.hasLooseBVars then
+          let some off := identifySourceBinderBVar ctorTypeBody
+            | -- the bound variable is in the result type which should be impossible
+              -- since we should have no indices
+              unreachable!
+          let some otherProjFn := structInfo.getProjFn? (i + off + 1)
+            | unreachable!
+          throwError "Invalid use of `{.ofConstName decl_name%}`: The field \
+            `{.ofConstName otherProjFn}` depends on the field `{.ofConstName projFn}` which is not \
+            given inline; dependent helpers are not supported"
+        ctorType := ctorTypeBody
         helpers :=
           helpers.push {
             suffix := structInfo.fieldNames[i]
@@ -1804,6 +1881,7 @@ def InstanceInfo.usingCtorCore
                 return res
             postprocess _ := postprocessUsingCtor usePartial
           }
+      | .inline e => ctorType := ctorTypeBody.instantiate1 e
     return {
       induct
       type
@@ -1843,7 +1921,9 @@ def InstanceInfo.usingCtor
       | throwError "Unexpected inductive type type{indentExpr (← inferType typeApp)}"
     let typeApp := mkAppN typeApp indices
     let classApp ← computeClassApp typeApp
-    InstanceInfo.usingCtorCore perField induct typeApp classApp indices supportsRec supportsPartial
+    InstanceInfo.usingCtorCore perField induct typeApp classApp indices supportsRec
+      -- the current framework can't produce non-partial nested instances
+      (supportsNested := false) supportsPartial
 
 /--
 Constructs instances of the type class in the context using its constructor, running `perField` on
@@ -1861,8 +1941,8 @@ not work with `partial`. Instead of providing an obscure error message about a m
 instance, `supportsPartial := false` causes it to fail early with a more helpful error message.
 
 If `nonRec := true`, then an instance is derived for each inductive individually. That means that
-you can't refer to instances of other inductives in the mutual block. Use this for instances that
-don't need recursive instance applications for the fields.
+you can't refer to instances of inductives in the mutual block. Use this for instances that don't
+need recursive instance applications for the fields.
 
 You can also specify a one-time computation at `preHelpers` which will be run before any of the
 helpers with all helpers in scope. The result of this computation is provided as an additional `α`
@@ -1914,9 +1994,10 @@ def makeInstancesUsingCtor
     (preHelpers : DerivingM α := by exact pure ())
     : DerivingM Unit := do
   if nonRec then
+    let pre ← preHelpers
     for name in (← read).names do
       withoutModifyingInstanceState do
-        makeInstancesUsingMutualBlock (preHelpers := preHelpers) <|
+        makeInstancesUsingMutualBlock (preHelpers := pure pre) (nonRec := true) <|
           #[← InstanceInfo.usingCtor perField supportsRec supportsPartial name]
   else
     makeInstancesUsingMutualBlock (preHelpers := preHelpers) <| ← (← read).indInfo.all.toArray.mapM
@@ -2141,12 +2222,13 @@ private def getUnfoldEqnForExpr (e : Expr) : MetaM (Option (Expr × Expr)) := do
 
 private def findRefoldsAndEquationsIn (instApp : Expr) (acc : LawDerivingAccumulator)
     : DerivingM LawDerivingAccumulator := do
-  withTraceNode `Elab.Deriving (fun _ => return m!"Processing instance {instApp}") do
+  withTraceNode `Elab.Deriving.lawClasses (fun _ => return m!"Processing instance {instApp}") do
     let .const instName us := instApp.getAppFn
-      | trace[Elab.Deriving] "Not a constant application for instance parameter{indentExpr instApp}"
+      | trace[Elab.Deriving.lawClasses]
+          "Not a constant application for instance parameter{indentExpr instApp}"
         return acc
     let some info ← isDefn? instName
-      | trace[Elab.Deriving] "Failed to unfold instance parameter{indentExpr instApp}"
+      | trace[Elab.Deriving.lawClasses] "Failed to unfold instance parameter{indentExpr instApp}"
         return acc
     let value ← instantiateValueLevelParams (.defnInfo info) us
     lambdaTelescope value fun vars value => do
@@ -2155,11 +2237,13 @@ private def findRefoldsAndEquationsIn (instApp : Expr) (acc : LawDerivingAccumul
           (fun _ => pure acc)
           fun cval classLParams => do
             if cval.numParams + cval.numFields != ctorArgs.size then
-              trace[Elab.Deriving] "Only found partial constructor application{indentExpr value}"
+              trace[Elab.Deriving.lawClasses]
+                "Only found partial constructor application{indentExpr value}"
               return acc
             let instArgs := instApp.getAppArgs
             if instArgs.size != vars.size then
-              trace[Elab.Deriving] "Instance parameter is a partial application{indentExpr instApp}"
+              trace[Elab.Deriving.lawClasses]
+                "Instance parameter is a partial application{indentExpr instApp}"
               return acc
             let params := ctorArgs.take cval.numParams
             let some structInfo := getStructureInfo? (← getEnv) cval.induct
@@ -2199,7 +2283,7 @@ private def findRefoldsAndEquationsIn (instApp : Expr) (acc : LawDerivingAccumul
                   -- The helper takes the same arguments, in the same order
                   -- This is true for the output of `InstanceInfo.usingCtor`
                   unless helperArgs == vars do
-                    trace[Elab.Deriving] "Weird helper variables{indentExpr field}"
+                    trace[Elab.Deriving.lawClasses] "Weird helper variables{indentExpr field}"
                     return ← nonHelper
                   let refold : Refold := {
                     lparams := us
@@ -2422,15 +2506,16 @@ def deriveLawClassUsingCtor
         let info ←
           withLCtx entry.lctx entry.localInsts do
             InstanceInfo.usingCtorCore (perField entry.lawContext) entry.typeApp entry.classApp
-              entry.indices (supportsRec := supportsRec) (supportsPartial := false) (induct := name)
+              entry.indices (supportsRec := supportsRec) (supportsNested := true)
+              (supportsPartial := false) (induct := name)
         makeInstancesUsingMutualBlock (preHelpers := preHelpers) #[info]
   else
     let entries ← buildLawDerivingEntriesFor (← read).indInfo.all
     makeInstancesUsingMutualBlock (preHelpers := preHelpers) <| ← entries.mapM fun entry => do
       withLCtx entry.lctx entry.localInsts do
         InstanceInfo.usingCtorCore (perField entry.lawContext) entry.typeApp entry.classApp
-          entry.indices (supportsRec := supportsRec) (supportsPartial := false)
-          (induct := entry.induct)
+          entry.indices (supportsRec := supportsRec) (supportsNested := false)
+          (supportsPartial := false) (induct := entry.induct)
 
 /--
 Derive an instance for a transformation type class by applying `perCtor` for each constructor
@@ -2884,10 +2969,28 @@ def derivePrerequisite (className : Name) (preHandler : DerivingHandler) (handle
           needToDerive := needToDerive.push name
       return needToDerive
   let state ← get
-  unless ← preHandler prereqNames <&&> handler names do
-    -- backtrack
-    set state
-    return false
-  return true
+  try
+    let res ←
+      withTraceNode `Elab.Deriving.prerequisite
+        (fun _ =>
+          return m!"prerequisite `{.ofConstName className}` for \
+            {.andList (prereqNames.toList.map (m!"`{MessageData.ofConstName ·}`"))}")
+        (preHandler prereqNames)
+    unless res do
+      -- backtrack
+      set state
+      return false
+  catch ex =>
+    if let .error ref msg := ex then
+      throwErrorAt ref
+        m!"Error while deriving prerequisite `{.ofConstName className}`:{indentD msg}"
+    throw ex
+  handler names
+
+builtin_initialize
+  registerTraceClass `Elab.Deriving.reduceInstances (inherited := true)
+  registerTraceClass `Elab.Deriving.prerequisite (inherited := true)
+  registerTraceClass `Elab.Deriving.lawClasses (inherited := true)
+  registerTraceClass `Elab.Deriving.checkInstanceHypotheses (inherited := true)
 
 end Lean.Meta.Deriving

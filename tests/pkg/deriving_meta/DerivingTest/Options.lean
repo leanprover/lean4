@@ -22,7 +22,7 @@ structure TestVerbatim (α : Type) (β : Nat → Type) where
   other : β val
   otherDup : β dup
   list : List α
-deriving ToData, FirstDiff, Bounds, ULiftCtorIdx, Const, GenRandom, IsSmallToData, LawfulBounds
+deriving AllGeneralClasses, OtherDataClasses, OtherLawClasses
 
 /--
 info: @[instance_reducible, expose] def instToDataTestVerbatimOfNatOfList : {α : Type} →
@@ -43,7 +43,7 @@ structure TestNoReduction (α : Type) (β : Nat → Type) where
   other : β val
   otherDup : β dup
   list : List α
-deriving ToData, FirstDiff, Bounds, ULiftCtorIdx, Const, GenRandom, IsSmallToData, LawfulBounds
+deriving AllGeneralClasses, OtherDataClasses, OtherLawClasses
 
 /--
 info: @[instance_reducible, expose] def instToDataTestNoReductionOfList : {α : Type} →
@@ -226,7 +226,7 @@ were explicit in the inductive (otherwise they are always implicit)
 set_option deriving.implicitBinders true in -- default
 inductive WithImplicit (α : Type) : Nat → Type where
   | thing (x : α) : WithImplicit α 0
-deriving ToData, FirstDiff, Bounds, ULiftCtorIdx, Const, IsSmallToData, LawfulBounds
+deriving AllGeneralClasses, OtherLawClasses
 
 /--
 info: @[instance_reducible, expose] def instToDataWithImplicit : {α : Type} →
@@ -238,7 +238,7 @@ info: @[instance_reducible, expose] def instToDataWithImplicit : {α : Type} →
 set_option deriving.implicitBinders false in
 inductive WithExplicit (α : Type) : Nat → Type where
   | thing (x : α) : WithExplicit α 0
-deriving ToData, FirstDiff, Bounds, ULiftCtorIdx, Const, IsSmallToData, LawfulBounds
+deriving AllGeneralClasses, OtherLawClasses
 
 /--
 info: @[instance_reducible, expose] def instToDataWithExplicit : (α : Type) →
@@ -252,9 +252,7 @@ With `deriving.univPoly true` (default), multiple instances will be generated if
 all universe possibilities
 -/
 
-deriving instance ToData, FirstDiff, Bounds, Secret, ULiftCtorIdx, Const, GenRandom, IsSmallToData,
-    LawfulBounds
-  for PSigma
+deriving instance AllGeneralClasses, OtherDataClasses, OtherLawClasses for PSigma
 
 /--
 info: @[instance_reducible, expose] def instToDataPSigma.{u, v} : {α : Type u} →
@@ -314,9 +312,7 @@ You can disable the limit with `deriving.univPoly.limit 0`
 -/
 
 set_option deriving.univPoly.limit 0 in
-deriving instance ToData, FirstDiff, Bounds, Secret, ULiftCtorIdx, Const, GenRandom, IsSmallToData,
-    LawfulBounds
-  for ReallyPolymorphic
+deriving instance AllGeneralClasses, OtherDataClasses, OtherLawClasses for ReallyPolymorphic
 
 /--
 info: @[instance_reducible, expose] def instToDataReallyPolymorphic_15 : {α β γ δ : Prop} → ToData (ReallyPolymorphic α β γ δ)
@@ -329,9 +325,7 @@ info: @[instance_reducible, expose] def instToDataReallyPolymorphic_15 : {α β 
 -/
 
 set_option deriving.univPoly false in
-deriving instance ToData, FirstDiff, Bounds, Secret, ULiftCtorIdx, Const, GenRandom, IsSmallToData,
-    LawfulBounds
-  for Subtype
+deriving instance AllGeneralClasses, OtherDataClasses, OtherLawClasses for Subtype
 
 /--
 info: @[instance_reducible, expose] def instToDataSubtype.{u} : {α : Type u} →
@@ -352,7 +346,7 @@ inductive NestReallyPolymorphic where
   | branch
     (self : ReallyPolymorphic NestReallyPolymorphic NestReallyPolymorphic NestReallyPolymorphic
       NestReallyPolymorphic)
-deriving ToData, FirstDiff, Bounds, ULiftCtorIdx, Const, GenRandom
+deriving AllGeneralClasses, OtherDataClasses
 
 /-!
 Because errors may only occur for certain instantiations, errors show the particular instantiation

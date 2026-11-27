@@ -24,7 +24,9 @@ def setUInt64LE (bs : ByteArray) (pos : Nat) (v : Nat) : ByteArray := Id.run do
 
 unsafe def tryRead (file : System.FilePath) : IO (Option String) := do
   try
-    let _ ← CompactedRegion.read (α := Nat → String) file #[]
+    let (_, region) ← CompactedRegion.read (α := Nat → String) file #[]
+    -- Windows does not allow overwriting a file that is still mapped.
+    region.free
     return none
   catch e =>
     return some (toString e)

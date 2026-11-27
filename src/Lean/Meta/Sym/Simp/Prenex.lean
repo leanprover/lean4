@@ -112,54 +112,58 @@ public def minscope : Simproc := fun e => do
 public def pullExists : Simproc := fun e => do
   match_expr e with
   | And q r =>
-    if let some (α, b) ← matchExists? q then
+    if let some (α, b, binderName) ← matchExists? q then
       let lvl ← Sym.getLevel α
-      let expr ← mkExistsS lvl α (← mkLambdaS .anonymous .default α (← mkAndS (← beta0 b) r))
+      let expr ← mkExistsS lvl α (← mkLambdaS binderName .default α (← mkAndS (← beta0 b) r))
       let proof := mkApp3 (mkConst ``Lean.Sym.exists_and_eq [lvl]) α b r
       return .step expr proof
-    else if let some (α, b) ← matchExists? r then
+    else if let some (α, b, binderName) ← matchExists? r then
       let lvl ← Sym.getLevel α
-      let expr ← mkExistsS lvl α (← mkLambdaS .anonymous .default α (← mkAndS q (← beta0 b)))
+      let expr ← mkExistsS lvl α (← mkLambdaS binderName .default α (← mkAndS q (← beta0 b)))
       let proof := mkApp3 (mkConst ``Lean.Sym.and_exists_eq [lvl]) α q b
       return .step expr proof
     else
       return .rfl
   | Or q r =>
-    let tryLeft (qα qb : Expr) : SymM Simp.Result := do
+    let tryLeft (qα qb : Expr) (qBinderName : Name) : SymM Simp.Result := do
       let some qαNonempty ← synthNonempty? qα | return .rfl
       let lvl ← Sym.getLevel qα
-      let expr ← mkExistsS lvl qα (← mkLambdaS .anonymous .default qα (← mkOrS (← beta0 qb) r))
+      let expr ← mkExistsS lvl qα (← mkLambdaS qBinderName .default qα (← mkOrS (← beta0 qb) r))
       let proof := mkApp4 (mkConst ``Lean.Sym.exists_or_eq [lvl]) qα qαNonempty qb r
       return .step expr proof
-    let tryRight (rα rb : Expr) : SymM Simp.Result := do
+    let tryRight (rα rb : Expr) (rBinderName : Name) : SymM Simp.Result := do
       let some rαNonempty ← synthNonempty? rα | return .rfl
       let lvl ← Sym.getLevel rα
-      let expr ← mkExistsS lvl rα (← mkLambdaS .anonymous .default rα (← mkOrS q (← beta0 rb)))
+      let expr ← mkExistsS lvl rα (← mkLambdaS rBinderName .default rα (← mkOrS q (← beta0 rb)))
       let proof := mkApp4 (mkConst ``Lean.Sym.or_exists_eq [lvl]) rα rαNonempty q rb
       return .step expr proof
     match ← matchExists? q, ← matchExists? r with
-    | some (qα, qb), some (rα, rb) =>
+    | some (qα, qb, qBinderName), some (rα, rb, rBinderName) =>
       if qα != rα then
-        match ← tryLeft qα qb with
+        match ← tryLeft qα qb qBinderName with
         | ret@(.step ..) => return ret
-        | .rfl .. => return ← tryRight rα rb
+        | .rfl .. => return ← tryRight rα rb rBinderName
       let lvl ← Sym.getLevel qα
-      let expr ← mkExistsS lvl qα (← mkLambdaS .anonymous .default qα (← mkOrS (← beta0 qb) (← beta0 rb)))
+      let expr ← mkExistsS lvl qα (← mkLambdaS qBinderName .default qα (← mkOrS (← beta0 qb) (← beta0 rb)))
       let proof := mkApp3 (mkConst ``Lean.Sym.exists_or_exists_eq [lvl]) qα qb rb
       return .step expr proof
-    | some (qα, qb), none =>
-      tryLeft qα qb
-    | none, some (rα, rb) =>
-      tryRight rα rb
+    | some (qα, qb, qBinderName), none =>
+      tryLeft qα qb qBinderName
+    | none, some (rα, rb, rBinderName) =>
+      tryRight rα rb rBinderName
     | none, none => return .rfl
   | _ => return .rfl
 where
   beta0 (e : Expr) : SymM Expr := do
     betaS e #[← mkBVarS 0]
 
-  matchExists? (e : Expr) : SymM (Option (Expr × Expr)) := do
+  matchExists? (e : Expr) : SymM (Option (Expr × Expr × Name)) := do
     let_expr Exists α q := e | return none
-    return some (α, q)
+    let binderName :=
+      match q with
+      | .lam binderName .. => binderName
+      | _ => .anonymous
+    return some (α, q, binderName)
 
 public def pullForall : Simproc := fun e => do
   match_expr e with

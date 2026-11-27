@@ -118,6 +118,10 @@ inductive Command where
   | awaitWritten
   /-- Wait until the writes in flight complete, before closing. -/
   | flush
+  /-- An informational (`1xx`) response arrived. -/
+  | interim (head : Response.Head)
+  /-- The response body ended with these trailer fields; it comes before the body's end. -/
+  | trailers (fields : Headers)
   /-- Give the caller the response head, with the length of its body when known. -/
   | deliverHead (head : Response.Head) (size : Option Body.Length)
   /-- Offer `chunk` to the response body, which ends after it with `final`. -/
@@ -484,8 +488,9 @@ private def receiveHead (now : Nat) (s : State) (head : Response.Head) (cmds : A
           abort { s with exchange := some ex } (.protocol (.other "too many interim responses")) cmds
         (s, cmds, true)
       else if head.status == .continue && ex.upload == .parked then
-        ({ s with exchange := some { ex with upload := .open, continueDeadline := none } }, cmds, false)
-      else ({ s with exchange := some ex }, cmds, false)
+        ({ s with exchange := some { ex with upload := .open, continueDeadline := none } },
+          cmds.push (.interim head), false)
+      else ({ s with exchange := some ex }, cmds.push (.interim head), false)
     else
       let (s, cmds) := if ex.upload == .parked then abandonUpload s cmds else (s, cmds)
       let s := s.modifyExchange ({ · with download := .open, finalHead := true })
@@ -596,6 +601,13 @@ private def submit (cfg : Client.Config) (s : State) (now : Nat) (head : Request
         continueDeadline := if parked then some (now + millis cfg.expectContinueTimeout) else none }
       ({ s with machine, exchange := some ex }, #[])
 
+/-- Trailer fields as `Headers`, without those whose name or value is not a valid field. -/
+private def trailerHeaders (fields : Array (String × String)) : Headers :=
+  fields.foldl (init := .empty) fun headers (name, value) =>
+    match Header.Name.ofString? name, Header.Value.ofString? value with
+    | some name, some value => headers.insert name value
+    | _, _ => headers
+
 /-- Hands the caller the next response body chunk, when the machine holds one. -/
 private def deliver (s : State) (now : Nat) : State × Array Command :=
   match s.machine.pullBody with
@@ -606,7 +618,11 @@ private def deliver (s : State) (now : Nat) : State × Array Command :=
     | none =>
       let s := progress s now
       let cmds := #[Command.offerBody pulled.chunk pulled.final]
-      if pulled.final then finishResponse s cmds else (s, cmds)
+      if pulled.final then
+        let (machine, fields) := s.machine.takeTrailers
+        let cmds := if fields.isEmpty then cmds else cmds.push (.trailers (trailerHeaders fields))
+        finishResponse { s with machine } cmds
+      else (s, cmds)
   | (machine, none) => ({ s with machine }, #[])
 
 /--
@@ -620,6 +636,15 @@ private def writeFailed (now : Nat) (s : State) (events : List (H1.Event .sendin
     let cmds := if s.accepting then #[Command.stopAccepting] else #[]
     let (s, cmds) := abandonUpload { s with accepting := false } cmds
     processEvents now true s cmds events
+  else abort s (.closed "connection write failed") #[]
+
+/--
+A write failed after its batch was reported, while the connection waits: as `writeFailed` with no
+events left to process.
+-/
+private def writeFailedIdle (s : State) : State × Array Command :=
+  if s.exchange.any (·.finalHead) then
+    abandonUpload { s with accepting := false } (if s.accepting then #[.stopAccepting] else #[])
   else abort s (.closed "connection write failed") #[]
 
 /--
@@ -682,12 +707,7 @@ private def apply (cfg : Client.Config) (s : State) (now : Nat) : Input → Stat
       let (s, cmds) := abandonUpload s #[]
       abort s (.io err) cmds
     else abort s (.closed s!"connection read failed: {err}") #[]
-  -- A write that failed after its batch was reported, while the connection waits: as `writeFailed`
-  -- with no events left to process.
-  | .written false _ =>
-    if s.exchange.any (·.finalHead) then
-      abandonUpload { s with accepting := false } (if s.accepting then #[.stopAccepting] else #[])
-    else abort s (.closed "connection write failed") #[]
+  | .written false _ => writeFailedIdle s
   | .resume | .written .. => (s, #[])
 
 /-! ## Stepping -/

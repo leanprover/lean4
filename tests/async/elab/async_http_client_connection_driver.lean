@@ -23,7 +23,8 @@ def request (method : Method) (headers : Headers := .empty) : Request.Head :=
 /-- The decisions among `cmds`, without the writes. -/
 def tags (cmds : Array Command) : List String :=
   cmds.toList.filterMap fun
-    | .write _ | .awaitWritten | .flush => none
+    | .write _ | .awaitWritten | .flush | .interim _ => none
+    | .trailers fields => some s!"trailers {fields.size}"
     | .deliverHead head _ => some s!"head {head.status.toCode}"
     | .offerBody chunk final =>
       some s!"body {String.fromUTF8! chunk.data}{if final then " final" else ""}"
@@ -583,3 +584,59 @@ def headOf (cmds : Array Command) : Option Response.Head :=
   written head == "" && written first == "" &&
     written last ==
       "POST / HTTP/1.0\r\nHost: a\r\nUser-Agent: lean-http/1.1\r\nConnection: close\r\nContent-Length: 2\r\n\r\nab"
+
+/-! ## Informational responses and trailers -/
+
+/-- The statuses of the informational responses among `cmds`. -/
+def interims (cmds : Array Command) : List Nat :=
+  cmds.toList.filterMap fun | .interim head => some head.status.toCode.toNat | _ => none
+
+/-- The trailer fields among `cmds`, as name and value. -/
+def trailerFields (cmds : Array Command) : List (String × String) :=
+  cmds.toList.flatMap fun
+    | .trailers fields => fields.toList.map fun (name, value) => (name.value, value.value)
+    | _ => []
+
+-- Every informational response is reported, before the final head (RFC 9110 §15.2).
+#guard
+  let (_, cmds) := receive sentGet
+    "HTTP/1.1 103 Early Hints\r\nLink: </a>\r\n\r\nHTTP/1.1 102 Processing\r\n\r\nHTTP/1.1 204 No Content\r\n\r\n"
+  interims cmds == [103, 102] && tags cmds == ["head 204", "complete"]
+
+-- `100 Continue` included, which also releases a parked body.
+#guard
+  let (s, _) := submit started expectPost none
+  let (s, cmds) := receive s "HTTP/1.1 100 Continue\r\n\r\n"
+  interims cmds == [100] && (sources cfg s).requestBody
+
+-- A chunked body's trailer fields reach the caller before the body ends (RFC 9112 §7.1.2).
+#guard
+  let (s, _) := receive sentGet
+    "HTTP/1.1 200 OK\r\nTransfer-Encoding: chunked\r\n\r\n2\r\nab\r\n0\r\nX-Checksum: 1\r\n\r\n"
+  let (s, _) := run s (.bodyInterest true)
+  let (s, cmds) := run s (.bodyInterest true)
+  trailerFields cmds == [("x-checksum", "1")] && tags cmds == ["body  final", "trailers 1", "complete"] &&
+    s.idle
+
+-- No trailer fields, no `trailers`.
+#guard
+  let (s, _) := receive sentGet "HTTP/1.1 200 OK\r\nTransfer-Encoding: chunked\r\n\r\n2\r\nab\r\n0\r\n\r\n"
+  let (s, _) := run s (.bodyInterest true)
+  trailerFields (run s (.bodyInterest true)).2 == []
+
+-- Fields that may not appear in a trailer are dropped (RFC 9110 §6.5.1).
+#guard
+  let (s, _) := receive sentGet
+    "HTTP/1.1 200 OK\r\nTransfer-Encoding: chunked\r\n\r\n0\r\nContent-Length: 5\r\nX-A: 1\r\nTransfer-Encoding: x\r\n\r\n"
+  let (_, cmds) := run s (.bodyInterest true)
+  trailerFields cmds == [("x-a", "1")]
+
+-- A response's trailer fields are its own: the next response on the connection starts with none.
+#guard
+  let (s, _) := receive sentGet
+    "HTTP/1.1 200 OK\r\nTransfer-Encoding: chunked\r\n\r\n0\r\nX-A: 1\r\n\r\n"
+  let (s, _) := run s (.bodyInterest true)
+  let (s, _) := submit s (request .get) (some (.fixed 0))
+  let (s, _) := run s (.pulled none)
+  let (s, _) := receive s "HTTP/1.1 200 OK\r\nTransfer-Encoding: chunked\r\n\r\n0\r\n\r\n"
+  trailerFields (run s (.bodyInterest true)).2 == []

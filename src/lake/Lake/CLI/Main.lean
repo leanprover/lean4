@@ -32,6 +32,7 @@ import Lake.CLI.Translate
 import Lake.CLI.Serve
 public import Lake.CLI.BuiltinLint
 import Lake.CLI.Samply
+import Lake.CLI.Sandbox
 import Init.Data.String.Modify
 
 -- # CLI
@@ -52,6 +53,8 @@ public structure LakeOptions where
   lakeInstall? : Option LakeInstall := none
   configOpts : NameMap String := {}
   packageOverrides : Array PackageEntry := #[]
+  /-- The files `packageOverrides` was read from (via `--packages`). -/
+  packageOverrideFiles : Array FilePath := #[]
   subArgs : List String := []
   wantsHelp : Bool := false
   verbosity : Verbosity := .normal
@@ -90,7 +93,12 @@ public structure LakeOptions where
   solutionFromExport? : Option FilePath := none
   /-- Whether `lake check` and `lake comparator` run every bundled checker (via `--paranoid`). -/
   paranoid : Bool := false
-  /-- Whether `lake check` and `lake comparator` should disable their sandbox (very insecure) -/
+  /-- Whether commands should run the project's code in a sandbox (via `--sandbox`). -/
+  sandbox : Bool := false
+  /--
+  Whether commands should run the project's code without a sandbox (very insecure). Wins over
+  `sandbox`.
+  -/
   inadvisablyNoSandbox : Bool := false
   builtinLint : BuiltinLint.Args := {}
   /-- Whether `lake lint` should also run builtin lints (via `--builtin-lint`). -/
@@ -166,6 +174,23 @@ def LakeOptions.mkBuildConfig
   out; showSuccess
 
 export LakeOptions (mkLoadConfig mkBuildConfig)
+
+/-- The options that decide how the workspace is loaded, as command line arguments. -/
+def LakeOptions.loadArgs (opts : LakeOptions) : Array String := Id.run do
+  let mut args := #[]
+  if opts.rootDir != "." then
+    args := args ++ #["-d", opts.rootDir.toString]
+  if opts.configFile != defaultConfigFile then
+    args := args ++ #["-f", opts.configFile.toString]
+  for (key, val) in opts.configOpts do
+    args := args.push s!"-K{key.toString (escape := false)}={val}"
+  for file in opts.packageOverrideFiles do
+    args := args.push s!"--packages={file}"
+  if opts.reconfigure then
+    args := args.push "-R"
+  unless opts.updateToolchain do
+    args := args.push "--keep-toolchain"
+  return args
 
 /-! ## Monad -/
 
@@ -365,7 +390,9 @@ def lakeLongOption : (opt : String) → CliM PUnit
   let file ← takeOptArg "--packages" "package overrides file"
   let overrides ← Manifest.loadEntries file
   modifyThe LakeOptions fun opts =>
-    {opts with packageOverrides := opts.packageOverrides ++ overrides}
+    {opts with
+      packageOverrides := opts.packageOverrides ++ overrides
+      packageOverrideFiles := opts.packageOverrideFiles.push file}
 | "--dir"         => do
   let rootDir ← takeOptArg "--dir" "path"
   modifyThe LakeOptions ({· with rootDir})
@@ -443,6 +470,7 @@ def lakeLongOption : (opt : String) → CliM PUnit
   let file ← takeOptArg "--solution-from-export" "path"
   modifyThe LakeOptions ({· with solutionFromExport? := some file})
 | "--paranoid" => modifyThe LakeOptions ({· with paranoid := true})
+| "--sandbox" => modifyThe LakeOptions ({· with sandbox := true})
 | "--inadvisably-no-sandbox" => modifyThe LakeOptions ({· with inadvisablyNoSandbox := true})
 | opt             =>  throw <| CliError.unknownLongOption opt
 
@@ -502,6 +530,39 @@ def parseTemplateLangSpec (spec : String) : Except CliError (InitTemplate × Con
   | [tmp, lang] => return (← parseTemplateSpec tmp, ← parseLangSpec lang)
   | [tmp] => return (← parseTemplateSpec tmp, default)
   | _ => return default
+
+/--
+Re-runs this command inside the sandbox with `env` added to its environment, and returns its exit
+code and, with `captureStdout`, its standard out. Returns `none` if the command is to run in this
+process: the sandbox was not asked for or is turned off, the command already is inside, or there is
+no workspace configuration, and so no code of the project, to load.
+-/
+def sandboxedOutput? (policy : Sandbox.Policy := {}) (env : Array (String × String) := #[])
+    (captureStdout := false) : CliM (Option (ExitCode × String)) := do
+  let opts ← getThe LakeOptions
+  if opts.inadvisablyNoSandbox || !(← Sandbox.isWanted opts.sandbox) then
+    return none
+  let cfg ← mkLoadConfig opts
+  unless (← configFileExists cfg.configFile) do
+    return none
+  some <$> Sandbox.run {
+    args := opts.args.toArray
+    loadArgs := opts.loadArgs
+    wsDir := cfg.wsDir
+    relManifestFile := cfg.relManifestFile
+    lakeEnv := cfg.lakeEnv
+    policy := {policy with resolves := policy.resolves || opts.updateDeps}
+    env
+    captureStdout
+  }
+
+/--
+Re-runs this command inside the sandbox and exits with its result, unless it is to run in this
+process (see `sandboxedOutput?`).
+-/
+def sandboxed (policy : Sandbox.Policy := {}) : CliM PUnit := do
+  if let some (rc, _) ← sandboxedOutput? policy then
+    exit rc
 
 /-! ## Commands -/
 
@@ -1000,6 +1061,7 @@ namespace script
 
 protected def list : CliM PUnit := do
   processOptions lakeOption
+  sandboxed
   let config ← mkLoadConfig (← getThe LakeOptions)
   noArgsRem do
     let ws ← loadWorkspace config
@@ -1009,6 +1071,7 @@ protected def list : CliM PUnit := do
 
 protected nonrec def run : CliM PUnit := do
   processLeadingOptions lakeOption  -- between `lake [script] run` and `<name>`
+  sandboxed
   let config ← mkLoadConfig (← getThe LakeOptions)
   let ws ← loadWorkspace config
   if let some spec ← takeArg? then
@@ -1022,6 +1085,7 @@ protected nonrec def run : CliM PUnit := do
 
 protected def doc : CliM PUnit := do
   processOptions lakeOption
+  sandboxed
   let spec ← takeArg "script name"
   let config ← mkLoadConfig (← getThe LakeOptions)
   noArgsRem do
@@ -1061,6 +1125,7 @@ protected def init : CliM PUnit := do
 
 protected def build : CliM PUnit := do
   processOptions lakeOption
+  sandboxed
   let opts ← getThe LakeOptions
   let config ← mkLoadConfig opts
   let ws ← loadWorkspace config
@@ -1086,11 +1151,13 @@ protected def build : CliM PUnit := do
 
 protected def checkBuild : CliM PUnit := do
   processOptions lakeOption
+  sandboxed
   let pkg ← loadPackage (← mkLoadConfig (← getThe LakeOptions))
   noArgsRem do exit <| if pkg.defaultTargets.isEmpty then 1 else 0
 
 protected def query : CliM PUnit := do
   processOptions lakeOption
+  sandboxed
   let opts ← getThe LakeOptions
   let config ← mkLoadConfig opts
   let ws ← loadWorkspace config
@@ -1103,6 +1170,7 @@ protected def query : CliM PUnit := do
 
 protected def queryKind : CliM PUnit := do
   processOptions lakeOption
+  sandboxed
   let opts ← getThe LakeOptions
   let config ← mkLoadConfig opts
   let ws ← loadWorkspace config
@@ -1123,6 +1191,7 @@ protected def queryKind : CliM PUnit := do
 
 protected def resolveDeps : CliM PUnit := do
   processOptions lakeOption
+  sandboxed {resolves := true}
   let opts ← getThe LakeOptions
   let config ← mkLoadConfig opts
   noArgsRem do
@@ -1130,6 +1199,7 @@ protected def resolveDeps : CliM PUnit := do
 
 protected def update : CliM PUnit := do
   processOptions lakeOption
+  sandboxed {resolves := true}
   let opts ← getThe LakeOptions
   let config ← mkLoadConfig opts
   let toUpdate := (← getArgs).foldl (·.insert <| stringToLegalOrSimpleName ·) {}
@@ -1137,6 +1207,7 @@ protected def update : CliM PUnit := do
 
 protected def pack : CliM PUnit := do
   processOptions lakeOption
+  sandboxed
   let file? ← takeArg?
   noArgsRem do
   let ws ← loadWorkspace (← mkLoadConfig (← getThe LakeOptions))
@@ -1145,6 +1216,7 @@ protected def pack : CliM PUnit := do
 
 protected def unpack : CliM PUnit := do
   processOptions lakeOption
+  sandboxed
   let file? ← takeArg?
   noArgsRem do
   let ws ← loadWorkspace (← mkLoadConfig (← getThe LakeOptions))
@@ -1170,6 +1242,7 @@ protected def cache : CliM PUnit := do
 
 protected def setupFile : CliM PUnit := do
   processOptions lakeOption
+  sandboxed
   let opts ← getThe LakeOptions
   let loadConfig ← mkLoadConfig opts
   let buildConfig := mkBuildConfig opts
@@ -1185,6 +1258,7 @@ protected def setupFile : CliM PUnit := do
 
 protected def test : CliM PUnit := do
   processOptions lakeOption
+  sandboxed
   let opts ← getThe LakeOptions
   let ws ← loadWorkspace (← mkLoadConfig opts)
   noArgsRem do
@@ -1193,6 +1267,7 @@ protected def test : CliM PUnit := do
 
 protected def checkTest : CliM PUnit := do
   processOptions lakeOption
+  sandboxed
   let pkg ← loadPackage (← mkLoadConfig (← getThe LakeOptions))
   noArgsRem do exit <| if pkg.testDriver.isEmpty then 1 else 0
 
@@ -1233,6 +1308,7 @@ def runBuiltinLint
 protected def lint : CliM PUnit := do
   processOptions lakeOption
   let opts ← getThe LakeOptions
+  sandboxed {writesProject := opts.builtinLint.mode == .recordExceptions}
   let ws ← loadWorkspace (← mkLoadConfig opts)
   let hasDriver := !ws.root.lintDriver.isEmpty && !opts.builtinOnly
   let pkgBuiltinLint := ws.root.config.builtinLint?
@@ -1252,6 +1328,7 @@ protected def lint : CliM PUnit := do
 
 protected def checkLint : CliM PUnit := do
   processOptions lakeOption
+  sandboxed
   let pkg ← loadPackage (← mkLoadConfig (← getThe LakeOptions))
   noArgsRem do
   let hasLint := !pkg.lintDriver.isEmpty || pkg.config.builtinLint? == some true
@@ -1259,6 +1336,7 @@ protected def checkLint : CliM PUnit := do
 
 protected def clean : CliM PUnit := do
   processOptions lakeOption
+  sandboxed
   let config ← mkLoadConfig (← getThe LakeOptions)
   let ws ← loadWorkspace config
   let pkgSpecs ← takeArgs
@@ -1275,6 +1353,7 @@ protected def clean : CliM PUnit := do
 protected def shake : CliM PUnit := do
   processOptions lakeOption
   let opts ← getThe LakeOptions
+  sandboxed {writesProject := opts.shake.fix}
   let config ← mkLoadConfig opts
   let ws ← loadWorkspace config
   -- Get remaining arguments as module names
@@ -1353,12 +1432,14 @@ protected def script : CliM PUnit := do
 
 protected def serve : CliM PUnit := do
   processOptions lakeOption
+  sandboxed {toleratesUnresolved := true}
   let opts ← getThe LakeOptions
   let args := opts.subArgs.toArray
   let config ← mkLoadConfig opts
   noArgsRem do exit <| ← serve config args
 
 protected def env : CliM PUnit := do
+  sandboxed
   let config ← mkLoadConfig (← getThe LakeOptions)
   let env ← do
     if (← configFileExists config.configFile) then
@@ -1373,14 +1454,38 @@ protected def env : CliM PUnit := do
       IO.println s!"{var}={val?.getD ""}"
     exit 0
 
+/--
+Puts `lake exe` into its half that runs inside the sandbox: it builds the executable and, rather
+than running it, reports its path and environment on standard out as an `ExeInfo`.
+-/
+def exeInfoEnvVar : String := "LAKE_EXE_INFO"
+
+structure ExeInfo where
+  exe : String
+  env : Array (String × Option String)
+  deriving Lean.ToJson, Lean.FromJson
+
 protected def exe : CliM PUnit := do
   let exeSpec ← takeArg "executable target"
   let args ← takeArgs
   let opts ← getThe LakeOptions
+  -- Only the build is contained. Running the program is the user's decision, and it is theirs to
+  -- run with the access they have.
+  if let some (rc, out) ← sandboxedOutput? {} #[(exeInfoEnvVar, "1")] true then
+    exitIfErrorCode rc
+    let info ← match Json.parse out >>= fromJson? (α := ExeInfo) with
+      | .ok info => pure info
+      | .error e => error s!"sandboxed build did not report the executable: {e}"
+    let child ← IO.Process.spawn { cmd := info.exe, args := args.toArray, env := info.env }
+    exit <| ← child.wait
   let config ← mkLoadConfig opts
   let ws ← loadWorkspace config
   let exe ← parseExeTargetSpec ws exeSpec
   let exeFile ← ws.runBuild exe.fetch (mkBuildConfig opts)
+  if (← IO.getEnv exeInfoEnvVar).isSome then
+    let info : ExeInfo := { exe := exeFile.toString, env := ws.augmentedEnvVars }
+    IO.println (toJson info).compress
+    exit 0
   exit <| ← (Lake.env exeFile.toString args.toArray).run <| mkLakeContext ws
 
 protected def samply : CliM PUnit := do
@@ -1396,6 +1501,7 @@ protected def samply : CliM PUnit := do
 
 protected def lean : CliM PUnit := do
   processOptions lakeOption
+  sandboxed
   let leanFile ← takeArg "Lean file"
   let opts ← getThe LakeOptions
   noArgsRem do
@@ -1405,6 +1511,7 @@ protected def lean : CliM PUnit := do
 
 protected def translateConfig : CliM PUnit := do
   processOptions lakeOption
+  sandboxed {writesProject := true}
   let opts ← getThe LakeOptions
   let cfg ← mkLoadConfig opts
   let lang ← parseLangSpec (← takeArg "configuration language")
@@ -1437,6 +1544,7 @@ structure ReservoirConfig where
 
 protected def reservoirConfig : CliM PUnit := do
   processOptions lakeOption
+  sandboxed
   let opts ← getThe LakeOptions
   let cfg ← mkLoadConfig opts
   let _ ← id do
@@ -1469,6 +1577,7 @@ protected def reservoirConfig : CliM PUnit := do
 
 protected def versionTags : CliM PUnit := do
   processOptions lakeOption
+  sandboxed
   let opts ← getThe LakeOptions
   let cfg ← mkLoadConfig opts
   noArgsRem do

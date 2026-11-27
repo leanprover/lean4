@@ -34,6 +34,9 @@ string(APPEND TEST_VARS " SCRIPT_DIR='${MANGLED_SOURCE_DIR}/../script'")
 # Use the current stage's lean binary instead of whatever lake thinks we want
 string(APPEND TEST_VARS " PATH='${LEAN_BIN}':\"$PATH\"")
 
+# The tests read and write more than Lake's sandbox lets a project's code reach
+string(APPEND TEST_VARS " LAKE_INADVISABLY_NO_SANDBOX=1")
+
 string(APPEND TEST_VARS " LEANC_OPTS='${LEANC_OPTS}'")
 
 # LEANC_OPTS in CXX is necessary for macOS c++ to find its headers

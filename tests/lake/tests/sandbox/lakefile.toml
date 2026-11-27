@@ -1,0 +1,9 @@
+name = "sandbox"
+defaultTargets = ["Lib"]
+
+[[lean_lib]]
+name = "Lib"
+
+[[lean_exe]]
+name = "hello"
+root = "Main"

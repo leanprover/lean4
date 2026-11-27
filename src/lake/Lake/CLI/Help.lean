@@ -66,6 +66,11 @@ BASIC OPTIONS:
   --json, -J            output JSON-formatted results (in `lake query`,
                         `lake check` and `lake comparator`)
   --text                output results as plain text (in `lake query`)
+  --sandbox             run the code of the package and its dependencies
+                        in a sandbox (see SANDBOX)
+  --inadvisably-no-sandbox
+                        run that code without a sandbox even where one was
+                        asked for
 
 OUTPUT OPTIONS:
   --quiet, -q           hide informational logs and the progress indicator
@@ -79,6 +84,31 @@ OUTPUT OPTIONS:
   --wfail               fail build if warnings are logged
                         (same as --fail-level=warning)
 
+SANDBOX:
+  Loading a package configuration, building a package and running its scripts
+  all may execute code from the package and its dependencies. With `--sandbox`
+  or `LAKE_SANDBOX=1`, every command that loads the package configuration
+  therefore runs in a sandbox, which needs Linux and `bwrap` (bubblewrap) on
+  PATH. In it, `/` is read-only, the home directories and `/tmp` are hidden,
+  only `.lake` and a Lake cache of the sandbox's own are writable, and only
+  Lean's, Lake's and a few common environment variables are kept.
+
+  Such a command first resolves dependencies. Only that step and
+  `lake update` have a network and a writable manifest. `lake shake --fix`,
+  `lake lint --record-exceptions` and `lake translate-config` can write to the
+  whole package directory except for `.git`.
+
+  A sandboxed package cannot keep build outputs outside of `.lake`, depend on
+  a path outside of its directory, change `lean-toolchain` on update, or
+  download build caches outside of dependency resolution.
+
+  `--inadvisably-no-sandbox` and `LAKE_INADVISABLY_NO_SANDBOX=1` disable the
+  sandbox and take precedence over `--sandbox` and `LAKE_SANDBOX=1`.
+
+  `lake exe` builds the executable in the sandbox and then runs it outside.
+  `lake new`, `lake init`, `lake cache`, `lake upload` and `lake samply` are
+  not sandboxed. `lake check` and `lake comparator` have a sandbox of their
+  own, which the environment cannot turn off.
 
 See `lake help <command>` for more information on a specific command."
 

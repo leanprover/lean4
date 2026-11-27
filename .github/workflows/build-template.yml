@@ -38,6 +38,8 @@ jobs:
       # squelch error message about missing nixpkgs channel
       NIX_BUILD_SHELL: bash
       LSAN_OPTIONS: max_leaks=10
+      # the build writes outside of `src/.lake`, which Lake's sandbox does not allow
+      LAKE_INADVISABLY_NO_SANDBOX: 1
       # somehow MinGW clang64 (or cmake?) defaults to `g++` even though it doesn't exist
       CXX: c++
       MACOSX_DEPLOYMENT_TARGET: 11.0

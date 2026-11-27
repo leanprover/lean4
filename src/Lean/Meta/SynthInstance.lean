@@ -744,6 +744,9 @@ private inductive PreprocessKind where
   | /-- Target type has metavariables, and class has output parameters. -/
     mvarsOutputParams
 
+/-- The free variable standing for output parameter arguments in cache keys; see `preprocess`. -/
+private def keyWildcardFVarId : FVarId := { name := `__wild__ }
+
 /-- Return type for `preprocess` -/
 private structure PreprocessResult where
   type         : Expr
@@ -764,7 +767,7 @@ types (e.g., `?u` corresponding to the result type's universe) must also be eras
 cache misses when the same query is issued with different universe metavariable IDs.
 -/
 private def preprocess (type : Expr) : MetaM PreprocessResult :=
-  let keyExprWildcard := mkFVar { name := `__wild__  }
+  let keyExprWildcard := mkFVar keyWildcardFVarId
   let keyLevelWildcard := mkLevelParam `__wild__
   forallTelescopeReducing type fun xs typeBody => do
     let typeBody ← whnf typeBody
@@ -1103,6 +1106,8 @@ private partial def addFVars (e : Expr) : M Unit := do
   unless e.hasFVar do return
   for id in (collectFVars {} e).fvarIds do
     if (← get).bail then return
+    -- The output parameter wildcard of a cache key is not a local variable.
+    if id == keyWildcardFVarId then continue
     if (← get).fvarSet.contains id then continue
     let decl ← id.getDecl
     -- NOTE: A nondependent `ldecl` (`have`) has `none` as `value?` but as it hides its value from
@@ -1369,8 +1374,10 @@ def synthInstanceCore? (type : Expr) (maxResultSize? : Option Nat := none) : Met
     if let some entry ← findCachedResult? rawKey then
       return (← serve entry)
     -- The query keyed by its type alone: its entries hold where the local instances of the classes
-    -- their search consulted agree with the current ones.
-    let typeSt? ← if kind matches .noMVars then SynthNorm.normalizeType? cacheKeyType else pure none
+    -- their search consulted agree with the current ones. Output parameters are wildcards in
+    -- `cacheKeyType`, and the search runs on fresh metavariables for them (`preprocessOutParam`), so
+    -- a key without other metavariables determines the search.
+    let typeSt? ← if !cacheKeyType.hasMVar then SynthNorm.normalizeType? cacheKeyType else pure none
     let base? ← match typeSt? with
       | some st => SynthNorm.extendJoint? st cacheKeyType #[]
       | none => pure none

@@ -100,8 +100,6 @@ private:
     bool try_eta_struct(expr const & t, expr const & s) {
         return try_eta_struct_core(t, s) || try_eta_struct_core(s, t);
     }
-    lbool try_string_lit_expansion_core(expr const & t, expr const & s);
-    lbool try_string_lit_expansion(expr const & t, expr const & s);
     bool is_def_eq_app(expr const & t, expr const & s);
     lbool is_def_eq_proof_irrel(expr const & t, expr const & s);
     bool is_def_eq_unit_like(expr const & t, expr const & s);

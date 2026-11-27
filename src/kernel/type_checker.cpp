@@ -1141,21 +1141,6 @@ bool type_checker::lazy_delta_proj_reduction(expr & t_n, expr & s_n, name const 
 }
 
 
-static expr * g_string_mk = nullptr;
-
-lbool type_checker::try_string_lit_expansion_core(expr const & t, expr const & s) {
-    if (is_string_lit(t) && is_app(s) && app_fn(s) == *g_string_mk) {
-        return to_lbool(is_def_eq_core(whnf(string_lit_to_constructor(t)), s));
-    }
-    return l_undef;
-}
-
-lbool type_checker::try_string_lit_expansion(expr const & t, expr const & s) {
-    lbool r = try_string_lit_expansion_core(t, s);
-    if (r != l_undef) return r;
-    return try_string_lit_expansion_core(s, t);
-}
-
 /* Return `true` if the types of the given expressions is an inductive datatype with an inductive datatype with a single constructor with no fields. */
 bool type_checker::is_def_eq_unit_like(expr const & t, expr const & s) {
     expr t_type = whnf(infer_type(t));
@@ -1237,9 +1222,6 @@ bool type_checker::is_def_eq_core(expr const & t, expr const & s) {
     if (try_eta_struct(t_n, s_n))
         return true;
 
-    r = try_string_lit_expansion(t_n, s_n);
-    if (r != l_undef) return r == l_true;
-
     if (is_def_eq_unit_like(t_n, s_n))
         return true;
 
@@ -1306,7 +1288,6 @@ void initialize_type_checker() {
     g_nat_xor      = new_persistent_expr_const({"Nat", "xor"});
     g_nat_shiftLeft  = new_persistent_expr_const({"Nat", "shiftLeft"});
     g_nat_shiftRight = new_persistent_expr_const({"Nat", "shiftRight"});
-    g_string_mk    = new_persistent_expr_const({"String", "ofList"});
     register_name_generator_prefix(*g_kernel_fresh);
 }
 
@@ -1331,6 +1312,5 @@ void finalize_type_checker() {
     delete g_nat_xor;
     delete g_nat_shiftLeft;
     delete g_nat_shiftRight;
-    delete g_string_mk;
 }
 }

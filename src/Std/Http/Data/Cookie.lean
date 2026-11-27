@@ -31,7 +31,7 @@ namespace Std.Http
 
 set_option linter.all true
 
-open Std.Time
+open Std.Time Std.Time.Internal
 
 /--
 A cookie as the store keeps it (RFC 6265 §5.3).
@@ -116,7 +116,7 @@ structure SetCookie where
   /--
   The `Max-Age` attribute in seconds. A value of zero or less deletes the cookie.
   -/
-  maxAge : Option Int := none
+  maxAge : Option Second.Offset := none
 
   /--
   The `Domain` attribute, lowercase and without a leading `.`.
@@ -147,9 +147,6 @@ deriving Repr, BEq
   b == 0x09 || (0x20 ≤ b && b ≤ 0x2F) || (0x3B ≤ b && b ≤ 0x40) || (0x5B ≤ b && b ≤ 0x60) ||
     (0x7B ≤ b && b ≤ 0x7E)
 
-@[inline] private def isDigit (b : UInt8) : Bool :=
-  '0'.toUInt8 ≤ b && b ≤ '9'.toUInt8
-
 /-- The tokens of a date: the runs of non-delimiter bytes. -/
 private def dateTokens (s : String) : List (List UInt8) :=
   let (tokens, last) := s.toUTF8.foldl (init := ([], [])) fun (tokens, token) b =>
@@ -164,14 +161,15 @@ private def takeDigits (bytes : List UInt8) (max : Nat) : Nat × Nat × List UIn
 where
   go : List UInt8 → Nat → Nat → Nat → Nat × Nat × List UInt8
     | b :: rest, k + 1, count, value =>
-      if isDigit b then go rest k (count + 1) (value * 10 + (b - '0'.toUInt8).toNat)
+      if Internal.Char.isDigitByte b then
+        go rest k (count + 1) (value * 10 + (b - '0'.toUInt8).toNat)
       else (count, value, b :: rest)
     | rest, _, count, value => (count, value, rest)
 
 /-- Whether what follows a number lets it end there: nothing, or a non-digit. -/
 @[inline] private def endsNumber : List UInt8 → Bool
   | [] => true
-  | b :: _ => !isDigit b
+  | b :: _ => !Internal.Char.isDigitByte b
 
 /-- `digits = min*maxDIGIT ( non-digit *OCTET )`, giving the value. -/
 private def number? (bytes : List UInt8) (min max : Nat) : Option Nat :=
@@ -179,7 +177,7 @@ private def number? (bytes : List UInt8) (min max : Nat) : Option Nat :=
   if min ≤ count && endsNumber rest then some value else none
 
 /-- `time = hms-time ( non-digit *OCTET )`, `hms-time = time-field ":" time-field ":" time-field`. -/
-private def time? (bytes : List UInt8) : Option (Nat × Nat × Nat) := do
+private def time? (bytes : List UInt8) : Option PlainTime := do
   let field (bytes : List UInt8) : Option (Nat × List UInt8) :=
     let (count, value, rest) := takeDigits bytes 2
     if count ≥ 1 then some (value, rest) else none
@@ -190,65 +188,61 @@ private def time? (bytes : List UInt8) : Option (Nat × Nat × Nat) := do
   let (hour, rest) ← field bytes
   let (minute, rest) ← field (← colon rest)
   let (second, rest) ← field (← colon rest)
-  if endsNumber rest then some (hour, minute, second) else none
+  guard (endsNumber rest)
+  -- A cookie-date has no leap second, which `Second.Ordinal true` would admit.
+  let second : Second.Ordinal false ← Bounded.LE.ofNat? second
+  return .ofHourMinuteSeconds (← Bounded.LE.ofNat? hour) (← Bounded.LE.ofNat? minute)
+    (second.expandTop (by decide))
+
+/-- `day-of-month = 1*2DIGIT ( non-digit *OCTET )`. -/
+private def day? (bytes : List UInt8) : Option Day.Ordinal := do
+  Bounded.ofInt? (← number? bytes 1 2)
 
 /-- `month = ( "jan" / "feb" / … / "dec" ) *OCTET`, case-insensitively. -/
-private def month? (bytes : List UInt8) : Option Nat :=
+private def month? (bytes : List UInt8) : Option Month.Ordinal :=
   match bytes with
   | a :: b :: c :: _ =>
     let lead := String.ofList ([a, b, c].map fun b => (Char.ofUInt8 b).toLower)
-    let months := ["jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov", "dec"]
-    (months.idxOf? lead).map (· + 1)
+    (parseMonthShort .enUS).run lead.capitalize |>.toOption
   | _ => none
 
-private def isLeapYear (year : Nat) : Bool :=
-  year % 4 == 0 && (year % 100 != 0 || year % 400 == 0)
-
-private def daysInMonth (year month : Nat) : Nat :=
-  match month with
-  | 2 => if isLeapYear year then 29 else 28
-  | 4 | 6 | 9 | 11 => 30
-  | _ => 31
-
-/-- Seconds since the Unix epoch of a proleptic Gregorian UTC date and time. -/
-private def secondsSinceEpoch (year month day hour minute second : Nat) : Int :=
-  let y : Int := if month ≤ 2 then year - 1 else year
-  let m : Int := month
-  let era := (if y ≥ 0 then y else y - 399) / 400
-  let yoe := y - era * 400
-  let doy := (153 * (if m > 2 then m - 3 else m + 9) + 2) / 5 + day - 1
-  let doe := yoe * 365 + yoe / 4 - yoe / 100 + doy
-  let days := era * 146097 + doe - 719468
-  days * 86400 + hour * 3600 + minute * 60 + second
+/-- `year = 2*4DIGIT ( non-digit *OCTET )`; a two-digit year 70–99 is 19xx and 00–69 is 20xx. -/
+private def year? (bytes : List UInt8) : Option Year.Offset := do
+  let year ← number? bytes 2 4
+  let year := if 70 ≤ year && year ≤ 99 then year + 1900 else if year ≤ 69 then year + 2000 else year
+  return .ofNat year
 
 /-- The fields of a date found so far by `parseDate`. -/
 private structure DateFields where
-  time : Option (Nat × Nat × Nat) := none
-  day : Option Nat := none
-  month : Option Nat := none
-  year : Option Nat := none
+  time : Option PlainTime := none
+  day : Option Day.Ordinal := none
+  month : Option Month.Ordinal := none
+  year : Option Year.Offset := none
+
+/-- Gives `token` to the first field that is still missing and that it reads as. -/
+private def DateFields.add (fields : DateFields) (token : List UInt8) : DateFields := Id.run do
+  if fields.time.isNone then
+    if let some time := time? token then return { fields with time := some time }
+  if fields.day.isNone then
+    if let some day := day? token then return { fields with day := some day }
+  if fields.month.isNone then
+    if let some month := month? token then return { fields with month := some month }
+  if fields.year.isNone then
+    if let some year := year? token then return { fields with year := some year }
+  return fields
 
 /--
 Parses a cookie-date with the algorithm of RFC 6265 §5.1.1, which accepts the date formats servers
 send in `Expires` (IMF-fixdate, RFC 850 and asctime among them). The first token that reads as a
-time is the time, then the first that reads as a day, a month and a year; a two-digit year 70–99 is
-19xx and 00–69 is 20xx. `none` when a field is missing, out of range, or the date does not exist.
+valid time is the time, then the first that reads as a valid day, month and year. `none` when a
+field is missing, the year is before 1601, or the date does not exist.
 -/
 def parseDate (s : String) : Option Timestamp := do
-  let fields := (dateTokens s).foldl (init := ({} : DateFields)) fun f token =>
-    if f.time.isNone && (time? token).isSome then { f with time := time? token }
-    else if f.day.isNone && (number? token 1 2).isSome then { f with day := number? token 1 2 }
-    else if f.month.isNone && (month? token).isSome then { f with month := month? token }
-    else if f.year.isNone && (number? token 2 4).isSome then { f with year := number? token 2 4 }
-    else f
-  let (hour, minute, second) ← fields.time
-  let day ← fields.day
-  let month ← fields.month
+  let fields := (dateTokens s).foldl DateFields.add {}
   let year ← fields.year
-  let year := if 70 ≤ year && year ≤ 99 then year + 1900 else if year ≤ 69 then year + 2000 else year
-  guard (1 ≤ day && day ≤ daysInMonth year month && 1601 ≤ year)
-  guard (hour ≤ 23 && minute ≤ 59 && second ≤ 59)
-  return .ofSecondsSinceUnixEpoch (.ofInt (secondsSinceEpoch year month day hour minute second))
+  guard (1601 ≤ year)
+  let date ← PlainDate.ofYearMonthDay? year (← fields.month) (← fields.day)
+  return (PlainDateTime.mk date (← fields.time)).toTimestampWithZone .UTC
 
 /-! ## The `Set-Cookie` header (RFC 6265 §5.2) -/
 
@@ -265,12 +259,12 @@ private def splitAtEquals (s : String) : Option (String × String) :=
   | (_, []) => none
 
 /-- `Max-Age`: a DIGIT or `-`, then DIGITs only (RFC 6265 §5.2.2). -/
-private def maxAge? (value : String) : Option Int :=
+private def maxAge? (value : String) : Option Second.Offset :=
   let (negative, digits) :=
     if value.startsWith "-" then (true, (value.drop 1).toString) else (false, value)
   if !digits.isEmpty && digits.all Char.isDigit then
     let n : Int := digits.foldl (fun n c => n * 10 + (c.toNat - '0'.toNat)) 0
-    some (if negative then -n else n)
+    some (.ofInt (if negative then -n else n))
   else none
 
 /-- Applies one `cookie-av` to the cookie: the last valid occurrence of each attribute wins. -/

@@ -135,7 +135,7 @@ def receive (store : Store) (now : Timestamp) (origin : URI.Origin) (target : Re
     path := parsed.path.getD (defaultPath (requestPath target))
     -- RFC 6265 §5.3 step 3: `Max-Age` wins over `Expires`.
     expiry := match parsed.maxAge with
-      | some seconds => some (now.addSeconds (.ofInt seconds))
+      | some seconds => some (now.addSeconds seconds)
       | none => parsed.expires
     creation := now
     lastAccess := now

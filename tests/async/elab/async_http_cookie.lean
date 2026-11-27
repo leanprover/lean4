@@ -88,6 +88,9 @@ def sunday1994 : Std.Time.Timestamp := ts 784111777  -- 1994-11-06 08:49:37 UTC
   "01 Jan 2000 24:00:00", "01 Jan 2000 00:60:00", "30 Feb 2001 00:00:00", "29 Feb 2001 00:00:00",
   ""].all (Cookie.parseDate · == none)
 #guard (Cookie.parseDate "29 Feb 2000 00:00:00").isSome
+-- A token takes a field only when its value is in range for it, so an out-of-range one leaves the
+-- field to a later token: `70` is no day, so it is the year and `1` the day.
+#guard Cookie.parseDate "00:00:00 70 Jan 1" == some (ts 0)
 
 /-! ## §5.1.3, §5.1.4: domain and path matching -/
 

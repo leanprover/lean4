@@ -85,13 +85,16 @@ private def within [Inhabited α] (name : String) (ms : Time.Millisecond.Offset)
     Async.block do
   let (client, server) ← Mock.new
   let ctx ← CancellationContext.new
+  let started ← IO.Promise.new (α := Unit)
   let slowHandler : TestHandler := fun _ => do
+    started.resolve ()
     sleep 5000
     Response.ok |>.text "late"
   try
     client.send (mkGet).toUTF8
     let serve ← async ((Server.serveConnection server slowHandler defaultConfig).runIn ctx)
-    sleep 100
+    -- A cancel before the request is read closes the connection with no response.
+    discard <| within "the handler to start" 2000 (await started.result?)
     ctx.cancel .shutdown
     within "the server" 2000 (await serve)
     assertStatus ((← client.recv?).getD .empty) "HTTP/1.1 503"

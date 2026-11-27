@@ -43,14 +43,8 @@ namespace lean {
 #if !defined(__APPLE__) && !defined(LEAN_WINDOWS)
 
 static int certificate_count(X509_STORE * store) {
-    STACK_OF(X509_OBJECT) * objs = X509_STORE_get0_objects(store);
-    int count = 0;
-
-    for (int i = 0, n = sk_X509_OBJECT_num(objs); i < n; i++) {
-        if (X509_OBJECT_get_type(sk_X509_OBJECT_value(objs, i)) == X509_LU_X509) count++;
-    }
-
-    return count;
+    x509_stack_ptr certs(X509_STORE_get1_all_certs(store));
+    return certs != nullptr ? sk_X509_num(certs.get()) : 0;
 }
 
 // Whether `path` is a regular file holding a certificate as a hash directory lookup reads it: PEM,

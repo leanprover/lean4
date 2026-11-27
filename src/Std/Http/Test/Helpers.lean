@@ -7,6 +7,7 @@ module
 
 prelude
 public import Std.Http.Server
+public import Std.Http.Client
 public import Std.Async
 public import Std.Async.Timer
 import Init.Data.String.Legacy
@@ -245,5 +246,216 @@ def chunk (data : String) : String :=
 The terminal zero-chunk that ends a chunked body.
 -/
 def chunkEnd : String := "0\x0d\n\x0d\n"
+
+-- HTTP client helpers
+
+namespace ClientHelpers
+
+/-- Run a client test action with a wall-clock timeout. -/
+def runWithTimeout (name : String) (timeoutMs : Nat := 3000) (action : IO Unit) : IO Unit := do
+  let task ← IO.asTask action
+  let ticks := (timeoutMs + 9) / 10
+  let rec loop (remaining : Nat) : IO Unit := do
+    if (← IO.getTaskState task) == .finished then
+      match (← IO.wait task) with
+      | .ok x => pure x
+      | .error err => throw err
+    else
+      match remaining with
+      | 0 =>
+        IO.cancel task
+        throw <| IO.userError s!"Test '{name}' timed out after {timeoutMs}ms"
+      | n + 1 =>
+        IO.sleep 10
+        loop n
+  loop ticks
+
+/-- A domain-name host, for tests that name their peers as literals. -/
+def hostName! (host : String) : URI.Host :=
+  match URI.DomainName.ofString? host with
+  | some name => .name name
+  | none => panic! s!"invalid host name: {host.quote}"
+
+/-- The origin a mock client connection is opened for. -/
+def origin (host : String := "example.com") (port : UInt16 := 80) (scheme : String := "http") :
+    URI.Origin :=
+  { scheme := URI.Scheme.ofString! scheme, host := hostName! host, port }
+
+/-- Build a raw HTTP/1.1 response. -/
+def rawResp
+    (status : String) (hdrs : Array (String × String)) (body : String) : ByteArray :=
+  let hdrLines := hdrs.foldl (fun s (k, v) => s ++ s!"{k}: {v}\r\n") ""
+  s!"HTTP/1.1 {status}\r\n{hdrLines}\r\n{body}".toUTF8
+
+/-- Parse `Content-Length` from a raw HTTP header block. Returns 0 when absent. -/
+private def parseContentLength (headerText : String) : Nat := Id.run do
+  let lines := headerText.splitOn "\r\n"
+  for line in lines do
+    let lower := line.toLower
+    if lower.startsWith "content-length:" then
+      let rest := line.drop "content-length:".length
+      return rest.trimAscii.toNat?.getD 0
+  return 0
+
+/--
+Drain the mock until a complete request has been consumed, including a fixed-length or chunked body.
+-/
+def drainRequest (mockClient : Mock.Client) : Async ByteArray := do
+  let mut bytes := ByteArray.empty
+  let mut headerEnd : Nat := 0
+  repeat
+    if (String.fromUTF8! bytes).contains "\r\n\r\n" then
+      let mut i := 0
+      while i + 4 ≤ bytes.size do
+        if bytes[i]! == 13 && bytes[i+1]! == 10 && bytes[i+2]! == 13 && bytes[i+3]! == 10 then
+          headerEnd := i + 4
+          break
+        i := i + 1
+      break
+    let some chunk ← mockClient.recv?
+      | throw (IO.userError "connection closed before headers")
+    bytes := bytes ++ chunk
+  let headerText := String.fromUTF8! (bytes.extract 0 headerEnd)
+  if headerText.toLower.contains "transfer-encoding:" then
+    while !(String.fromUTF8! bytes).endsWith "0\r\n\r\n" do
+      let some chunk ← mockClient.recv?
+        | throw (IO.userError "connection closed mid-chunked")
+      bytes := bytes ++ chunk
+  else
+    let cl := parseContentLength headerText
+    while bytes.size < headerEnd + cl do
+      let some chunk ← mockClient.recv?
+        | throw (IO.userError "connection closed before full CL body")
+      bytes := bytes ++ chunk
+  pure bytes
+
+/--
+A `Client` wired to mock transports, together with the origin its requests target and the
+connections its connector has handed out. Bundling these keeps test bodies free of the `origin`
+argument `Client.send` takes and lets a test reach the transport under test.
+-/
+structure TestClient where
+  /-- The client under test. -/
+  client : Client
+
+  /-- Origin every `TestClient.send` targets. -/
+  origin : URI.Origin
+
+  /-- Connections opened by the client's connector, in the order they were opened. -/
+  opened : IO.Ref (Array Mock.Server)
+
+namespace TestClient
+
+/-- Send a request to the client's origin. -/
+def send {β : Type} [Coe β Body.Any] (self : TestClient) (request : Request β)
+    (overrides : Client.RequestOverrides := {}) : Async (Response Body.Stream) :=
+  self.client.send self.origin request overrides
+
+/-- The transport of the connection the client most recently opened. -/
+def connection (self : TestClient) : Async Mock.Server := do
+  let some connection := (← self.opened.get).back?
+    | throw (IO.userError "the client has not opened a connection yet")
+  pure connection
+
+end TestClient
+
+/--
+Create an HTTP client whose connector always dials `mockServer`. Retries are disabled so that a
+transport failure surfaces to the test instead of being replayed on a second connection.
+-/
+def mkClient (mockServer : Mock.Server) (config : Client.Config := {})
+    (port : UInt16 := 80) (scheme : String := "http") : Async TestClient := do
+  let some domain := URI.DomainName.ofString? "example.com"
+    | throw (IO.userError "DomainName parse failed")
+  let opened ← IO.mkRef (#[] : Array Mock.Server)
+  let connect : Client.Connector := fun _ _ => do
+    opened.modify (·.push mockServer)
+    return .ok (.of mockServer)
+  let client ← Client.new config connect (maxRetries := 0)
+  pure {
+    client
+    origin := { scheme := URI.Scheme.ofString! scheme, host := .name domain, port }
+    opened
+  }
+
+/--
+Create a client whose connector hands out `servers` in order, one per connection it opens. The
+returned ref records the origin of every connection *after* the first, so a test can assert where a
+hop was dialled as well as what was written on it. Opening more connections than there are servers
+fails the test.
+-/
+def mkFollowingClient (servers : Array Mock.Server) (config : Client.Config := {})
+    (port : UInt16 := 80) (scheme : String := "http") :
+    Async (TestClient × IO.Ref (Array URI.Origin)) := do
+  if servers.isEmpty then
+    throw (IO.userError "mkFollowingClient needs at least one server")
+  let some domain := URI.DomainName.ofString? "example.com"
+    | throw (IO.userError "DomainName parse failed")
+  let nextServer ← IO.mkRef 0
+  let dialled ← IO.mkRef (#[] : Array URI.Origin)
+  let opened ← IO.mkRef (#[] : Array Mock.Server)
+
+  let connect : Client.Connector := fun origin _ => do
+    let index ← nextServer.modifyGet fun index => (index, index + 1)
+    let some server := servers[index]?
+      | throw <| IO.userError
+          s!"the client opened more than {servers.size} connections \
+             (connection {index + 1} wanted {origin.host})"
+    if index > 0 then
+      dialled.modify (·.push origin)
+    opened.modify (·.push server)
+    return .ok (.of server)
+
+  let client ← Client.new config connect (maxRetries := 0)
+  let testClient : TestClient := {
+    client
+    origin := { scheme := URI.Scheme.ofString! scheme, host := .name domain, port }
+    opened
+  }
+  pure (testClient, dialled)
+
+/--
+Create a client that dials `mockServer` for its first connection and refuses every later one,
+recording the origin it was asked for. A redirect-scheme guard is about a dial that must *never*
+happen, so witnessing its absence needs a connector that could have dialled.
+-/
+def mkRefusingClient (mockServer : Mock.Server) (config : Client.Config := {}) :
+    Async (TestClient × IO.Ref (Option URI.Origin)) := do
+  let some domain := URI.DomainName.ofString? "example.com"
+    | throw (IO.userError "DomainName parse failed")
+  let dialled ← IO.mkRef (none : Option URI.Origin)
+  let opened ← IO.mkRef (#[] : Array Mock.Server)
+  let firstDial ← IO.mkRef true
+
+  let connect : Client.Connector := fun origin _ => do
+    if ← firstDial.modifyGet (fun first => (first, false)) then
+      opened.modify (·.push mockServer)
+      return .ok (.of mockServer)
+    dialled.set (some origin)
+    return .error (.connect "the redirect target must never be dialled")
+
+  let client ← Client.new config connect (maxRetries := 0)
+  let testClient : TestClient := {
+    client
+    origin := { scheme := URI.Scheme.ofString! "http", host := .name domain, port := 80 }
+    opened
+  }
+  pure (testClient, dialled)
+
+/-- Send a client request in the background and expose its result through a promise. -/
+def sendInBackground {β : Type} [Coe β Body.Any]
+    (client : TestClient) (request : Request β)
+    (overrides : Client.RequestOverrides := {}) :
+    Async (IO.Promise (Except String (Response Body.Stream))) := do
+  let resultPromise : IO.Promise (Except String (Response Body.Stream)) ← IO.Promise.new
+  background do
+    let result ← try
+        let resp ← client.send request overrides
+        pure (Except.ok resp)
+      catch e => pure (Except.error (toString e))
+    discard <| resultPromise.resolve result
+  pure resultPromise
+
+end ClientHelpers
 
 end Std.Http.Internal.Test

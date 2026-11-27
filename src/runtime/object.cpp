@@ -777,6 +777,18 @@ static void free_task(lean_task_object * t) {
     lean_free_small_object((lean_object*)t);
 }
 
+// `lean_task_imp::m_deleted` value of a task that `task_manager::discard` took out of every queue and dependency list
+// without running it. Unlike a deactivated task, it is freed by whoever drops its last reference.
+static constexpr uint8_t LEAN_TASK_DISCARDED = 2;
+
+// The references that the outermost `task_manager::discard` on this thread is dropping.
+LEAN_THREAD_PTR(std::vector<object *>, g_discard_drops);
+
+// Set on the threads the task manager starts, which `shutdown` waits for.
+LEAN_THREAD_VALUE(bool, g_task_manager_thread, false);
+// Set on the thread running `shutdown`, which can run finalizers when it discards what is still queued.
+LEAN_THREAD_VALUE(bool, g_in_shutdown, false);
+
 struct scoped_current_task_object : flet<lean_task_object *> {
     scoped_current_task_object(lean_task_object * t):flet(g_current_task_object, t) {}
 };
@@ -786,14 +798,46 @@ class task_manager {
     std::vector<std::unique_ptr<lthread>>         m_std_workers;
     unsigned                                      m_idle_std_workers{0};
     unsigned                                      m_max_std_workers{0};
-    unsigned                                      m_num_dedicated_workers{0};
+    // What `shutdown` waits for: standard workers until they settle, dedicated workers, and `(sync := true)` tasks
+    // running on any thread, including ones the task manager does not own, such as the event loop's.
+    unsigned                                      m_running{0};
     std::deque<lean_task_object *>                m_queues[LEAN_MAX_PRIO+1];
     unsigned                                      m_queues_size{0};
     unsigned                                      m_max_prio{0};
     condition_variable                            m_queue_cv;
     condition_variable                            m_task_finished_cv;
-    condition_variable                            m_dedicated_finished_cv;
-    bool                                          m_shutting_down{false};
+    condition_variable                            m_stopped_cv;
+    // Read without the lock by `lean_io_check_canceled_core`.
+    std::atomic<bool>                             m_shutting_down{false};
+    // Set during shutdown once nothing runs, until `restart`. A task that becomes runnable meanwhile is discarded.
+    // Read without the lock by the entry points that run new tasks inline meanwhile.
+    std::atomic<bool>                             m_workers_exit{false};
+    // Tasks blocked in `wait_for` or `wait_any`. During shutdown, while there are any, idle standard workers stay and
+    // new ones can start, and they run whatever is queued.
+    unsigned                                      m_task_waiters{0};
+    // Held for the whole of `shutdown` and `restart`.
+    mutex                                         m_lifecycle_mutex;
+
+    // Decided here, not when `shutdown` wakes up: until then a thread that keeps resolving promises could start the
+    // next `(sync := true)` task.
+    void finish_running() {
+        if (--m_running == 0 && m_shutting_down) {
+            m_workers_exit = true;
+            m_stopped_cv.notify_all();
+        }
+    }
+
+    // A destructor, as the interpreter reports some errors by throwing through `run_task`.
+    struct scoped_running_sync {
+        task_manager &       m_tm;
+        unique_lock<mutex> & m_lock;
+        bool                 m_sync;
+        ~scoped_running_sync() {
+            if (!m_sync) return;
+            if (!m_lock.owns_lock()) m_lock.lock();
+            m_tm.finish_running();
+        }
+    };
 
     lean_task_object * dequeue() {
         lean_assert(m_queues_size != 0);
@@ -812,7 +856,69 @@ class task_manager {
         return result;
     }
 
+    // Takes a task that will never run, and every task waiting for it, out of the task graph, and releases their
+    // closures and the self-reference of a keep-alive task. Such a task is freed by `deactivate_task` once its last
+    // reference is dropped. Releases `lock` while it drops these references, unless one of those drops called it.
+    void discard(unique_lock<mutex> & lock, lean_task_object * t) {
+        std::vector<lean_task_object *> todo{t};
+        std::vector<object *> own_drops;
+        // A drop can discard more tasks (a closure can hold the last reference to a promise); such a nested call
+        // leaves its references to the outermost one, so that a chain of pending promises does not grow the stack.
+        std::vector<object *> & drops = g_discard_drops ? *g_discard_drops : own_drops;
+
+        while (!todo.empty()) {
+            lean_task_object * u = todo.back();
+            todo.pop_back();
+
+            lean_task_imp * imp = u->m_imp.load(std::memory_order_relaxed);
+
+            for (lean_task_object * d = imp->m_head_dep; d;) {
+                lean_task_imp * d_imp = d->m_imp.load(std::memory_order_relaxed);
+                lean_task_object * next = d_imp->m_next_dep;
+                d_imp->m_next_dep = nullptr;
+                todo.push_back(d);
+                d = next;
+            }
+
+            imp->m_head_dep = nullptr;
+
+            if (imp->m_deleted) {
+                lean_assert(imp->m_deleted != LEAN_TASK_DISCARDED);
+                // Deactivated: we hold the last pointer to it.
+                free_task(u);
+                continue;
+            }
+
+            if (imp->m_closure) {
+                drops.push_back(imp->m_closure);
+                imp->m_closure = nullptr;
+            }
+            imp->m_deleted = LEAN_TASK_DISCARDED;
+            if (imp->m_keep_alive)
+                drops.push_back((object *)u);
+        }
+
+        if (&drops != &own_drops)
+            return;
+
+        lock.unlock();
+
+        g_discard_drops = &drops;
+        while (!drops.empty()) {
+            object * o = drops.back();
+            drops.pop_back();
+            lean_dec(o);
+        }
+        g_discard_drops = nullptr;
+        lock.lock();
+    }
+
     void enqueue_core(unique_lock<mutex> & lock, lean_task_object * t) {
+        if (m_workers_exit) {
+            // No worker is left to run it.
+            discard(lock, t);
+            return;
+        }
         lean_task_imp* imp = t->m_imp.load(std::memory_order_relaxed);
         lean_assert(imp);
         unsigned prio = imp->m_prio;
@@ -850,23 +956,48 @@ class task_manager {
             free_task(it);
             it = next_it;
         }
-        if (c) dec_ref(c);
+        if (c) {
+            // It can own a chain of waiting tasks: under `discard`, the outermost one drops it.
+            if (g_discard_drops)
+                g_discard_drops->push_back(c);
+            else
+                dec_ref(c);
+        }
         lock.lock();
     }
 
     void spawn_worker() {
-        if (m_shutting_down)
+        // During shutdown, a worker only starts for a task that waits, and not one for each wait.
+        if (m_shutting_down && (m_task_waiters == 0 || m_std_workers.size() >= m_max_std_workers + m_task_waiters))
             return;
 
         m_std_workers.emplace_back(new lthread([this]() {
+            g_task_manager_thread = true;
             save_stack_info(false);
             unique_lock<mutex> lock(m_mutex);
             m_idle_std_workers++;
-            while (true) {
-                if (m_queues_size == 0) {
-                    if (m_shutting_down) {
-                        // We're done
-                        break;
+            // During shutdown, an idle worker settles unless a task waits, and then only works while one does.
+            bool settled = false;
+            while (!m_workers_exit) {
+                if (m_queues_size == 0 || (settled && m_task_waiters == 0)) {
+                    if (m_shutting_down && !settled) {
+                        // Thread-local objects can hold tasks and promises: free them while this worker can still
+                        // run what that queues. Meanwhile the worker is not idle and the pool has one more slot, as
+                        // for a pool task in `wait_for`, so that a wait in a finalizer starts another worker.
+                        m_idle_std_workers--;
+                        m_max_std_workers++;
+                        lock.unlock();
+                        lean_finalize_thread();
+                        lock.lock();
+                        m_max_std_workers--;
+                        m_idle_std_workers++;
+                        if (m_queues_size > 0)
+                            continue;
+                        if (m_task_waiters == 0) {
+                            settled = true;
+                            finish_running();
+                            continue;
+                        }
                     }
                     // Wait for new tasks
                     m_queue_cv.wait(lock);
@@ -878,7 +1009,7 @@ class task_manager {
                 // maximum was decreased by `task_get`), wait for someone else to become
                 // idle before picking up new work.
                 // But during shutdown, we skip this throttling:
-                // because the finalizer might have called m_queue_cv.notify_all() for the last
+                // because `shutdown` might have called m_queue_cv.notify_all() for the last
                 // time, we don't want to get stuck behind the wait().
                 if (!m_shutting_down &&
                     m_std_workers.size() - m_idle_std_workers >= m_max_std_workers) {
@@ -886,6 +1017,10 @@ class task_manager {
                     continue;
                 }
 
+                if (settled) {
+                    settled = false;
+                    m_running++;
+                }
                 lean_task_object * t = dequeue();
                 m_idle_std_workers--;
                 run_task(lock, t);
@@ -893,17 +1028,25 @@ class task_manager {
                 reset_heartbeat();
             }
             m_idle_std_workers--;
+            if (!settled)
+                finish_running(); // Emscripten does not wait for busy workers
         }));
+        m_running++;
     }
 
     void spawn_dedicated_worker(lean_task_object * t) {
-        m_num_dedicated_workers++;
+        m_running++;
         lthread([this, t]() {
+            g_task_manager_thread = true;
             save_stack_info(false);
             unique_lock<mutex> lock(m_mutex);
             run_task(lock, t);
-            m_num_dedicated_workers--;
-            m_dedicated_finished_cv.notify_all();
+            // Thread-local objects can still hold tasks and promises, so free them while the task manager
+            // still waits for this thread.
+            lock.unlock();
+            lean_finalize_thread();
+            lock.lock();
+            finish_running();
         });
         // `lthread` will be implicitly freed, which frees up its control resources but does not terminate the thread
     }
@@ -916,6 +1059,10 @@ class task_manager {
             return;
         }
         reset_heartbeat();
+        bool sync = imp->m_prio == LEAN_SYNC_PRIO;
+        if (sync)
+            m_running++;
+        scoped_running_sync scope_sync{*this, lock, sync};
         object * v = nullptr;
         {
             scoped_current_task_object scope_cur_task(t);
@@ -931,7 +1078,11 @@ class task_manager {
         }
         lean_assert(imp);
         if (imp->m_deleted) {
+            // Set if a `bind` task was deactivated before it suspended.
+            object * c = imp->m_closure;
+            imp->m_closure = nullptr;
             lock.unlock();
+            if (c) lean_dec(c);
             if (v) lean_dec(v);
             free_task(t);
             lock.lock();
@@ -940,12 +1091,13 @@ class task_manager {
             resolve_core(lock, t, v);
         } else {
             // `bind` task has not finished yet, re-add as dependency of nested task
-            // NOTE: closure MUST be extracted before unlocking the mutex as otherwise
-            // another thread could deactivate the task and empty `m_clousure` in
-            // between.
-            object * c = imp->m_closure;
+            // NOTE: the nested task MUST be retained before unlocking the mutex as otherwise
+            // another thread could deactivate the task and free the closure that holds it.
+            object * nested = closure_arg_cptr(imp->m_closure)[0];
+            lean_inc_ref(nested);
             lock.unlock();
-            add_dep(lean_to_task(closure_arg_cptr(c)[0]), t);
+            add_dep(lean_to_task(nested), t);
+            lean_dec_ref(nested);
             lock.lock();
         }
     }
@@ -1000,27 +1152,74 @@ public:
         m_max_std_workers(max_std_workers) {
     }
 
-    ~task_manager() {
-        {
-            unique_lock<mutex> lock(m_mutex);
-            m_shutting_down = true;
-            // we can assume that `m_std_workers` will not be changed after this line
+    // Runs the exit sequence and leaves the manager dormant until `restart`. A dormant manager runs no task: a task
+    // that becomes runnable is discarded, and new tasks run inline, as without a task manager.
+    void shutdown() {
+        if (g_current_task_object || g_task_manager_thread || g_in_shutdown) {
+            // `shutdown` would wait for the calling thread itself.
+            lean_internal_panic("the task manager cannot be finalized from a task or from a thread it started");
         }
+        unique_lock<mutex> lifecycle(m_lifecycle_mutex);
+        unique_lock<mutex> lock(m_mutex);
+        if (m_workers_exit)
+            return;
+        g_in_shutdown = true;
+        m_shutting_down = true;
         m_queue_cv.notify_all();
 #ifndef LEAN_EMSCRIPTEN
-        // wait for all workers to finish
+        // Other threads the task manager does not own are not waited for.
+        m_stopped_cv.wait(lock, [&]() { return m_workers_exit || m_running == 0; });
+#endif
+        m_workers_exit = true;
+        // What is still queued would never run.
+        while (m_queues_size > 0)
+            discard(lock, dequeue());
+        // we can assume that `m_std_workers` will not be changed after this line
+        lock.unlock();
+        m_queue_cv.notify_all();
+#ifndef LEAN_EMSCRIPTEN
+        // never seems to terminate under Emscripten
         for (auto & t : m_std_workers)
             t->join();
-
-        unique_lock<mutex> lock(m_mutex);
-        m_dedicated_finished_cv.wait(lock, [&]() { return m_num_dedicated_workers == 0; });
-        // never seems to terminate under Emscripten
 #endif
+        lock.lock();
+        m_std_workers.clear();
+        g_in_shutdown = false;
+    }
+
+    // Makes a dormant manager run tasks again, as a new one would.
+    void restart(unsigned max_std_workers) {
+        if (!m_shutting_down)
+            return;
+        if (g_current_task_object || g_task_manager_thread || g_in_shutdown) {
+            // It would wait for a `shutdown` that waits for the calling thread.
+            lean_internal_panic("the task manager cannot be restarted from a task or from a thread it started");
+        }
+        unique_lock<mutex> lifecycle(m_lifecycle_mutex);
+        unique_lock<mutex> lock(m_mutex);
+        if (!m_workers_exit)
+            return;
+        lean_assert(m_queues_size == 0 && m_idle_std_workers == 0);
+        m_max_std_workers = max_std_workers;
+        m_workers_exit = false;
+        m_shutting_down = false;
+    }
+
+    bool dormant() const {
+        return m_workers_exit.load(std::memory_order_relaxed);
     }
 
     void enqueue(lean_task_object * t) {
         unique_lock<mutex> lock(m_mutex);
         enqueue_core(lock, t);
+    }
+
+    // Stores the second phase of the running `bind` task `t`, which can be deactivated meanwhile.
+    void suspend(lean_task_object * t, object * c) {
+        unique_lock<mutex> lock(m_mutex);
+        lean_task_imp * imp = t->m_imp.load(std::memory_order_relaxed);
+        lean_assert(imp && imp->m_closure == nullptr);
+        imp->m_closure = c;
     }
 
     void resolve(lean_task_object * t, object * v) {
@@ -1049,6 +1248,11 @@ public:
             enqueue_core(lock, t2);
             return;
         }
+        if (t1->m_imp.load(std::memory_order_relaxed)->m_deleted == LEAN_TASK_DISCARDED) {
+            // `t1` will never finish.
+            discard(lock, t2);
+            return;
+        }
         t2->m_imp.load(std::memory_order_relaxed)->m_next_dep = t1->m_imp.load(std::memory_order_relaxed)->m_head_dep;
         t1->m_imp.load(std::memory_order_relaxed)->m_head_dep = t2;
     }
@@ -1064,6 +1268,8 @@ public:
         if (g_current_task_object && g_current_task_object->m_imp.load(std::memory_order_relaxed)->m_prio == LEAN_SYNC_PRIO) {
             lean_panic("`Task.get` called from a `(sync := true)` task");
         }
+        // A waiter in the pool starts a worker below.
+        bool waiter = begin_task_wait(!in_pool);
         if (in_pool) {
             m_max_std_workers++;
             if (m_idle_std_workers == 0)
@@ -1075,15 +1281,38 @@ public:
         if (in_pool) {
             m_max_std_workers--;
         }
+        end_task_wait(waiter);
+    }
+
+    // A task, or a thread the task manager started, about to block counts as a waiter: during shutdown, it lets
+    // standard workers stay or start, so that what it waits for runs. Other threads are not counted.
+    bool begin_task_wait(bool may_spawn = true) {
+        if (!g_current_task_object && !g_task_manager_thread)
+            return false;
+        m_task_waiters++;
+        if (m_shutting_down && m_queues_size > 0) {
+            m_queue_cv.notify_all(); // for the settled workers
+            if (may_spawn && m_idle_std_workers == 0)
+                spawn_worker();
+        }
+        return true;
+    }
+
+    void end_task_wait(bool waiter) {
+        if (waiter && --m_task_waiters == 0 && m_shutting_down)
+            m_queue_cv.notify_all(); // idle workers may settle now
     }
 
     object * wait_any(object * task_list) {
         if (object * t = wait_any_check(task_list))
             return t;
         unique_lock<mutex> lock(m_mutex);
+        bool waiter = begin_task_wait();
         while (true) {
-            if (object * t = wait_any_check(task_list))
+            if (object * t = wait_any_check(task_list)) {
+                end_task_wait(waiter);
                 return t;
+            }
             m_task_finished_cv.wait(lock);
         }
     }
@@ -1106,7 +1335,13 @@ public:
             free_task(t);
             return;
         } else {
-            lean_assert(t->m_imp.load(std::memory_order_relaxed));
+            lean_task_imp * imp = t->m_imp.load(std::memory_order_relaxed);
+            lean_assert(imp);
+            if (imp->m_deleted == LEAN_TASK_DISCARDED) {
+                lock.unlock();
+                free_task(t);
+                return;
+            }
             deactivate_task_core(lock, t);
         }
     }
@@ -1140,9 +1375,12 @@ public:
 static task_manager * g_task_manager = nullptr;
 
 extern "C" LEAN_EXPORT void lean_init_task_manager_using(unsigned num_workers) {
-    lean_assert(g_task_manager == nullptr);
 #if defined(LEAN_MULTI_THREAD)
-    if (num_workers > 0) {
+    if (num_workers == 0)
+        return;
+    if (g_task_manager) {
+        g_task_manager->restart(num_workers);
+    } else {
         g_task_manager = new task_manager(num_workers);
     }
 #endif
@@ -1167,26 +1405,19 @@ extern "C" LEAN_EXPORT void lean_init_task_manager() {
 }
 
 extern "C" LEAN_EXPORT void lean_finalize_task_manager() {
+    // The manager is kept dormant rather than freed: tasks and promises left unfinished can still reach it, from the
+    // host or from a later `lean_init_task_manager`.
     if (g_task_manager) {
-        delete g_task_manager;
-        g_task_manager = nullptr;
+        g_task_manager->shutdown();
     }
 }
 
 scoped_task_manager::scoped_task_manager(unsigned num_workers) {
-    lean_assert(g_task_manager == nullptr);
-#if defined(LEAN_MULTI_THREAD)
-    if (num_workers > 0) {
-        g_task_manager = new task_manager(num_workers);
-    }
-#endif
+    lean_init_task_manager_using(num_workers);
 }
 
 scoped_task_manager::~scoped_task_manager() {
-    if (g_task_manager) {
-        delete g_task_manager;
-        g_task_manager = nullptr;
-    }
+    lean_finalize_task_manager();
 }
 
 void deactivate_task(lean_task_object * t) {
@@ -1227,7 +1458,7 @@ static lean_task_object * alloc_task(obj_arg v) {
 
 
 extern "C" LEAN_EXPORT obj_res lean_task_spawn_core(obj_arg c, unsigned prio, bool keep_alive) {
-    if (!g_task_manager) {
+    if (!g_task_manager || g_task_manager->dormant()) {
         return lean_task_pure(apply_1(c, box(0)));
     } else {
         lean_task_object * new_task = alloc_task(c, prio, keep_alive);
@@ -1250,7 +1481,8 @@ static obj_res task_map_fn(obj_arg f, obj_arg t, obj_arg w) {
 
 extern "C" LEAN_EXPORT obj_res lean_task_map_core(obj_arg f, obj_arg t, unsigned prio,
       bool sync, bool keep_alive) {
-    if (!g_task_manager || (sync && lean_to_task(t)->m_value)) {
+    // A dormant manager discards a task made runnable, so a dependent of an unfinished task is linked as usual.
+    if (!g_task_manager || (lean_to_task(t)->m_value && (sync || g_task_manager->dormant()))) {
         return lean_task_pure(apply_1(f, lean_task_get_own(t)));
     } else {
         lean_task_object * new_task = alloc_task(mk_closure_3_2(task_map_fn, f, t), sync ? LEAN_SYNC_PRIO : prio, keep_alive);
@@ -1300,19 +1532,16 @@ static obj_res task_bind_fn1(obj_arg x, obj_arg f, obj_arg) {
         lean_dec_ref(new_task);
         return v;
     } else {
-        lean_task_imp* imp = g_current_task_object->m_imp.load(std::memory_order::relaxed);
-        lean_assert(imp);
-        lean_assert(imp->m_closure == nullptr);
         obj_res c = mk_closure_2_1(task_bind_fn2, new_task);
         mark_mt(c);
-        imp->m_closure = c;
+        g_task_manager->suspend(g_current_task_object, c);
         return nullptr; /* notify queue that task did not finish yet. */
     }
 }
 
 extern "C" LEAN_EXPORT obj_res lean_task_bind_core(obj_arg x, obj_arg f, unsigned prio,
       bool sync, bool keep_alive) {
-    if (!g_task_manager || (sync && lean_to_task(x)->m_value)) {
+    if (!g_task_manager || (lean_to_task(x)->m_value && (sync || g_task_manager->dormant()))) {
         return apply_1(f, lean_task_get_own(x));
     } else {
         lean_task_object * new_task = alloc_task(mk_closure_3_2(task_bind_fn1, x, f), sync ? LEAN_SYNC_PRIO : prio, keep_alive);

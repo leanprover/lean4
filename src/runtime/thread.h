@@ -185,6 +185,7 @@ public:
     ~unique_lock() {}
     void lock() {}
     void unlock() {}
+    bool owns_lock() const { return true; }
     T * release() { return nullptr; }
 };
 inline unsigned hardware_concurrency() { return 1; }
@@ -203,11 +204,12 @@ inline unsigned hardware_concurrency() { return 1; }
 #define LEAN_THREAD_VALUE(T, V, VAL) static __thread T V = VAL
 #endif
 
+// A finalizer clears the slot before deleting the object, because the deletion can run Lean code that calls the getter.
 #define MK_THREAD_LOCAL_GET(T, GETTER_NAME, DEF_VALUE)                  \
 LEAN_THREAD_PTR(T, GETTER_NAME ## _tlocal);                             \
 static void finalize_ ## GETTER_NAME(void * p) {                        \
-    delete reinterpret_cast<T*>(p);                                     \
     GETTER_NAME ## _tlocal = nullptr;                                   \
+    delete reinterpret_cast<T*>(p);                                     \
 }                                                                       \
 static T & GETTER_NAME() {                                              \
     if (!GETTER_NAME ## _tlocal) {                                      \
@@ -220,8 +222,8 @@ static T & GETTER_NAME() {                                              \
 #define MK_THREAD_LOCAL_GET_DEF(T, GETTER_NAME)                         \
 LEAN_THREAD_PTR(T, GETTER_NAME ## _tlocal);                             \
 static void finalize_ ## GETTER_NAME(void * p) {                        \
-    delete reinterpret_cast<T*>(p);                                     \
     GETTER_NAME ## _tlocal = nullptr;                                   \
+    delete reinterpret_cast<T*>(p);                                     \
 }                                                                       \
 static T & GETTER_NAME() {                                              \
     if (!GETTER_NAME ## _tlocal) {                                      \

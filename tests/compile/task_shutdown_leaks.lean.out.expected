@@ -1,0 +1,20 @@
+pure: child exited with code 0
+pure: child returns from main
+map: child exited with code 0
+map: child returns from main
+syncMap: child exited with code 0
+syncMap: child returns from main
+bind: child exited with code 0
+bind: child returns from main
+bindNested: child exited with code 0
+bindNested: child returns from main
+prio: child exited with code 0
+prio: child returns from main
+promiseResolved: child exited with code 0
+promiseResolved: child returns from main
+promiseDropped: child exited with code 0
+promiseDropped: child returns from main
+waitedQueuesMore: child exited with code 0
+waitedQueuesMore: child returns from main
+dedicatedDependent: child exited with code 0
+dedicatedDependent: child returns from main

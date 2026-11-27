@@ -187,13 +187,12 @@ extern "C" LEAN_EXPORT lean_object * lean_run_main(lean_object * (*main_fn)(int,
 typedef std::vector<std::pair<thread_finalizer, void*>> thread_finalizers;
 
 void run_thread_finalizers_core(thread_finalizers & fns) {
-    unsigned i = fns.size();
-    while (i > 0) {
-        --i;
-        auto fn = fns[i].first;
-        fn(fns[i].second);
+    // A finalizer can run Lean code that registers new finalizers.
+    while (!fns.empty()) {
+        auto [fn, p] = fns.back();
+        fns.pop_back();
+        fn(p);
     }
-    fns.clear();
 }
 
 LEAN_THREAD_PTR(thread_finalizers, g_finalizers);
@@ -213,9 +212,18 @@ void run_thread_finalizers(thread_finalizers * fns) {
     }
 }
 
+// Set while this thread runs its finalizers.
+LEAN_THREAD_VALUE(bool, g_running_finalizers, false);
+
 void run_thread_finalizers() {
+    // A finalizer calling `lean_finalize_thread` must not free the list being run; the running call also runs what
+    // that finalizer registers.
+    if (g_running_finalizers)
+        return;
+    g_running_finalizers = true;
     run_thread_finalizers(g_finalizers);
     g_finalizers = nullptr;
+    g_running_finalizers = false;
 }
 
 void initialize_thread() {

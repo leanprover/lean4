@@ -280,6 +280,7 @@ typedef struct {
     _Atomic(uint8_t)     m_canceled;
     // If true, task will not be freed until finished
     uint8_t              m_keep_alive;
+    // 0, or 1 once Deactivated, or 2 once Discarded (see below)
     uint8_t              m_deleted;
 } lean_task_imp;
 
@@ -300,6 +301,7 @@ typedef struct {
      * invariant: m_value == nullptr
      * transition: RC becomes 0 ==> Deactivated (`deactivate_task` lock)
      * transition: dequeued by worker thread            ==> Running     (`spawn_worker` lock)
+     * transition: `lean_finalize_task_manager` stops the workers ==> Discarded (`task_manager::discard`)
    * Waiting
      * condition: reachable from task via `m_head_dep->m_next_dep->...` && !m_imp->m_deleted
      * invariant: m_imp != nullptr && m_value == nullptr
@@ -307,29 +309,38 @@ typedef struct {
        * It cannot become Deactivated because this task should be holding an owned reference to it
      * transition: RC becomes 0 ==> Deactivated (`deactivate_task` lock)
      * transition: task dependency Finished ==> Queued (`handle_finished` under `spawn_worker` lock)
+     * transition: task dependency Finished while the task manager is stopped, or Discarded ==> Discarded
+       (`task_manager::discard`)
    * Promised
      * condition: obtained as result from promise
      * invariant: m_imp != nullptr && m_value == nullptr
      * transition: promise resolved ==> Finished (`resolve_core` under `spawn_worker` lock)
      * transition: RC becomes 0 ==> Deactivated (`deactivate_task` lock)
    * Running
-     * condition: m_imp != nullptr && m_imp->m_closure == nullptr
+     * condition: m_imp != nullptr && m_imp->m_closure == nullptr && !m_imp->m_deleted
        * The worker takes ownership of the closure when running it
      * invariant: m_value == nullptr
      * transition: RC becomes 0 ==> Deactivated (`deactivate_task` lock)
      * transition: finished execution                   ==> Finished    (`spawn_worker` lock)
    * Deactivated
-     * condition: m_imp != nullptr && m_imp->m_deleted
+     * condition: m_imp != nullptr && m_imp->m_deleted == 1
      * invariant: RC == 0
      * invariant: m_imp->m_closure == nullptr && m_imp->m_head_dep == nullptr (both freed by `deactivate_task_core`)
        * Note that all dependent tasks must have already been Deactivated by the converse of the second Waiting invariant
      * invariant: m_value == nullptr
      * transition: dequeued by worker thread   ==> freed
+     * transition: dequeued by `lean_finalize_task_manager` ==> freed (`task_manager::discard`)
      * transition: finished execution          ==> freed
      * transition: task dependency Finished    ==> freed
      * We must keep the task object alive until one of these transitions because in either case, we have live
        (internal, unowned) references to the task up to that point
      * transition: task dependency Deactivated ==> freed
+     * transition: task dependency Discarded   ==> freed (`task_manager::discard`)
+   * Discarded
+     * condition: m_imp != nullptr && m_imp->m_deleted == 2
+     * invariant: in no queue or dependency list, so it never finishes (`IO.getTaskState` reports it as running)
+     * invariant: m_imp->m_closure == nullptr && m_imp->m_head_dep == nullptr && m_value == nullptr
+     * transition: RC becomes 0 ==> freed (`deactivate_task` lock)
    * Finished
      * condition: m_value != nullptr
      * invariant: m_imp == nullptr
@@ -1615,8 +1626,14 @@ static inline lean_obj_res lean_thunk_get_own(b_lean_obj_arg t) {
 
 /* Tasks */
 
+/* Starts the task manager, or restarts one that `lean_finalize_task_manager` stopped. */
 LEAN_EXPORT void lean_init_task_manager(void);
 LEAN_EXPORT void lean_init_task_manager_using(unsigned num_workers);
+/* Stops the task manager. It waits for busy workers, which drain the queue, for dedicated tasks and for
+   `(sync := true)` tasks running on any thread. While one of these waits for a task, queued work keeps running. The
+   rest is discarded and never finishes, as is what becomes runnable before the next start; until then, a new task
+   runs inline once its input has finished. Tasks and promises stay valid in later cycles. Calling this, or starting
+   the task manager meanwhile, from a thread that this waits for is an internal panic. */
 LEAN_EXPORT void lean_finalize_task_manager(void);
 
 /* All priorities above `Task.Priority.max` mean the same; `UINT_MAX` is reserved for synchronous tasks. */

@@ -1,0 +1,121 @@
+/-!
+The exit waits for every worker thread to free its thread-local state. A standard worker frees it before
+it stops, so it still runs a pool task that this queues; on a dedicated thread, a `(sync := true)` dependent
+runs while the thread frees it.
+
+A task replaces its thread's stdout with a stream that holds a promise, which has a dependent task. The
+thread frees that stream after the task has finished. Freeing the promise resolves it, which queues the
+dependent. The task manager must still be running tasks at that point, rather than leaking the dependent or
+being already gone. Each mode installs the stream on a different kind of thread:
+
+* `dedicated`: a dedicated task, once the task manager is shutting down, with a `(sync := true)` dependent.
+  The stream is installed as stderr, and a stream holding a large payload as stdout afterwards. The thread
+  frees stdout first, so the promise is only resolved after a long cleanup, which the exit must wait for.
+* `pool`: a pool task, once the task manager is shutting down.
+* `poolIdle`: a pool task that finishes before `main` returns, so its worker is idle when the exit starts.
+* `poolSync`: as `pool`, with a `(sync := true)` dependent. It runs while the thread frees the stream and
+  prints through the thread's stdout, which must already be reset rather than refer to the freed stream.
+* `poolLateWait`: as `poolSync`, with `LEAN_NUM_THREADS=1`, and the dependent first waits for a pool task
+  whose input a dedicated task provides only after the wait started. The only worker is the one freeing the
+  stream, so the exit must start another worker for that task.
+
+The children are the compiled binary, hence `.no_interpret`.
+-/
+
+/-- Returns once the task manager is shutting down. -/
+def waitForShutdown : IO Unit := do
+  -- `IO.checkCanceled` holds for every task once the task manager shuts down.
+  while !(← IO.checkCanceled) do
+    IO.sleep 10
+
+def mkStream (promise : IO.Promise Unit) : IO.FS.Stream where
+  flush := pure ()
+  read _ := pure .empty
+  write _ := pure ()
+  getLine := pure ""
+  putStr _ := pure ()
+  -- Never called. Makes the stream keep the promise itself alive: a closure using only the pure
+  -- `promise.result?` would capture that task instead, and the promise would be dropped at once.
+  isTty := do promise.resolve (); return false
+
+/-- Waits for a pool task whose input a dedicated task provides only after the wait has started. -/
+def waitForLateTask : IO Unit := do
+  let input ← IO.Promise.new (α := Unit)
+  let task ← IO.mapTask (fun _ => pure ()) input.result?
+  discard <| IO.asTask (prio := .dedicated) do
+    IO.sleep 50
+    input.resolve ()
+  discard <| IO.waitAny [task]
+
+/-- Installs the stream on the current thread, as stdout or as stderr. -/
+def installStream (mode : String) (sync := false) (stderr := false) (wait := false) : IO Unit := do
+  let promise ← IO.Promise.new (α := Unit)
+  discard <| IO.mapTask (sync := sync) (fun _ => do
+    if wait then waitForLateTask
+    IO.println s!"{mode}: the dependent ran") promise.result?
+  if stderr then
+    discard <| IO.setStderr (mkStream promise)
+  else
+    discard <| IO.setStdout (mkStream promise)
+
+/-- A stream whose only purpose is to hold `payload`, so that freeing it takes a while. -/
+def mkPayloadStream (payload : Array (Array Nat)) : IO.FS.Stream where
+  flush := pure ()
+  read _ := pure .empty
+  write _ := pure ()
+  getLine := pure ""
+  putStr _ := pure ()
+  -- Never called. Indexes the payload at runtime, so that the closure captures the array itself.
+  isTty := return payload[(← IO.monoMsNow) % payload.size]?.isSome
+
+def runChild (mode : String) (env : Array (String × Option String) := #[]) : IO Unit := do
+  let proc ← IO.Process.spawn {
+    cmd := (← IO.appPath).toString
+    args := #[mode]
+    env
+    stdout := .piped }
+  let start ← IO.monoMsNow
+  let mut code := none
+  while code.isNone && (← IO.monoMsNow) - start < 15000 do
+    code ← proc.tryWait
+    if code.isNone then IO.sleep 20
+  match code with
+  | some c => IO.println s!"{mode}: child exited with code {c}"
+  | none =>
+    proc.kill
+    discard proc.wait
+    IO.println s!"{mode}: child still running 15 s after it started"
+  IO.print (← proc.stdout.readToEnd)
+
+def main (args : List String) : IO Unit := do
+  match args with
+  | ["dedicated"] =>
+    discard <| IO.asTask (prio := .dedicated) do
+      waitForShutdown
+      installStream "dedicated" (sync := true) (stderr := true)
+      -- Thread-local streams are freed in the reverse order of their first use, so this one goes first.
+      let t ← IO.monoMsNow
+      discard <| IO.setStdout (mkPayloadStream ((Array.range 100000).map fun i => #[i + t]))
+    IO.println "dedicated: child returns from main"
+  | ["pool"] =>
+    discard <| IO.asTask do
+      waitForShutdown
+      installStream "pool"
+    IO.println "pool: child returns from main"
+  | ["poolSync"] =>
+    discard <| IO.asTask do
+      waitForShutdown
+      installStream "poolSync" (sync := true)
+    IO.println "poolSync: child returns from main"
+  | ["poolIdle"] =>
+    discard <| IO.wait (← IO.asTask (installStream "poolIdle"))
+    IO.println "poolIdle: child returns from main"
+  | ["poolLateWait"] =>
+    discard <| IO.asTask do
+      waitForShutdown
+      installStream "poolLateWait" (sync := true) (wait := true)
+    IO.println "poolLateWait: child returns from main"
+  | _ =>
+    for mode in ["dedicated", "pool", "poolIdle", "poolSync"] do
+      runChild mode
+    runChild "poolLateWait" #[("LEAN_NUM_THREADS", some "1")]

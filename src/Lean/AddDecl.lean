@@ -100,6 +100,32 @@ def warnIfUsesSorry (decl : Declaration) : CoreM Unit := do
         -- This case should not happen, but it ensures a warning will get logged no matter what.
         logWarning <| .tagged `hasSorry m!"declaration uses `sorry`"
 
+register_builtin_option Elab.persistentSignatures : Bool := {
+  defValue := true
+  descr    := "mark the types of declarations as persistent when they are added to the environment, \
+    which stops reference counting on them, in particular from multiple threads at once, but means \
+    they are never deallocated; the language server turns this off by default"
+}
+
+/-- Marks `type`, the type of a constant about to be added, as persistent if so configured. -/
+def markSignaturePersistent (type : Expr) : CoreM Unit := do
+  if Elab.persistentSignatures.get (← getOptions) then
+    discard <| unsafe Runtime.markPersistent type
+
+/-- Applies `markSignaturePersistent` to the types of all constants given in `decl`. -/
+private def markSignaturesPersistent (decl : Declaration) : CoreM Unit := do
+  match decl with
+  | .axiomDecl d => markSignaturePersistent d.type
+  | .defnDecl d => markSignaturePersistent d.type
+  | .thmDecl d => markSignaturePersistent d.type
+  | .opaqueDecl d => markSignaturePersistent d.type
+  | .mutualDefnDecl ds => ds.forM (markSignaturePersistent ·.type)
+  | .inductDecl _ _ types _ =>
+    for type in types do
+      markSignaturePersistent type.type
+      type.ctors.forM (markSignaturePersistent ·.type)
+  | .quotDecl => pure ()
+
 builtin_initialize
   registerTraceClass `addDecl
 
@@ -115,6 +141,7 @@ def recordOriginalConstKind (env : Environment) (declName : Name) (kind : Consta
 
 private def addDeclCore (decl : Declaration) (forceExpose : Bool) : CoreM Unit :=
   withTraceNode `addDecl (fun _ => return m!"adding declarations {decl.getNames}") do
+  markSignaturesPersistent decl
   -- register namespaces for newly added constants; this used to be done by the kernel itself
   -- but that is incompatible with moving it to a separate task
   -- NOTE: we do not use `getTopLevelNames` here so that inductive types are registered as
@@ -143,7 +170,12 @@ private def addDeclCore (decl : Declaration) (forceExpose : Bool) : CoreM Unit :
     | .axiomDecl ax => pure (ax.name, .axiomInfo ax, .axiom)
     | _ =>
       trace[addDecl] "no matching async adding rules, adding synchronously"
-      return (← doAdd)
+      doAdd
+      -- the kernel generates further constants for inductive types
+      for n in decl.getNames do
+        if let some info := (← getEnv).find? n then
+          markSignaturePersistent info.type
+      return
 
   -- Check early so we can avoid related env ext panics that would happen before the check in the
   -- kernel.

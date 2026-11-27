@@ -928,7 +928,7 @@ private:
     /** \brief Return cached lookup result for given unmangled function name in the current binary. */
     const symbol_cache_entry& lookup_symbol(name const & fn) {
         lean_object * k = fn.raw();
-        if (lean_is_scalar(k) || !lean_is_persistent(k))
+        if (lean_is_scalar(k) || lean_is_st(k) || !lean_is_never_freed(k))
             return lookup_symbol_core(fn);
         if (!m_symbol_ptr_cache)
             m_symbol_ptr_cache = std::make_unique<symbol_ptr_cache_entry[]>(symbol_ptr_cache_size);

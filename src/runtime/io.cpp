@@ -1543,7 +1543,8 @@ extern "C" LEAN_EXPORT obj_res lean_st_ref_get(b_obj_arg ref) {
         }
     } else {
         object * val = lean_to_ref(ref)->m_value;
-        lean_assert(val != nullptr);
+        if (val == nullptr)
+            lean_internal_panic("null reference read");
         inc(val);
         return val;
     }
@@ -1559,7 +1560,8 @@ extern "C" LEAN_EXPORT obj_res lean_st_ref_take(b_obj_arg ref) {
         }
     } else {
         object * val = lean_to_ref(ref)->m_value;
-        lean_assert(val != nullptr);
+        if (val == nullptr)
+            lean_internal_panic("null reference read");
         lean_to_ref(ref)->m_value = nullptr;
         return val;
     }

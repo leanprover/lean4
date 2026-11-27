@@ -462,9 +462,9 @@ expr type_checker::whnf_core(expr const & e, bool cheap_rec, bool cheap_proj) {
 }
 
 /* Each reduction step below ends in a tail call whose result is also the result of `e`. Only the
-   first term of such a chain (`cache = true`) gets a cache entry: the intermediate terms are
-   fresh, large and almost never looked up again, but keeping them would retain them until the
-   end of the declaration. */
+   first term of such a chain (`cache = true`) is looked up and gets a cache entry: the
+   intermediate terms are fresh, large and practically never cached already, and keeping them
+   would retain them until the end of the declaration. */
 expr type_checker::whnf_core_cached(expr const & e, bool cheap_rec, bool cheap_proj, bool cache) {
     scope_rec_depth guard;
     check_system("type checker: whnf", /* do_check_interrupted */ true);
@@ -487,10 +487,11 @@ expr type_checker::whnf_core_cached(expr const & e, bool cheap_rec, bool cheap_p
         break;
     }
 
-    // check cache
-    auto it = m_st->m_whnf_core.find(e);
-    if (it != m_st->m_whnf_core.end())
-        return it->second;
+    if (cache) {
+        auto it = m_st->m_whnf_core.find(e);
+        if (it != m_st->m_whnf_core.end())
+            return it->second;
+    }
 
     // do the actual work
     expr r;

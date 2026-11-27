@@ -442,8 +442,8 @@ open Lean.Sym
 /--
 Evaluates `@Eq String a b` for string literal arguments, producing kernel-efficient proofs.
 When equal, uses `eq_self` (no kernel evaluation needed). When different, uses
-`mkStringLitNeProof` which finds the first differing character position and proves
-inequality via `congrArg (List.get?Internal · i)`.
+`mkStringLitNeProof` which finds the first differing byte position and proves
+inequality via `String.Internal.ne_of_sameByteAt`.
 -/
 def evalStringEq (a b : Expr) : SimpM Result := do
   let some va := getStringValue? a | return .rfl

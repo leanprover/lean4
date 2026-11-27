@@ -52,7 +52,7 @@ private def mkLitNeProof? (a b : Expr) : MetaM (Option Expr) := do
     let .lit (.strVal s₂) := b | return none
     if s₁ == s₂ then return none
     -- The theorem used in the proof is not available in the modules that precede its declaration.
-    unless (← getEnv).contains ``String.Internal.ofList_ne_ofList do return none
+    unless (← getEnv).contains ``String.Internal.ne_of_sameByteAt do return none
     return some (← mkStringLitNeProof s₁ s₂)
   -- A literal elaborated with a nonstandard instance, such as `(5 : UInt8)` with a local
   -- `OfNat UInt8 5`, may denote a different value: `neThm?` does not inspect the instance.

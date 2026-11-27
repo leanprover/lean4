@@ -172,12 +172,24 @@ def ofHours (hour : Hour.Offset) : PlainTime :=
   ofNanoseconds hour.toNanoseconds
 
 /--
+Adds nanoseconds to a `PlainTime`, wrapping around midnight. Adding zero returns `time` unchanged;
+otherwise a leap second `23:59:60` counts as `00:00:00` of the next day.
+-/
+def addNanoseconds (time : PlainTime) (nanosToAdd : Nanosecond.Offset) : PlainTime :=
+  if nanosToAdd.val = 0 then time else ofNanoseconds (time.toNanoseconds + nanosToAdd)
+
+/--
+Subtracts nanoseconds from a `PlainTime`.
+-/
+def subNanoseconds (time : PlainTime) (nanosToSub : Nanosecond.Offset) : PlainTime :=
+  addNanoseconds time (-nanosToSub)
+
+/--
 Adds seconds to a `PlainTime`.
 -/
 @[inline]
 def addSeconds (time : PlainTime) (secondsToAdd : Second.Offset) : PlainTime :=
-  let totalSeconds := time.toNanoseconds + secondsToAdd.toNanoseconds
-  ofNanoseconds totalSeconds
+  addNanoseconds time secondsToAdd.toNanoseconds
 
 /--
 Subtracts seconds from a `PlainTime`.
@@ -191,8 +203,7 @@ Adds minutes to a `PlainTime`.
 -/
 @[inline]
 def addMinutes (time : PlainTime) (minutesToAdd : Minute.Offset) : PlainTime :=
-  let total := time.toNanoseconds + minutesToAdd.toNanoseconds
-  ofNanoseconds total
+  addNanoseconds time minutesToAdd.toNanoseconds
 
 /--
 Subtracts minutes from a `PlainTime`.
@@ -206,8 +217,7 @@ Adds hours to a `PlainTime`.
 -/
 @[inline]
 def addHours (time : PlainTime) (hoursToAdd : Hour.Offset) : PlainTime :=
-  let total := time.toNanoseconds + hoursToAdd.toNanoseconds
-  ofNanoseconds total
+  addNanoseconds time hoursToAdd.toNanoseconds
 
 /--
 Subtracts hours from a `PlainTime`.
@@ -217,24 +227,10 @@ def subHours (time : PlainTime) (hoursToSub : Hour.Offset) : PlainTime :=
   addHours time (-hoursToSub)
 
 /--
-Adds nanoseconds to a `PlainTime`.
--/
-def addNanoseconds (time : PlainTime) (nanosToAdd : Nanosecond.Offset) : PlainTime :=
-  let total := time.toNanoseconds + nanosToAdd
-  ofNanoseconds total
-
-/--
-Subtracts nanoseconds from a `PlainTime`.
--/
-def subNanoseconds (time : PlainTime) (nanosToSub : Nanosecond.Offset) : PlainTime :=
-  addNanoseconds time (-nanosToSub)
-
-/--
 Adds milliseconds to a `PlainTime`.
 -/
 def addMilliseconds (time : PlainTime) (millisToAdd : Millisecond.Offset) : PlainTime :=
-  let total := time.toMilliseconds + millisToAdd
-  ofMilliseconds total
+  addNanoseconds time millisToAdd.toNanoseconds
 
 /--
 Subtracts milliseconds from a `PlainTime`.

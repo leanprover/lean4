@@ -46,16 +46,17 @@ def parseTZIfFromDisk (path : System.FilePath) (id : String) : IO ZoneRules := d
   IO.ofExcept (parseTZif binary id)
 
 /--
-Extracts a timezone ID from a file path.
+Extracts a timezone ID from a file path: the components after the last `zoneinfo` directory, such as
+`America/Argentina/Buenos_Aires`, or the last two components if there is no `zoneinfo` directory.
 -/
-def idFromPath (path : System.FilePath) : Option String := do
-  let res := path.components.toArray
-  let last ← res[res.size - 1]?
-  let last₁ ← res[res.size - 2]?
-
-  if last₁ = "zoneinfo"
-    then some <| last.trimAscii.copy
-    else some <| last₁.trimAscii.copy ++ "/" ++ last.trimAscii
+def idFromPath (path : System.FilePath) : Option String :=
+  let components := path.components.map (·.trimAscii.copy)
+  let afterZoneinfo := components.foldl (init := none) fun acc c =>
+    if c == "zoneinfo" then some #[] else acc.map (·.push c)
+  let id := match afterZoneinfo with
+    | some after => after.toList
+    | none => components.drop (components.length - 2)
+  if id.isEmpty then none else some ("/".intercalate id)
 
 /--
 Retrieves the timezone rules from the local timezone data file.

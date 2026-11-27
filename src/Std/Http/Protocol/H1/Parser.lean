@@ -866,7 +866,7 @@ trailer sections per RFC 9112 §6.5: the framing and routing fields of `isFramin
 fields that control how the message is processed (`expect`, `authorization`, `max-forwards`,
 `cache-control`, `content-encoding`).
 -/
-def isForbiddenTrailerField (name : String) : Bool :=
+public def isForbiddenTrailerField (name : String) : Bool :=
   let n := name.toLower
   isFramingTrailerField name || n == "expect" ||
   n == "authorization" || n == "max-forwards" || n == "cache-control" || n == "content-encoding"

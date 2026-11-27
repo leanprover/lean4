@@ -101,6 +101,12 @@ structure Outbox (α : Type) where
   -/
   writeTimeout : Nat
 
+  /--
+  The most bytes one write carries, if bounded. Each completed write renews the write timeout, so a
+  bound makes `writeTimeout` limit each pause of a long write rather than the whole of it.
+  -/
+  maxWriteBytes : Option Nat := none
+
   private state : IO.Ref Outbox.State
 
   /--
@@ -118,8 +124,9 @@ private def Timer.new : IO Outbox.Timer := do
 Creates an outbox that writes to `socket`, failing a wait for its writes once none has completed for
 `writeTimeout` milliseconds. `stop` releases its timer.
 -/
-def new (socket : α) (writeTimeout : Nat) : IO (Outbox α) := do
-  return { socket, writeTimeout, state := ← IO.mkRef {}, timer := ← IO.mkRef (← Timer.new) }
+def new (socket : α) (writeTimeout : Nat) (maxWriteBytes : Option Nat := none) : IO (Outbox α) := do
+  return {
+    socket, writeTimeout, maxWriteBytes, state := ← IO.mkRef {}, timer := ← IO.mkRef (← Timer.new) }
 
 /--
 Releases the outbox's timer. A wait for its writes then no longer times out.
@@ -146,6 +153,27 @@ private def joinQueued : List (Array ByteArray) → Array ByteArray
   | batches => batches.foldr (fun batch acc => acc ++ batch) #[]
 
 /--
+Splits `data` into the first write, of at most `limit` bytes when bounded, and the rest.
+-/
+private def split (limit : Option Nat) (data : Array ByteArray) : Array ByteArray × Array ByteArray :=
+  match limit with
+  | none => (data, #[])
+  | some limit =>
+    let (now, rest, _) := data.foldl (init := (#[], #[], 0)) fun (now, rest, size) bytes =>
+      if !rest.isEmpty || size ≥ limit then (now, rest.push bytes, size)
+      else if size + bytes.size ≤ limit then (now.push bytes, rest, size + bytes.size)
+      else
+        let cut := limit - size
+        (now.push (bytes.extract 0 cut), rest.push (bytes.extract cut bytes.size), limit)
+    (now, rest)
+
+/--
+The bytes `data` holds.
+-/
+private def byteSize (data : Array ByteArray) : Nat :=
+  data.foldl (· + ·.size) 0
+
+/--
 Starts writing `data`, then whatever was queued meanwhile once the write completes. For a socket,
 the next write thus starts on the event loop's own thread.
 -/
@@ -167,7 +195,10 @@ private partial def write [Transport α] (outbox : Outbox α) (data : Array Byte
       | .ok () =>
         if s.queued.isEmpty then
           ((#[], s.idle), { s with writing := false, idle := none })
-        else ((joinQueued s.queued, none), { s with queued := [], queuedBytes := 0 })
+        else
+          let (next, rest) := split outbox.maxWriteBytes (joinQueued s.queued)
+          ((next, none), { s with
+            queued := if rest.isEmpty then [] else [rest], queuedBytes := byteSize rest })
     if let some idle := idle then
       idle.resolve ()
     unless next.isEmpty do
@@ -182,15 +213,19 @@ def send [Transport α] (outbox : Outbox α) (buffer : ChunkedBuffer) : BaseIO (
   if buffer.size = 0 then
     return if (← outbox.state.get).failed then none else some 0
   let data := buffer.data
+  let (now, rest) := split outbox.maxWriteBytes data
   let (start, queued?) ← outbox.state.modifyGet fun s =>
     if s.failed then ((false, none), s)
     else if s.writing then
       let queuedBytes := s.queuedBytes + buffer.size
       ((false, some queuedBytes), { s with queued := data :: s.queued, queuedBytes })
-    else ((true, some 0), { s with writing := true })
+    else
+      let queuedBytes := byteSize rest
+      ((true, some queuedBytes), { s with
+        writing := true, queued := if rest.isEmpty then [] else [rest], queuedBytes })
   if start then
     (← outbox.timer.get).watchdog.arm (.ofNat outbox.writeTimeout)
-    outbox.write data
+    outbox.write now
     -- A write that fails without suspending has already dropped `buffer`.
     if (← outbox.state.get).failed then
       return none

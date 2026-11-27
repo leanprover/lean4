@@ -428,6 +428,12 @@ the reader ends as at EOF.
 @[inline] def userClosedBody (machine : Machine dir) : Machine dir :=
   { machine with writer.userClosedBody := true }
 
+/--
+Takes the trailer fields of the incoming message read so far (see `Reader.trailers`), leaving none.
+-/
+@[inline] def takeTrailers (machine : Machine dir) : Machine dir × Array (String × String) :=
+  ({ machine with reader.trailers := #[] }, machine.reader.trailers)
+
 /-- Signals that the peer closed its side of the connection, so no more input will arrive. -/
 @[inline] def noMoreInput (machine : Machine dir) : Machine dir :=
   { machine with reader.peerClosed := true, pullBodyStalled := false }
@@ -892,12 +898,17 @@ private def parseTrailerState (machine : Machine dir)
     else
       parseLine machine .fieldLine (parseTrailerHeader machine.config strict) (limit := none)
   let lineBytes := input.remainingBytes - machine.reader.input.remainingBytes
+  -- The section starts afresh for each message.
+  let machine := if count == 0 then { machine with reader.trailers := #[] } else machine
   match result with
-  | some (some _) =>
+  | some (some (name, value)) =>
     if !folded && count ≥ machine.config.maxTrailerHeaders then (machine.setFailure .badMessage, none)
     else if !machine.fitsBodyLimit lineBytes then (machine.setFailure .entityTooLarge, none)
     else if folded then (machine.addBodyBytes lineBytes, none)
     else
+      let machine :=
+        if isForbiddenTrailerField name then machine
+        else { machine with reader.trailers := machine.reader.trailers.push (name, value) }
       (machine.addBodyBytes lineBytes |>.setReaderState (.readBody (.trailers ext (count + 1))), none)
   | some none =>
     emitBodyChunk (machine.addBodyBytes lineBytes) .complete true false ext .empty (closeBody := true)

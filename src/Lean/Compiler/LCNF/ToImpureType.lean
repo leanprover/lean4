@@ -206,9 +206,24 @@ public def numSpillObjs (numObjs : Nat) : Nat :=
 public def spillCtorInfo (ctorName : Name) (size : Nat) : CtorInfo :=
   { name := ctorName ++ `spill, cidx := 0, size, usize := 0, ssize := 0 }
 
+/--
+The constructor information of the alternative for constructor `ctorName` in a `cases` on the field
+holding the constructor index `cidx` (`CtorLayout.extCidx?`).
+-/
+public def extCidxCtorInfo (ctorName : Name) (cidx : Nat) : CtorInfo :=
+  { name := ctorName ++ `cidx, cidx, size := 0, usize := 0, ssize := 0 }
+
 public structure CtorLayout where
   ctorInfo : CtorInfo
   fieldInfo : Array CtorFieldInfo
+  /--
+  The constructor index if it is stored as a boxed scalar in object field 0 instead of the object
+  tag, which is `maxCtorTag` then. This is the case for all constructors with index at least
+  `maxCtorTag` of inductive types that are not represented by unboxed scalars, including such
+  constructors without relevant fields. Thus the object tag `maxCtorTag` always identifies these
+  constructors, and no value of such a type is the scalar `maxCtorTag`.
+  -/
+  extCidx? : Option Nat := none
   deriving Inhabited
 
 builtin_initialize ctorLayoutExt : MapDeclarationExtension CtorLayout ←
@@ -225,9 +240,11 @@ where
     layout.ctorInfo.checkValid
   fillCache : CoreM CtorLayout := do
     let .some (.ctorInfo ctorInfo) := (← getEnv).find? ctorName | unreachable!
+    let extTag := ctorInfo.cidx ≥ maxCtorTag &&
+      (← nameToImpureType ctorInfo.induct) matches ImpureType.object | ImpureType.tobject
     Meta.MetaM.run' <| Meta.forallTelescopeReducing ctorInfo.type fun params _ => do
       let mut fields : Array CtorFieldInfo := .emptyWithCapacity ctorInfo.numFields
-      let mut nextIdx := 0
+      let mut nextIdx := if extTag then 1 else 0
       let mut has1BScalar := false
       let mut has2BScalar := false
       let mut has4BScalar := false
@@ -303,12 +320,13 @@ where
       return {
         ctorInfo := {
           name := ctorName
-          cidx := ctorInfo.cidx
+          cidx := if extTag then maxCtorTag else ctorInfo.cidx
           size := numObjs
           usize := numUSize
           ssize := nextOffset
         }
         fieldInfo := fields
+        extCidx? := if extTag then some ctorInfo.cidx else none
       }
 
 /--

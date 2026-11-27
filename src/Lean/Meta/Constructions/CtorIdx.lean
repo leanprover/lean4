@@ -13,6 +13,7 @@ import Lean.Meta.CompletionName
 import Lean.Linter.Deprecated
 import Lean.Compiler.ImplementedByAttr
 import Lean.Compiler.LCNF.Util
+import Lean.Runtime
 
 open Lean Meta
 
@@ -37,14 +38,16 @@ public def isCtorIdxCore? (env : Environment) (declName : Name) : Option Inducti
 public def isCtorIdx? (declName : Name) : MetaM (Option InductiveVal) := do
   return isCtorIdxCore? (← getEnv) declName
 
-def mkCtorIdxImpl (indName : Name) (levelParams : List Name) (declType : Expr) :
+def mkCtorIdxImpl (indName : Name) (numCtors : Nat) (levelParams : List Name) (declType : Expr) :
     MetaM Name := do
   let implName := mkCtorIdxImplName indName
+  -- The index of a constructor is its object tag unless it is at least `maxCtorTag`.
+  let getIdx := if numCtors > maxCtorTag then ``getObjCtorIdxNat else ``getObjTagNat
 
   let value ← forallTelescope declType fun args _ => do
     let discr := args[args.size - 1]!
     let indType ← inferType discr
-    let body := mkApp2 (mkConst ``getObjTagNat [← getLevel indType]) indType discr
+    let body := mkApp2 (mkConst getIdx [← getLevel indType]) indType discr
     mkLambdaFVars args body
 
   let decl := .defnDecl {
@@ -135,7 +138,7 @@ public def mkCtorIdx (indName : Name) : MetaM Unit :=
           uwnrapped later
         - built-in types like `Nat` and `Int` is wrong as they don't have a normal tag
         -/
-        let implName ← mkCtorIdxImpl indName info.levelParams declType
+        let implName ← mkCtorIdxImpl indName info.numCtors info.levelParams declType
         setImplementedBy declName implName
       compileDecl decl
       enableRealizationsForConst declName

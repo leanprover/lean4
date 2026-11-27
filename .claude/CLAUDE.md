@@ -9,11 +9,11 @@ Use `CCACHE_READONLY` and `CCACHE_TEMPDIR` instead of disabling ccache completel
 
 ### Garbage-collected Nix store paths
 
-On NixOS the CMake caches pin absolute `/nix/store/...` paths for `gmp`, `libuv` and `openssl`.
+On NixOS the CMake caches pin absolute `/nix/store/...` paths for `libuv` and `openssl`.
 A `nix-collect-garbage` run deletes those store paths while the caches keep pointing at them, so
 the next configure-triggering change (e.g. checking out a revision with a different `stage0/`)
-fails with `fatal error: 'gmp.h' file not found` or `clang: error: no such file or directory:
-'/nix/store/...-gmp-with-cxx-6.3.0/lib/libgmp.so'`.
+fails with `fatal error: 'uv.h' file not found` or `clang: error: no such file or directory:
+'/nix/store/...-libuv-.../lib/libuv.so'`.
 
 Only the caches are stale; the environment's `CMAKE_PREFIX_PATH` still lists live paths. Drop the
 pinned entries so the next configure re-detects them, then build as usual:

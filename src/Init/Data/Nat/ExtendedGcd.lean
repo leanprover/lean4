@@ -18,8 +18,7 @@ import Init.TacticsExtra
 
 `Nat.extendedGcd` computes a greatest common divisor together with signed Bézout coefficients in
 one Euclidean pass. `Nat.extendedGcd_gcd` identifies the gcd, and `Nat.extendedGcd_bezout` certifies
-the coefficients. The Lean implementation uses arbitrary-precision `Nat` and `Int` arithmetic;
-compiled evaluation uses a native implementation backed by GMP when available.
+the coefficients. The implementation uses arbitrary-precision `Nat` and `Int` arithmetic.
 -/
 
 @[expose] public section
@@ -51,7 +50,6 @@ Examples:
 * `Nat.extendedGcd 0 19 = ⟨19, 0, 1⟩`
 * `Nat.extendedGcd 19 0 = ⟨19, 1, 0⟩`
 -/
-@[extern "lean_nat_extended_gcd"]
 def extendedGcd (a b : @& Nat) : ExtendedGcdResult :=
   go a 1 0 b 0 1
 where
@@ -65,10 +63,6 @@ where
       go (r' % r) (s' - q * s) (t' - q * t) r s t
   termination_by r
   decreasing_by exact Nat.mod_lt _ (Nat.pos_of_ne_zero _h)
-
-@[export lean_nat_extended_gcd_fallback]
-private def extendedGcdFallback (a b : Nat) : ExtendedGcdResult :=
-  extendedGcd.go a 1 0 b 0 1
 
 @[simp] theorem extendedGcd_zero_left (b : Nat) : extendedGcd 0 b = ⟨b, 0, 1⟩ := by
   rw [extendedGcd, extendedGcd.go]

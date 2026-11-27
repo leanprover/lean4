@@ -61,7 +61,6 @@ set(
   RUNTIME_OBJS
   debug.cpp
   thread.cpp
-  mpz.cpp
   utf8.cpp
   object.cpp
   apply.cpp
@@ -81,7 +80,6 @@ set(
   stack_overflow.cpp
   process.cpp
   object_ref.cpp
-  mpn.cpp
   mutex.cpp
   libuv.cpp
   uv/net_addr.cpp

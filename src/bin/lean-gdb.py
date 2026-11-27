@@ -57,7 +57,7 @@ class LeanObjectPrinter:
         ('sarray', ['m_size', 'm_capacity']),
         ('sarray', ['m_size', 'm_capacity']),
         ('string', ['m_size', 'm_capacity', 'm_length']),
-        ('mpz', ['m_value']),
+        ('unused', []),  # formerly `mpz`
         ('thunk', ['m_value', 'm_closure']),
         ('task', ['m_value', 'm_imp']),
         ('ref', ['m_value']),

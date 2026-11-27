@@ -4,9 +4,9 @@ set -euo pipefail
 # Re-detect the external dependencies of a configured build directory.
 #
 # `nix-collect-garbage` deletes store paths that a configured build directory still points at,
-# for us usually `gmp`, `libuv` and `openssl`. The build then fails long before it compiles
-# anything, with `fatal error: 'gmp.h' file not found` or
-# `clang: error: no such file or directory: '/nix/store/...-gmp-with-cxx-6.3.0/lib/libgmp.so'`.
+# for us usually `libuv` and `openssl`. The build then fails long before it compiles
+# anything, with `fatal error: 'uv.h' file not found` or
+# `clang: error: no such file or directory: '/nix/store/...-libuv-.../lib/libuv.so'`.
 # Dropping the pinned entries makes the next configure pick up the live paths again from the
 # `CMAKE_PREFIX_PATH` that a dev shell keeps current.
 #

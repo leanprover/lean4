@@ -86,10 +86,9 @@ def checkShiftLeft (a n : Nat) (warning := true) : CoreM Bool := do
 Returns `true` if bit-vectors of width `w` are safe to evaluate.
 
 Most bit-vector operations compute `2^w`. The bound `2^32` comes from the runtime, not the kernel:
-`lean_nat_pow` (`src/runtime/object.cpp`) aborts the process when the base is greater than `1` and
-the exponent is greater than `UINT_MAX`, because `mpz::pow` takes the exponent as an
-`unsigned int`. Thus, procedures that evaluate bit-vector operations on literals must not build a
-`BitVec w` value unless this function returns `true`.
+`Nat.pow` (`Nat.Big.Runtime.natPow`) aborts the process when the base is greater than `1` and the
+exponent is greater than `2^32 - 1`. Thus, procedures that evaluate bit-vector operations on
+literals must not build a `BitVec w` value unless this function returns `true`.
 -/
 def isSafeBitVecWidth (w : Nat) : Bool :=
   w < UInt32.size

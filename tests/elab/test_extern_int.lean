@@ -132,7 +132,7 @@ test_extern Int.emod 7 (-2)
 test_extern Int.ediv 7 0
 test_extern Int.emod 7 0
 
--- big operands across the scalar/GMP boundary (small quotient keeps the
+-- big operands across the scalar/bignum boundary (small quotient keeps the
 -- reference cheap; a large quotient would exhaust the stack)
 test_extern Int.neg (2^63)
 test_extern Int.neg (-(2^63))
@@ -142,7 +142,7 @@ test_extern Int.emod (-(2^63)) (2^62)
 test_extern Int.tdiv (-(2^63)) (2^62)
 test_extern Int.tmod (-(2^64)) (2^63)
 
-/-! ## Nat: the tagged/GMP boundary at 2^63 and 2^64.
+/-! ## Nat: the tagged/bignum boundary at 2^63 and 2^64.
 
 Reachable through operations whose reference recursion is bounded by the
 operand's bit width (shifts, gcd, pow of a small base) or by a small operand,

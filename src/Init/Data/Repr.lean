@@ -235,10 +235,15 @@ protected def _root_.USize.repr (n : USize) : String :=
 private def reprArray : Array String := Id.run do
   List.range 128 |>.map (·.toUSize.repr) |> Array.mk
 
+/-- The decimal representation of a `Nat` that is not a scalar (see `Init.Data.Nat.Big`). -/
+@[extern "lean_nat_big_to_decimal"]
+private opaque bigToDecimal (n : @& Nat) : String
+
 def reprFast (n : Nat) : String :=
   if h : n < Nat.reprArray.size then Nat.reprArray.getInternal n h else
   if h : n < USize.size then (USize.ofNatLT n h).repr
-  else String.ofList (toDigits 10 n)
+  -- `n ≥ USize.size` is never a scalar
+  else bigToDecimal n
 
 /--
 Converts a natural number to its decimal string representation.

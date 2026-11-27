@@ -131,7 +131,6 @@ void lean_notify_assert(const char * fileName, int line, const char * condition)
 #define LeanStructArray 247
 #define LeanScalarArray 248
 #define LeanString      249
-#define LeanMPZ         250
 #define LeanThunk       251
 #define LeanTask        252
 #define LeanRef         253
@@ -455,6 +454,10 @@ LEAN_EXPORT LEAN_NORETURN void lean_internal_panic_out_of_memory(void);
 LEAN_EXPORT LEAN_NORETURN void lean_internal_panic_unreachable(void);
 LEAN_EXPORT LEAN_NORETURN void lean_internal_panic_rc_overflow(void);
 LEAN_EXPORT LEAN_NORETURN void lean_internal_panic_overflow(void);
+/* Aborts of `Init.Data.Nat.Big` and `Init.Data.Nat.BigRuntime`, which take no strings because these modules
+   do not extract closed terms. */
+LEAN_EXPORT LEAN_NORETURN lean_object * lean_bignum_panic_out_of_memory(lean_object * unit);
+LEAN_EXPORT LEAN_NORETURN lean_object * lean_bignum_panic_exponent_too_big(uint8_t op);
 
 static inline bool lean_usize_mul_would_overflow(size_t a, size_t b) {
 #if defined(__GNUC__) || defined(__clang__)
@@ -763,7 +766,6 @@ static inline bool lean_is_closure(lean_object * o) { return lean_ptr_tag(o) == 
 static inline bool lean_is_array(lean_object * o) { return lean_ptr_tag(o) == LeanArray; }
 static inline bool lean_is_sarray(lean_object * o) { return lean_ptr_tag(o) == LeanScalarArray; }
 static inline bool lean_is_string(lean_object * o) { return lean_ptr_tag(o) == LeanString; }
-static inline bool lean_is_mpz(lean_object * o) { return lean_ptr_tag(o) == LeanMPZ; }
 static inline bool lean_is_thunk(lean_object * o) { return lean_ptr_tag(o) == LeanThunk; }
 static inline bool lean_is_task(lean_object * o) { return lean_ptr_tag(o) == LeanTask; }
 static inline bool lean_is_promise(lean_object * o) { return lean_ptr_tag(o) == LeanPromise; }
@@ -1761,14 +1763,16 @@ LEAN_EXPORT lean_object * lean_nat_overflow_mul(size_t a1, size_t a2);
 LEAN_EXPORT lean_object * lean_nat_big_div(lean_object * a1, lean_object * a2);
 LEAN_EXPORT lean_object * lean_nat_big_div_exact(lean_object * a1, lean_object * a2);
 LEAN_EXPORT lean_object * lean_nat_big_mod(lean_object * a1, lean_object * a2);
-LEAN_EXPORT bool lean_nat_big_eq(lean_object * a1, lean_object * a2);
-LEAN_EXPORT bool lean_nat_big_le(lean_object * a1, lean_object * a2);
-LEAN_EXPORT bool lean_nat_big_lt(lean_object * a1, lean_object * a2);
+LEAN_EXPORT uint8_t lean_nat_big_eq(lean_object * a1, lean_object * a2);
+LEAN_EXPORT uint8_t lean_nat_big_le(lean_object * a1, lean_object * a2);
+LEAN_EXPORT uint8_t lean_nat_big_lt(lean_object * a1, lean_object * a2);
 LEAN_EXPORT lean_object * lean_nat_big_land(lean_object * a1, lean_object * a2);
 LEAN_EXPORT lean_object * lean_nat_big_lor(lean_object * a1, lean_object * a2);
 LEAN_EXPORT lean_object * lean_nat_big_xor(lean_object * a1, lean_object * a2);
 
 LEAN_EXPORT lean_obj_res lean_cstr_to_nat(char const * n);
+/* The decimal representation of a big `Nat`. */
+LEAN_EXPORT lean_obj_res lean_nat_big_to_decimal(b_lean_obj_arg a);
 LEAN_EXPORT lean_obj_res lean_big_usize_to_nat(size_t n);
 LEAN_EXPORT lean_obj_res lean_big_uint64_to_nat(uint64_t n);
 static inline lean_obj_res lean_usize_to_nat(size_t n) {
@@ -1945,7 +1949,6 @@ LEAN_EXPORT lean_obj_res lean_nat_big_shiftr(b_lean_obj_arg a1, b_lean_obj_arg a
 LEAN_EXPORT lean_obj_res lean_nat_pow(b_lean_obj_arg a1, b_lean_obj_arg a2);
 LEAN_EXPORT lean_obj_res lean_nat_powmod(b_lean_obj_arg b, b_lean_obj_arg e, b_lean_obj_arg m);
 LEAN_EXPORT lean_obj_res lean_nat_gcd(b_lean_obj_arg a1, b_lean_obj_arg a2);
-LEAN_EXPORT lean_obj_res lean_nat_extended_gcd(b_lean_obj_arg a1, b_lean_obj_arg a2);
 LEAN_EXPORT lean_obj_res lean_nat_log2(b_lean_obj_arg a);
 LEAN_EXPORT lean_obj_res lean_nat_trailing_zeros(b_lean_obj_arg a);
 /* Upper bound on the size in bytes of the representation of `a` (one word for scalars). Returns a raw `size_t`, not a boxed `Nat`. */
@@ -1998,10 +2001,10 @@ LEAN_EXPORT lean_object * lean_int_big_mod(lean_object * a1, lean_object * a2);
 LEAN_EXPORT lean_object * lean_int_big_ediv(lean_object * a1, lean_object * a2);
 LEAN_EXPORT lean_object * lean_int_big_emod(lean_object * a1, lean_object * a2);
 LEAN_EXPORT lean_obj_res lean_int_trailing_zeros(b_lean_obj_arg a);
-LEAN_EXPORT bool lean_int_big_eq(lean_object * a1, lean_object * a2);
-LEAN_EXPORT bool lean_int_big_le(lean_object * a1, lean_object * a2);
-LEAN_EXPORT bool lean_int_big_lt(lean_object * a1, lean_object * a2);
-LEAN_EXPORT bool lean_int_big_nonneg(lean_object * a);
+LEAN_EXPORT uint8_t lean_int_big_eq(lean_object * a1, lean_object * a2);
+LEAN_EXPORT uint8_t lean_int_big_le(lean_object * a1, lean_object * a2);
+LEAN_EXPORT uint8_t lean_int_big_lt(lean_object * a1, lean_object * a2);
+LEAN_EXPORT uint8_t lean_int_big_nonneg(lean_object * a);
 
 LEAN_EXPORT lean_object * lean_cstr_to_int(char const * n);
 LEAN_EXPORT lean_object * lean_big_int_to_int(int n);

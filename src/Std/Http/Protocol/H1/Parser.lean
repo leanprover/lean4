@@ -981,11 +981,24 @@ first other byte; `ByteArray.data` would box a copy of the whole buffer.
 public def onlyLineEndsLeft (input : ByteArray.Iterator) : Bool :=
   (input.array.findIdx? (fun b => b != '\r'.toUInt8 && b != '\n'.toUInt8) input.idx).isNone
 
-/-- The input past the `CR` and `LF` bytes at its start. -/
-public def skipLineEnds (input : ByteArray.Iterator) : ByteArray.Iterator :=
-  match input.array.findIdx? (fun b => b != '\r'.toUInt8 && b != '\n'.toUInt8) input.idx with
-  | some idx => input.forward (idx - input.idx)
-  | none => input.forward input.remainingBytes
+/--
+The input past the empty lines at its start, each a `CRLF` or a bare `LF`, which a recipient may take
+for a line end (RFC 9112 §2.2). A bare `CR` is no line end, so the skip stops there.
+-/
+public def skipEmptyLines (input : ByteArray.Iterator) : ByteArray.Iterator :=
+  let bytes := input.array
+  let rec go (i : Nat) : (fuel : Nat) → Nat
+    | 0 => i
+    | fuel + 1 =>
+      if bytes[i]?.any (· == '\n'.toUInt8) then go (i + 1) fuel
+      else if bytes[i]?.any (· == '\r'.toUInt8) && bytes[i + 1]?.any (· == '\n'.toUInt8) then
+        go (i + 2) fuel
+      else i
+  input.forward (go input.idx input.remainingBytes - input.idx)
+
+/-- Whether the input is a single `CR`, which may still become a `CRLF`. -/
+@[inline] public def isLoneCR (input : ByteArray.Iterator) : Bool :=
+  input.remainingBytes == 1 && input.curr == '\r'.toUInt8
 
 /--
 Whether the unread input holds only empty lines a server ignores before a request line, possibly

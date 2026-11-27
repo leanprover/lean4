@@ -696,16 +696,18 @@ private def closeOnBadMessage (machine : Machine dir) : Machine dir :=
 
 /--
 Input that reaches a client before its request head is written answers no request (RFC 9112 §9.2),
-and what follows a response must not be read as the next one (RFC 9112 §6.3). Line breaks alone are
-discarded (RFC 9112 §2.2); anything else leaves the message boundaries ambiguous, so the connection
-fails.
+and what follows a response must not be read as the next one (RFC 9112 §6.3). Empty lines alone are
+discarded (`skipEmptyLines`); anything else, a bare `CR` included (RFC 9112 §2.2), leaves the message
+boundaries ambiguous, so the connection fails.
 -/
 private def readIdleInput (machine : Machine dir) : Machine dir :=
   let input := machine.reader.input
   if input.atEnd then machine
-  else if onlyLineEndsLeft input then
-    { machine with reader.input := input.forward input.remainingBytes }
-  else closeOnBadMessage machine
+  else
+    let rest := skipEmptyLines input
+    if rest.atEnd || (isLoneCR rest && !machine.reader.noMoreInput) then
+      { machine with reader.input := rest }
+    else closeOnBadMessage machine
 
 -- Out of line, so that `processWrite` does not take the machine apart on its idle paths.
 private def closeWriterOnly (machine : Machine dir) : Machine dir :=
@@ -1053,11 +1055,15 @@ private def processNeedStartLine (machine : Machine dir) : Machine dir :=
     if machine.isServer then machine.setReaderState .closed else machine.setFailure .connectionClosed
   else if reader.input.atEnd then machine.addEvent (.needMoreData none)
   else if machine.isServer then processRequestLine machine
-  -- Discarded as `readIdleInput` discards them, so the verdict does not depend on whether they
-  -- arrive before or after the request is written.
-  else if reader.input.curr == '\r'.toUInt8 || reader.input.curr == '\n'.toUInt8 then
-    { machine with reader.input := skipLineEnds reader.input }
-  else processStatusLine machine
+  else
+    -- Empty lines are discarded as `readIdleInput` discards them, so the verdict does not depend on
+    -- whether they arrive before or after the request is written.
+    let rest := skipEmptyLines reader.input
+    if rest.remainingBytes < reader.input.remainingBytes then { machine with reader.input := rest }
+    else if isLoneCR rest then
+      if reader.noMoreInput then machine.setFailure .connectionClosed
+      else machine.addEvent (.needMoreData none)
+    else processStatusLine machine
 
 /-- Adds a field line to the head being read, within the header count and byte limits. -/
 private def processParsedHeader (machine : Machine dir) (count : Nat) (lineBytes : Nat)

@@ -154,6 +154,31 @@ def longReason : String :=
   let (m, _, events) := run (m.feed "\r\n\r\nHTTP/1.1 204 No Content\r\n\r\n".toUTF8)
   !m.failed && (endHeaders events).map (·.status) == #[.noContent]
 
+-- A bare `LF` is a line end a recipient may accept.
+#guard
+  let (machine, _, events) := run (sentGet.feed "\n\r\nHTTP/1.1 204 No Content\r\n\r\n".toUTF8)
+  !machine.failed && (endHeaders events).map (·.status) == #[.noContent]
+
+-- A bare `CR` is no line end, before the status line or between responses.
+#guard (run (sentGet.feed "\rHTTP/1.1 204 No Content\r\n\r\n".toUTF8)).1.failed
+#guard (run (sentGet.feed "HTTP/1.1 204 No Content\r\n\r\n\rX".toUTF8)).1.failed
+
+-- A `CRLF` split across reads, while idle or before a status line.
+#guard
+  let (m, _, _) := run (sentGet.feed "HTTP/1.1 204 No Content\r\n\r\n\r".toUTF8)
+  let (m, _, _) := run (m.send (request .get) |>.userClosedBody)
+  let (m, _, events) := run (m.feed "\nHTTP/1.1 204 No Content\r\n\r\n".toUTF8)
+  !m.failed && (endHeaders events).map (·.status) == #[.noContent]
+
+#guard
+  let (machine, events) := feedBytewise sentGet "\r\n\r\nHTTP/1.1 204 No Content\r\n\r\n"
+  !machine.failed && (endHeaders events).map (·.status) == #[.noContent]
+
+-- A `CR` the peer never completes is a bare `CR`.
+#guard
+  let (m, _, _) := run (sentGet.feed "HTTP/1.1 204 No Content\r\n\r\n\r".toUTF8)
+  (run m.noMoreInput).1.failed
+
 /-! ## RFC 9112 §9.2: no response before the request head is written (C5) -/
 
 -- The head waits for its body's framing; a response then answers no request this client wrote.

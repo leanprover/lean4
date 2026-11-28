@@ -43,8 +43,10 @@ def mkBlock (ns c2 : Name) : Declaration :=
   let mk1 := mkForall `x .default i2
               (mkForall `f .default (mkApp (mkConst ``Fin) (mkApp (mkConst ``Nat.succ) (mkProj I2 0 (mkBVar 0)))) (mkConst I1))
   let mk2 := mkForall `n .default (mkConst ``Nat) i2
-  .inductDecl [] 0 [{ name := I1, type := ty, ctors := [{ name := I1 ++ `mk, type := mk1 }] },
-                    { name := I2, type := ty, ctors := [{ name := c2, type := mk2 }] }] false
+  .inductDecl [] 0 [{ name := I1, type := ty, ctors := [{ name := I1 ++ `mk, type := mk1 }],
+                      isImpredicative := false, isK := false, hasProjections := true, hasEta := false, hasLargeElim := true },
+                    { name := I2, type := ty, ctors := [{ name := c2, type := mk2 }],
+                      isImpredicative := false, isK := false, hasProjections := true, hasEta := false, hasLargeElim := true }] false
 
 def tryBlock (label : String) (ns c2 : Name) : MetaM Unit := do
   try addDecl (mkBlock ns c2); IO.println s!"{label}: accepted"

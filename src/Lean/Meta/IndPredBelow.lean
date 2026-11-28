@@ -116,7 +116,13 @@ def mkBelowInductive (motiveIdx minorIdx : Nat) (ctx : Context) : MetaM (Nat × 
       type := ctorType
     }
     minorIdx := minorIdx + 1
-  let induct : InductiveType := { name, type, ctors := ctors.toList }
+  let induct : InductiveType := { name, type, ctors := ctors.toList
+                                  isImpredicative := true
+                                  isK := false
+                                  hasProjections := false
+                                  hasEta := false
+                                  hasLargeElim := false
+                                  }
   return (minorIdx, induct)
 
 def mkBelowInductives (ctx : Context) : MetaM Unit := do

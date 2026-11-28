@@ -12,7 +12,9 @@ run_meta do
   let ctorMk := Expr.forallE `a (mkApp (.const `Foo []) D) T .default
   let d := Declaration.inductDecl [] 0
     [{ name := `T, type := .sort 1,
-       ctors := [{ name := `T.nil, type := T }, { name := `T.mk, type := ctorMk }] }] false
+       ctors := [{ name := `T.nil, type := T }, { name := `T.mk, type := ctorMk }],
+       isImpredicative := false, isK := false, hasProjections := false, hasEta := false,
+       hasLargeElim := true }] false
   try
     addDecl d
     let some ci := (← getEnv).find? `T.mk | throwError "no T.mk"

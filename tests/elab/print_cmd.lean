@@ -99,9 +99,7 @@ number of motives: 1 (position 3)
 number of minor premises: 1 (position 4)
 number of indices: 1 (position 5)
 major premise position: 6
-rules:
-  Acc.rec intro (Acc.intro x h)
-    ==> intro x h fun y a => Acc.rec intro (h y a)
+rules: (none)
 -/
 #guard_msgs in #print Acc.rec
 

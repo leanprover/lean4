@@ -15,7 +15,8 @@ meta def build : CommandElabM Unit := do
     mkForall `l .default l (mkApp (mkConst `E) (mkBVar 1))
   logInfo ct
   liftCoreM <| addDecl <| .inductDecl [] 1 [{
-    name := `E, type := Et, ctors := [{ name := `E.mk, type := ct }] }] false
+    name := `E, type := Et, ctors := [{ name := `E.mk, type := ct }], isImpredicative := false,
+    isK := false, hasProjections := false, hasEta := false, hasLargeElim := true }] false
   logInfo "E accepted"
 
 elab "mkbug" : command => build

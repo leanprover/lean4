@@ -189,8 +189,8 @@ where
         k a' b'
 
   go ctorVal us := do
-    if !isNonRecStructure (← getEnv) ctorVal.induct then
-      trace[Meta.isDefEq.eta.struct] "failed, type is not a structure{indentExpr b}"
+    if !hasEta (← getEnv) ctorVal.induct then
+      trace[Meta.isDefEq.eta.struct] "failed, type is not a structure with eta{indentExpr b}"
       return false
     if !(← isDefEq (← inferType a) (← inferType b)) then
       return false
@@ -221,7 +221,7 @@ private def etaReduceRecursor? (a : Expr) : MetaM (Option Expr) := do
   let afn := a.getAppFn
   let some a_name := afn.constName? | return none
   let .recInfo recVal ← getConstInfo a_name | return none
-  unless recVal.k || isNonRecStructure (← getEnv) recVal.getMajorInduct do
+  unless recVal.k || hasEta (← getEnv) recVal.getMajorInduct do
     return none
   let args := a.getAppArgs
   if args.size > recVal.getMajorIdx then

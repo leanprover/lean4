@@ -17,30 +17,25 @@ bool is_constructor(environment const & env, name const & n);
     Otherwise, return none. */
 optional<name> is_constructor_app(environment const & env, expr const & e);
 
-/** \brief Return true if the given declaration is a non-recursive structure (an inductive type with one constructor and no indices). */
-bool is_non_rec_structure(environment const & env, name const & decl_name);
+/** \brief Return true if the given declaration is an eta-expandable inductive type, i.e a non-recursive type with one constructor, no indices, and a flag \c has_eta set to true. */
+bool has_eta(environment const & env, name const & decl_name);
+
+/** \brief Return true if the given declaration is an eta-expandable inductive type, i.e a non-recursive type with one constructor, no indices, and a flag \c has_eta set to true. */
+bool has_large_elim(environment const & env, name const & decl_name);
 
 /* Auxiliary function for to_cnstr_when_K */
-optional<expr> mk_nullary_cnstr(environment const & env, expr const & type, size_t num_params);
+optional<expr> mk_nullary_cnstr(inductive_val induct_val, expr const & type, size_t num_params);
 
 /* For datatypes that support K-axiom, given `e` an element of that type, we convert (if possible)
    to the default constructor. For example, if `e : a = a`, then this method returns `eq.refl a` */
 template<typename WHNF, typename INFER, typename IS_DEF_EQ>
-inline expr to_cnstr_when_K(environment const & env, recursor_val const & rval, expr const & e,
+inline expr to_cnstr_when_K(environment const & env, inductive_val induct_val, size_t num_params, expr const & e,
                             WHNF const & whnf, INFER const & infer_type, IS_DEF_EQ const & is_def_eq) {
-    lean_assert(rval.is_k());
+    lean_assert(induct_val.is_k());
     expr app_type    = whnf(infer_type(e));
     expr const & app_type_I = get_app_fn(app_type);
-    if (!is_constant(app_type_I) || const_name(app_type_I) != rval.get_major_induct()) return e; // type incorrect
-    if (has_expr_mvar(app_type)) {
-        buffer<expr> app_type_args;
-        get_app_args(app_type, app_type_args);
-        for (size_t i = rval.get_nparams(); i < app_type_args.size(); i++) {
-            if (has_expr_metavar(app_type_args[i]))
-                return e;
-        }
-    }
-    optional<expr> new_cnstr_app = mk_nullary_cnstr(env, app_type, rval.get_nparams());
+    if (!is_constant(app_type_I) || const_name(app_type_I) != induct_val.to_constant_val().get_name()) return e; // type incorrect
+    optional<expr> new_cnstr_app = mk_nullary_cnstr(induct_val, app_type, num_params);
     if (!new_cnstr_app) return e;
     expr new_type    = infer_type(*new_cnstr_app);
     if (!is_def_eq(app_type, new_type)) return e;
@@ -53,37 +48,19 @@ expr nat_lit_to_constructor(expr const & e);
 expr string_lit_to_constructor(expr const & e);
 
 /* Auxiliary method for \c to_cnstr_when_structure, convert `e` into `mk e.1 ... e.n` */
-expr expand_eta_struct(environment const & env, expr const & e_type, expr const & e);
+expr expand_eta_struct(environment const & env, inductive_val induct_val, expr const & e_type, expr const & e);
 
 /* If `e` is not a constructor application and its type `C ...` is a non-recursive structure, return `C.mk e.1 ... e.n`,
    where `C.mk` is `C`s constructor. */
 template<typename WHNF, typename INFER>
-inline expr to_cnstr_when_structure(environment const & env, recursor_val const & rec_val, expr const & e,
+inline expr to_cnstr_when_structure(environment const & env, inductive_val induct_val, recursor_val const & rec_val, expr const & e,
                                     WHNF const & whnf, INFER const & infer_type) {
-    name const & induct_name = rec_val.get_major_induct();
-    if (!is_non_rec_structure(env, induct_name) || is_constructor_app(env, e))
+    if (!induct_val.has_eta() || is_constructor_app(env, e))
         return e;
     expr e_type = whnf(infer_type(e));
-    if (!is_constant(get_app_fn(e_type), induct_name))
+    if (!is_constant(get_app_fn(e_type), induct_val.to_constant_val().get_name()))
         return e;
-    names non_nested_ind_params = env.get(head(rec_val.get_all())).get_lparams();
-    /*We do not perform eta for non-singleton propositions.
-      To know whether a recursor is large-eliminating, it is not enough to look at its major's type's number of universes and and see if it differs from the recursor's. Consider the following types:
-      ```
-      inductive StructLike (α : Type u) where
-        | mk : α → StructLike α
-
-      inductive Nested : Type where
-        | nest : StructLike Nested → Nested
-        | other
-      ```
-      Here, the aux recursive Nested.rec_1 has one universe, but its major being of inductive type StructLike also has one. They have the same number of universes, but the type indeed has large-elimination.
-      Instead, we look at the first inductive type in the defined mutual inductive block, and compare that type's number of universes to the recursor's.
-      TODO once the "large elimination" flag is added to recursors, use that instead.
-    */
-    if (length(rec_val.to_constant_val().get_lparams()) == length(non_nested_ind_params))
-        return e;
-    return expand_eta_struct(env, e_type, e);
+    return expand_eta_struct(env, induct_val, e_type, e);
 }
 
 template<typename WHNF, typename INFER, typename IS_DEF_EQ, typename IS_PROP>
@@ -97,11 +74,15 @@ inline optional<expr> inductive_reduce_rec(environment const & env, expr const &
     buffer<expr> rec_args;
     get_app_args(e, rec_args);
     recursor_val const & rec_val = rec_info->to_recursor_val();
+    if (is_nil(rec_val.get_rules())) return none_expr();
+    name const & induct_name = rec_val.get_major_induct();
+    inductive_val induct_val = env.find(induct_name)->to_inductive_val();
+    if (!induct_val.has_large_elim()) return none_expr();
     size_t major_idx           = rec_val.get_major_idx();
     if (major_idx >= rec_args.size()) return none_expr(); // major premise is missing
     expr major     = rec_args[major_idx];
     if (rec_val.is_k()) {
-        major = to_cnstr_when_K(env, rec_val, major, whnf, infer_type, is_def_eq);
+        major = to_cnstr_when_K(env, induct_val, rec_val.get_nparams(), major, whnf, infer_type, is_def_eq);
     }
     if (!is_prop(infer_type(major)))
         major = whnf(major);
@@ -110,7 +91,7 @@ inline optional<expr> inductive_reduce_rec(environment const & env, expr const &
     else if (is_string_lit(major))
         major = whnf(string_lit_to_constructor(major));
     else
-        major = to_cnstr_when_structure(env, rec_val, major, whnf, infer_type);
+        major = to_cnstr_when_structure(env, induct_val, rec_val, major, whnf, infer_type);
     optional<recursor_rule> rule = get_rec_rule_for(rec_val, major);
     if (!rule) return none_expr();
     buffer<expr> major_args;

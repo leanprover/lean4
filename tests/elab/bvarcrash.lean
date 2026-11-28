@@ -36,6 +36,11 @@ def inductive_0 : Lean.InductiveType where
   name := name_2
   type := expr_9
   ctors := [constructor_0, constructor_1]
+  isImpredicative := false
+  isK := false
+  hasProjections := false
+  hasEta := false
+  hasLargeElim := true
 def decl_0 : Lean.Declaration :=
   .inductDecl [name_4] 1 [inductive_0] false
 def name_13 : Lean.Name := .str name_2 "rec"

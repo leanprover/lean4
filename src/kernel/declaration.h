@@ -170,10 +170,15 @@ structure InductiveType where
   name : Name
   type : Expr
   ctors : List Constructor
+  isImpredicative : Bool
+  isK : Bool
+  hasProjections : Bool
+  hasEta : Bool
+  hasLargeElim : Bool
 */
 class inductive_type : public object_ref {
 public:
-    inductive_type(name const & id, expr const & type, constructors const & cnstrs);
+    inductive_type(name const &id, expr const &type, constructors const &cnstrs, bool const &is_impredicative, bool const &is_k, bool const &has_projections, bool const &has_eta, bool const &has_large_elim);
     inductive_type(inductive_type const & other):object_ref(other) {}
     inductive_type(inductive_type && other) noexcept:object_ref(std::move(other)) {}
     inductive_type & operator=(inductive_type const & other) { object_ref::operator=(other); return *this; }
@@ -181,6 +186,11 @@ public:
     name const & get_name() const { return static_cast<name const &>(cnstr_get_ref(*this, 0)); }
     expr const & get_type() const { return static_cast<expr const &>(cnstr_get_ref(*this, 1)); }
     constructors const & get_cnstrs() const { return static_cast<constructors const &>(cnstr_get_ref(*this, 2)); }
+    bool is_impredicative() const;
+    bool is_k() const;
+    bool has_projections() const;
+    bool has_eta() const;
+    bool has_large_elim() const;
 };
 typedef list_ref<inductive_type> inductive_types;
 
@@ -270,17 +280,25 @@ structure InductiveVal extends ConstantVal where
   numNested : Nat
   isRec : Bool
   isUnsafe : Bool
-  isReflexive : Bool
+  isImpredicative : Bool
+  isK : Bool
+  hasProjections : Bool
+  hasEta : Bool
+  hasLargeElim : Bool
 */
 class inductive_val : public object_ref {
 public:
     inductive_val(name const & n, names const & lparams, expr const & type, size_t nparams,
-                  size_t nindices, names const & all, names const & cnstrs, size_t nnested, bool is_rec, bool is_unsafe, bool is_reflexive);
+                  size_t nindices, names const & all, names const & cnstrs, size_t nnested, bool is_rec, bool is_unsafe, bool is_impredicative, bool is_k, bool has_projections, bool has_eta, bool has_large_elim);
     inductive_val(inductive_val const & other):object_ref(other) {}
     inductive_val(inductive_val && other) noexcept:object_ref(std::move(other)) {}
     inductive_val & operator=(inductive_val const & other) { object_ref::operator=(other); return *this; }
     inductive_val & operator=(inductive_val && other) noexcept { object_ref::operator=(std::move(other)); return *this; }
     constant_val const & to_constant_val() const { return static_cast<constant_val const &>(cnstr_get_ref(*this, 0)); }
+    name const & get_name() const { return to_constant_val().get_name(); }
+    names const & get_lparams() const { return to_constant_val().get_lparams(); }
+    size_t get_num_lparams() const { return length(get_lparams()); }
+    expr const & get_type() const { return to_constant_val().get_type(); }
     size_t get_nparams() const { return static_cast<nat const &>(cnstr_get_ref(*this, 1)).get_small_value(); }
     size_t get_nindices() const { return static_cast<nat const &>(cnstr_get_ref(*this, 2)).get_small_value(); }
     names const & get_all() const { return static_cast<names const &>(cnstr_get_ref(*this, 3)); }
@@ -289,7 +307,11 @@ public:
     size_t get_nnested() const { return static_cast<nat const &>(cnstr_get_ref(*this, 5)).get_small_value(); }
     bool is_rec() const;
     bool is_unsafe() const;
-    bool is_reflexive() const;
+    bool is_impredicative() const;
+    bool is_k() const;
+    bool has_projections() const;
+    bool has_eta() const;
+    bool has_large_elim() const;
 };
 
 /*

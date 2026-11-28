@@ -253,6 +253,8 @@ expr type_checker::infer_proj(expr const & e, bool infer_only) {
     if (!I_info.is_inductive())
         throw invalid_proj_exception(env(), m_lctx, e);
     inductive_val I_val = I_info.to_inductive_val();
+    if (!I_val.has_projections())
+        throw invalid_proj_exception(env(), m_lctx, e);
     if (length(I_val.get_cnstrs()) != 1 || args.size() != I_val.get_nparams() + I_val.get_nindices())
         throw invalid_proj_exception(env(), m_lctx, e);
 
@@ -264,13 +266,10 @@ expr type_checker::infer_proj(expr const & e, bool infer_only) {
         if (!is_pi(r)) throw invalid_proj_exception(env(), m_lctx, e);
         r = instantiate(binding_body(r), args[i]);
     }
-    bool is_prop_type = is_prop(type);
     for (size_t i = 0; i < idx; i++) {
         r = whnf(r);
         if (!is_pi(r)) throw invalid_proj_exception(env(), m_lctx, e);
         if (has_loose_bvars(binding_body(r))) {
-            if (is_prop_type && !is_prop(binding_domain(r)))
-                throw invalid_proj_exception(env(), m_lctx, e);
             r = instantiate(binding_body(r), mk_proj(I_name, i, proj_expr(e)));
         } else {
             r = binding_body(r);
@@ -279,8 +278,6 @@ expr type_checker::infer_proj(expr const & e, bool infer_only) {
     r = whnf(r);
     if (!is_pi(r)) throw invalid_proj_exception(env(), m_lctx, e);
     r = binding_domain(r);
-    if (is_prop_type && !is_prop(r))
-        throw invalid_proj_exception(env(), m_lctx, e);
     return r;
 }
 
@@ -850,7 +847,7 @@ optional<expr> type_checker::eta_expand_iota_reduce_recursor(expr const & s) {
     if (!s_info.is_recursor()) return none_expr();
     recursor_val rec_val = s_info.to_recursor_val();
     if (s_args.size() > rec_val.get_major_idx()) return none_expr();
-    if (!rec_val.is_k() && !is_non_rec_structure(env(), rec_val.get_major_induct()))
+    if (!rec_val.is_k() && !has_eta(env(), rec_val.get_major_induct()))
         return none_expr();
     size_t n_exps = rec_val.get_major_idx() + 1 - s_args.size();
     expr s_type = whnf(infer_type(s));
@@ -891,7 +888,7 @@ bool type_checker::try_eta_struct_core(expr const & t_, expr const & s_) {
     constant_info sf_info = env().get(const_name(sf));
     if (!sf_info.is_constructor()) return false;
     constructor_val sf_val = sf_info.to_constructor_val();
-    if (!is_non_rec_structure(env(), sf_val.get_induct())) return false;
+    if (!has_eta(env(), sf_val.get_induct())) return false;
     expr t_type = infer_type(t);
     expr s_type = infer_type(s);
     if (!is_def_eq(t_type,s_type)) return false;
@@ -1169,7 +1166,7 @@ lbool type_checker::try_string_lit_expansion(expr const & t, expr const & s) {
 bool type_checker::is_def_eq_unit_like(expr const & t, expr const & s) {
     expr t_type = whnf(infer_type(t));
     expr I = get_app_fn(t_type);
-    if (!is_constant(I) || !is_non_rec_structure(env(), const_name(I)))
+    if (!is_constant(I) || !has_eta(env(), const_name(I)))
         return false;
     name ctor_name = head(env().get(const_name(I)).to_inductive_val().get_cnstrs());
     constructor_val ctor_val = env().get(ctor_name).to_constructor_val();

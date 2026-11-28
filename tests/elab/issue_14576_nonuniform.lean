@@ -33,7 +33,8 @@ meta def buildNested : CommandElabM Unit := do
   let Et := mkForall `w .default (mkConst ``W) (mkSort 1)
   let ct := mkForall `w .default (mkConst ``W) <|
     mkForall `l .default (mkApp (mkConst ``L) Efalse) (mkApp (mkConst `E) (mkBVar 1))
-  mkInd [] 1 [{ name := `E, type := Et, ctors := [{ name := `E.mk, type := ct }] }]
+  mkInd [] 1 [{ name := `E, type := Et, ctors := [{ name := `E.mk, type := ct }],
+                isImpredicative := false, isK := false, hasProjections := false, hasEta := false, hasLargeElim := true }]
 
 elab "mkbug" : command => buildNested
 
@@ -56,7 +57,8 @@ meta def buildPhantom : CommandElabM Unit := do
   let ct := mkForall `w .default (mkConst ``W) <|
     mkForall `l .default (mkApp2 (mkConst ``L2) (mkApp (mkConst `F) (mkBVar 0)) redex)
       (mkApp (mkConst `F) (mkBVar 1))
-  mkInd [] 1 [{ name := `F, type := Ft, ctors := [{ name := `F.mk, type := ct }] }]
+  mkInd [] 1 [{ name := `F, type := Ft, ctors := [{ name := `F.mk, type := ct }],
+                isImpredicative := false, isK := false, hasProjections := false, hasEta := false, hasLargeElim := true }]
 
 elab "mkbug2" : command => buildPhantom
 
@@ -77,7 +79,8 @@ meta def buildIndex : CommandElabM Unit := do
   let ct := mkForall `w .default (mkConst ``W) <|
     mkForall `l .default (mkApp (mkConst ``L) (mkApp2 (mkConst `G) (mkBVar 0) Gfalse))
       (mkApp2 (mkConst `G) (mkBVar 1) (mkConst ``Nat))
-  mkInd [] 1 [{ name := `G, type := Gt, ctors := [{ name := `G.mk, type := ct }] }]
+  mkInd [] 1 [{ name := `G, type := Gt, ctors := [{ name := `G.mk, type := ct }],
+                isImpredicative := false, isK := false, hasProjections := false, hasEta := false, hasLargeElim := true }]
 
 elab "mkbug3" : command => buildIndex
 
@@ -98,7 +101,7 @@ meta def buildErased : CommandElabM Unit := do
   let ct := mkForall `p .default (mkSort 1) <|
     mkForall `_ .default (mkApp (mkConst ``Ignore) (mkApp (mkConst `D) (mkConst ``Nat)))
       (mkApp (mkConst `D) (mkBVar 1))
-  mkInd [] 1 [{ name := `D, type := Dt, ctors := [{ name := `D.mk, type := ct }] }]
+  mkInd [] 1 [{ name := `D, type := Dt, ctors := [{ name := `D.mk, type := ct }], isImpredicative := false, isK := false, hasProjections := false, hasEta := false, hasLargeElim := true }]
 
 elab "mkerased" : command => buildErased
 
@@ -118,7 +121,7 @@ meta def buildLevels : CommandElabM Unit := do
   let ct := mkForall `p .default (mkSort 1) <|
     mkForall `_ .default (mkApp (mkConst ``L) (mkApp (mkConst `U [.param `v, .param `u]) (mkBVar 0)))
       (mkApp (mkConst `U [.param `u, .param `v]) (mkBVar 1))
-  mkInd [`u, `v] 1 [{ name := `U, type := Ut, ctors := [{ name := `U.mk, type := ct }] }]
+  mkInd [`u, `v] 1 [{ name := `U, type := Ut, ctors := [{ name := `U.mk, type := ct }], isImpredicative := false, isK := false, hasProjections := false, hasEta := false, hasLargeElim := true }]
 
 elab "mklevels" : command => buildLevels
 
@@ -139,7 +142,7 @@ meta def buildSelfIndex : CommandElabM Unit := do
   let HNat := mkApp (mkConst `H) (mkConst ``Nat)
   let Ht := mkForall `i .default (mkSort 1) (mkSort 1)
   let ct := mkForall `l .default (mkApp (mkConst ``L) (mkApp (mkConst `H) HNat)) HNat
-  mkInd [] 0 [{ name := `H, type := Ht, ctors := [{ name := `H.mk, type := ct }] }]
+  mkInd [] 0 [{ name := `H, type := Ht, ctors := [{ name := `H.mk, type := ct }], isImpredicative := false, isK := false, hasProjections := false, hasEta := false, hasLargeElim := true }]
 
 elab "mkselfindex" : command => buildSelfIndex
 
@@ -161,7 +164,7 @@ meta def buildDefeqParam : CommandElabM Unit := do
   let ct := mkForall `p .default (mkApp (mkConst ``IdT) (mkSort 1)) <|
     mkForall `l .default (mkApp (mkConst ``L) (mkApp (mkConst `V) (mkBVar 0)))
       (mkApp (mkConst `V) (mkBVar 1))
-  mkInd [] 1 [{ name := `V, type := Vt, ctors := [{ name := `V.mk, type := ct }] }]
+  mkInd [] 1 [{ name := `V, type := Vt, ctors := [{ name := `V.mk, type := ct }], isImpredicative := false, isK := false, hasProjections := false, hasEta := false, hasLargeElim := true }]
 
 elab "mkdefeqparam" : command => buildDefeqParam
 
@@ -182,7 +185,7 @@ meta def buildLetParam : CommandElabM Unit := do
   let Ct := mkForall `p .default (mkSort 1) (mkSort 1)
   let ct := .letE `x (mkSort 1) (mkConst ``Nat)
     (mkForall `p .default (mkSort 1) (mkApp (mkConst `C) (mkBVar 1))) false
-  mkInd [] 1 [{ name := `C, type := Ct, ctors := [{ name := `C.mk, type := ct }] }]
+  mkInd [] 1 [{ name := `C, type := Ct, ctors := [{ name := `C.mk, type := ct }], isImpredicative := false, isK := false, hasProjections := false, hasEta := false, hasLargeElim := true }]
 
 elab "mkletparam" : command => buildLetParam
 

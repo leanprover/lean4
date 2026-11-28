@@ -11,6 +11,7 @@ import Lean.Elab.ConfigEval.Util
 public import Lean.Elab.Command
 import Lean.Elab.DeclNameGen
 import Lean.Elab.ErrorUtils
+import Lean.Meta.RecursorInfo
 
 public section
 
@@ -147,7 +148,7 @@ where
       | throwError "`{.ofConstName indTypeName}` is not an inductive type"
     unless ival.levelParams.isEmpty && ival.numParams == 0 && ival.numIndices == 0 do
       throwError "`{.ofConstName indTypeName}` has universe parameters, parameters, or indices"
-    if ival.isNested || ival.isReflexive then
+    if ← pure ival.isNested <||> isReflexive ival then
       throwError "`{.ofConstName indTypeName}` has unsupported recursion"
     return ival
   useCtor (ival : InductiveVal) (ctorName : Name) : Bool :=

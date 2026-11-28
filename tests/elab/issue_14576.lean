@@ -25,7 +25,8 @@ meta def build : CommandElabM Unit := do
   let ct := mkForall `w .default (mkConst ``W) <|
     mkForall `l .default l (mkApp (mkConst `E) (mkBVar 1))
   liftCoreM <| addDecl <| .inductDecl [] 1 [{
-    name := `E, type := Et, ctors := [{ name := `E.mk, type := ct }] }] false
+    name := `E, type := Et, ctors := [{ name := `E.mk, type := ct }], isImpredicative := false,
+    isK := false, hasProjections := false, hasEta := false, hasLargeElim := false }] false
   let Et := mkApp (mkConst `E) tw
   let l := mkApp2 (mkConst ``L.mk) Et (mkConst ``Bool.true)
   liftCoreM <| addDecl <| .defnDecl {

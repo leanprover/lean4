@@ -128,6 +128,19 @@ inline object_ref mk_cnstr(unsigned tag, object_ref const & o1, object_ref const
     return object_ref(r);
 }
 
+inline object_ref mk_cnstr(unsigned tag, object_ref const & o1, object_ref const & o2, object_ref const & o3, object_ref const & o4, object_ref const & o5, object_ref const & o6, object_ref const & o7, object_ref const & o8, unsigned scalar_sz = 0) {
+    object * r = alloc_cnstr(tag, 8, scalar_sz);
+    cnstr_set(r, 0, o1.to_obj_arg());
+    cnstr_set(r, 1, o2.to_obj_arg());
+    cnstr_set(r, 2, o3.to_obj_arg());
+    cnstr_set(r, 3, o4.to_obj_arg());
+    cnstr_set(r, 4, o5.to_obj_arg());
+    cnstr_set(r, 5, o6.to_obj_arg());
+    cnstr_set(r, 6, o7.to_obj_arg());
+    cnstr_set(r, 7, o8.to_obj_arg());
+    return object_ref(r);
+}
+
 /* The following definition is a low level hack that relies on the fact that sizeof(object_ref) == sizeof(object *). */
 inline object_ref const & cnstr_get_ref(object * o, unsigned i) {
     static_assert(sizeof(object_ref) == sizeof(object *), "unexpected object_ref size"); // NOLINT

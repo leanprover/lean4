@@ -78,7 +78,8 @@ inductive type 'bad' is not listed in its own `all` field
 run_meta replayWith [.inductInfo {
     name := `bad, levelParams := [], type := mkConst ``False, numParams := 0, numIndices := 0
     all := [``Z], ctors := [], numNested := 0, isRec := false, isUnsafe := false
-    isReflexive := false }]
+    isImpredicative := false, isK := false, hasProjections := false, hasEta := false
+    hasLargeElim := false }]
 
 -- A forged inductive that lists an ill-typed definition `D : Type := Type` in its `all` field.
 /--
@@ -90,7 +91,8 @@ run_meta replayWith [
   .inductInfo {
     name := `bad, levelParams := [], type := mkSort 1, numParams := 0, numIndices := 0
     all := [`bad, `D], ctors := [], numNested := 0, isRec := false, isUnsafe := false
-    isReflexive := false },
+    isImpredicative := false, isK := false, hasProjections := false, hasEta := false
+    hasLargeElim := false },
   .defnInfo {
     name := `D, levelParams := [], type := mkSort 1, value := mkSort 1, hints := .abbrev
     safety := .safe, all := [`D] }]

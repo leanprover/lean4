@@ -1,6 +1,6 @@
 #include "util/options.h"
 
-// [ ] Check box to force CI to test stage 2 and run update-stage0 on PR merge
+// [X] Check box to force CI to test stage 2 and run update-stage0 on PR merge
 // (any other change to this file will do the same; ALL changes should be made to the stage0/ copy)
 
 namespace lean {
@@ -16,7 +16,7 @@ options get_option_overrides() {
 
     // uncomment for ABI-breaking changes affecting meta code;
     // see also next option!
-    //opts = opts.update({"interpreter", "prefer_native"}, true);
+    // opts = opts.update({"interpreter", "prefer_native"}, true);
 
     // comment out when enabling `prefer_native` should also affect use
     // of built-in parsers in quotations; this should usually be done, but setting

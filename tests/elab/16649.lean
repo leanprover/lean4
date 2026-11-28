@@ -56,8 +56,10 @@ def mkBlock (ns c2 : Name) : Declaration :=
                (mkLambda `h .default (mkApp (mkBVar 2) (mkBVar 1)) (mkBVar 0))))
   let mk1 := mkApp (mkConst I1) (mkApp fn arg)
   .inductDecl [] 0 [{ name := I1, type := mkForall `n .default (mkConst ``Nat) (mkSort Level.one),
-                      ctors := [{ name := I1 ++ `mk, type := mk1 }] },
-                    { name := I2, type := mkSort Level.one, ctors := [{ name := c2, type := i2 }] }] false
+                      ctors := [{ name := I1 ++ `mk, type := mk1 }],
+                      isImpredicative := false, isK := false, hasProjections := false, hasEta := false, hasLargeElim := true },
+                    { name := I2, type := mkSort Level.one, ctors := [{ name := c2, type := i2 }],
+                      isImpredicative := false, isK := false, hasProjections := true, hasEta := true, hasLargeElim := true }] false
 
 def tryBlock (label : String) (ns c2 : Name) : MetaM Unit := do
   try addDecl (mkBlock ns c2); IO.println s!"{label}: accepted"

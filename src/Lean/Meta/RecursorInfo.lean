@@ -245,4 +245,44 @@ def mkRecursorInfo (declName : Name) (majorPos? : Option Nat := none) : MetaM Re
   let majorPos? := majorPos? <|> getMajorPos? (← getEnv) declName
   mkRecursorInfoCore declName majorPos?
 
+/-- An inductive type is called reflexive if it has at least one constructor that takes as an argument a function returning the
+  same type we are defining.
+  Consider the type:
+  ```
+  inductive WideTree where
+  | branch: (Nat -> WideTree) -> WideTree
+  | leaf: WideTree
+  ```
+  this is reflexive due to the presence of the `branch : (Nat -> WideTree) -> WideTree` constructor.
+
+  See also: 'Inductive Definitions in the system Coq Rules and Properties' by Christine Paulin-Mohring
+  Section 2.2, Definition 3
+  -/
+def isReflexive (indVal : InductiveVal) : MetaM Bool := do
+  for indName in indVal.all do
+    let indVal ← getConstInfoInduct indName
+    for ctorName in indVal.ctors do
+      let ctorVal ← getConstInfoCtor ctorName
+      forallTelescope ctorVal.type fun xs _ => do←
+        for x in xs do
+          let argType ← whnf <| ← inferType x
+          if argType.isForall && argType.getUsedConstants.any (· ∈ indVal.all) then
+            return true
+  return false
+
+/-for (size_t idx = 0; idx < m_ind_types.size(); idx++) {
+    inductive_type const & ind_type = m_ind_types[idx];
+    for (constructor const & cnstr : ind_type.get_cnstrs()) {
+        expr t = constructor_type(cnstr);
+        while (is_pi(t)) {
+            expr arg_type = binding_domain(t);
+            if (is_pi(arg_type) && has_ind_occ(arg_type))
+                return true;
+            expr local = mk_local_decl_for(t);
+            t = instantiate(binding_body(t), local);
+        }
+    }
+ }
+return false;-/
+
 end Lean.Meta

@@ -105,11 +105,11 @@ def validateComputedFields : M Unit := do
       throwError "computed field {cf}'s type must not depend on indices{indentExpr ty}"
 
 def mkImplType : M Name := do
-  let {name, isUnsafe, type, ctors, levelParams, numParams, lparams, params, compFieldVars, ..} ← read
+  let {name, isUnsafe, type, ctors, levelParams, numParams, lparams, params, compFieldVars, hasProjections, hasEta, isK, isImpredicative, hasLargeElim, ..} ← read
   let name := name ++ `_impl
   addDecl <| .inductDecl levelParams numParams
     (isUnsafe := isUnsafe) -- Note: inlining is disabled with unsafe inductives
-    [{ name, type,
+    [{ name, type, isImpredicative, isK, hasProjections, hasEta, hasLargeElim,
        ctors := ← ctors.mapM fun ctor => do
          forallTelescope (← inferType (mkAppN (mkConst ctor lparams) params)) fun fields retTy => do
            let retTy := mkAppN (mkConst name lparams) retTy.getAppArgs

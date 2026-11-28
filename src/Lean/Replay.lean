@@ -125,7 +125,12 @@ partial def replayConstant (name : Name) : M Unit := do
           let types : List InductiveType := ctorInfo.map fun ⟨val, ctors⟩ =>
             { name := val.name
               type := val.type
-              ctors := ctors.map fun ci => { name := ci.name, type := ci.type } }
+              ctors := ctors.map fun ci => { name := ci.name, type := ci.type }
+              isImpredicative := val.isImpredicative
+              isK := val.isK
+              hasProjections := val.hasProjections
+              hasEta := val.hasEta
+              hasLargeElim := val.hasLargeElim }
           addDecl (Declaration.inductDecl lparams nparams types false)
           -- The kernel computes the remaining fields (`numIndices`, `isRec`, ...) itself;
           -- the stored values must agree with them.

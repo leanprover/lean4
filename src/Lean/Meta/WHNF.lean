@@ -157,15 +157,16 @@ private def getRecRuleFor (recVal : RecursorVal) (major : Expr) : Option Recurso
   | .const fn _ => recVal.rules.find? fun r => r.ctor == fn
   | _           => none
 
-private def toCtorWhenK (recVal : RecursorVal) (major : Expr) : MetaM Expr := do
+@[inline]
+private def toCtorWhenK (indVal : InductiveVal) (numParams : Nat) (major : Expr) : MetaM Expr := do
   let majorType ← inferType major
   let majorType ← instantiateMVars (← whnf majorType)
   let majorTypeI := majorType.getAppFn
-  unless majorTypeI.isConstOf recVal.getMajorInduct do
+  unless majorTypeI.isConstOf indVal.name do
     return major
-  if majorType.hasExprMVar && majorType.getAppArgs[recVal.numParams...*].any Expr.hasExprMVar then
+  if majorType.hasExprMVar && majorType.getAppArgs[numParams...*].any Expr.hasExprMVar then
     return major
-  let (some newCtorApp) ← mkNullaryCtor majorType recVal.numParams | pure major
+  let (some newCtorApp) ← mkNullaryCtor majorType numParams | pure major
   let newType ← inferType newCtorApp
   /- TODO: check whether changing reducibility to default hurts performance here.
      We do that to make sure auxiliary `Eq.rec` introduced by the `match`-compiler
@@ -196,37 +197,19 @@ def mkProjFn (ctorVal : ConstructorVal) (us : List Level) (params : Array Expr) 
   \pre `inductName` is `C`.
 
   If `Meta.Config.etaStruct` is `false` or the condition above does not hold, this method just returns `major`. -/
-private def toCtorWhenStructure (recVal : RecursorVal) (major : Expr) : MetaM Expr := do
-  let inductName := recVal.getMajorInduct
-  unless (← useEtaStruct inductName) do
+@[inline]
+private def toCtorWhenStructure (indVal : InductiveVal) (major : Expr) : MetaM Expr := do
+  if !indVal.hasEta then
     return major
-  let env ← getEnv
-  if !isNonRecStructure env inductName then
+  unless (← useEtaStruct indVal.name) do
     return major
-  else if let some _ ← isConstructorApp? major then
+  if let some _ ← isConstructorApp? major then
     return major
   else
-    let nonNestedInductName := recVal.all.head!
-    let nonNestedInduct ← getConstInfo nonNestedInductName
-    if recVal.levelParams.length == nonNestedInduct.levelParams.length then
-      /- We do not perform eta for non-singleton propositions, see implementation in the kernel.
-      To know whether a recursor is large-eliminating, it is not enough to look at its major's type's number of universes and and see if it differs from the recursor's. Consider the following types:
-      ```
-      inductive StructLike (α : Type u) where
-        | mk : α → StructLike α
-
-      inductive Nested : Type where
-        | nest : StructLike Nested → Nested
-        | other
-      ```
-      Here, the aux recursive Nested.rec_1 has one universe, but its major being of inductive type StructLike also has one. They have the same number of universes, but the type indeed has large-elimination.
-      Instead, we look at the first inductive type in the defined mutual inductive block, and compare that type's number of universes to the recursor's.
-      TODO once the "large elimination" flag is added to recursors, use that instead.-/
-      return major
     let majorType ← inferType major
     let majorType ← instantiateMVars (← whnf majorType)
     let majorTypeI := majorType.getAppFn
-    if !majorTypeI.isConstOf inductName then
+    if !majorTypeI.isConstOf indVal.name then
       return major
     match majorType.getAppFn with
     | Expr.const d us =>
@@ -257,34 +240,36 @@ private def cleanupNatOffsetMajor (e : Expr) : MetaM Expr := do
     return mkNatSucc (mkNatAdd e (toExpr (k - 1)))
 
 /-- Checks whether a recursor major is a proof. If `isProofQuick` fails, rather than run `isProp (← inferType major)`, we infer the sort of the major using the recursor's info. -/
-private def isMajorProof (recVal : RecursorVal) (recLvls : List Level) (major : Expr) : MetaM Bool := do
+private def isMajorProof (recVal : RecursorVal) (indVal : InductiveVal) (recLvls : List Level) (major : Expr) : MetaM Bool := do
   match ← isProofQuick major with
     | .true => pure true
     | .false => pure false
     | .undef =>
-      /- If the type is impredicative, the major must be a proof.
-         TODO once the `isImpredicative` field exists in `inductiveVal`s, use that to cover more cases here. -/
-      let nonNestedInductName := recVal.all.head!
-      let nonNestedInduct ← getConstVal nonNestedInductName
+      if indVal.isImpredicative then return true
+      let nonNestedInduct ← getConstVal recVal.all.head!
       if nonNestedInduct.levelParams.length = recLvls.length then
         return true
       let lvls := recLvls.tail!
       isPropFormerType (← instantiateTypeLevelParams nonNestedInduct lvls)
 
 /-- Auxiliary function for reducing recursor applications. -/
-def reduceRec (recVal : RecursorVal) (recLvls : List Level) (recArgs : Array Expr) (failK : Unit → MetaM α) (successK : Expr → MetaM α) : MetaM α :=
+def reduceRec (recVal : RecursorVal) (recLvls : List Level) (recArgs : Array Expr) (failK : Unit → MetaM α) (successK : Expr → MetaM α) : MetaM α := do
+  if recVal.rules.isEmpty then failK () else
+  let indVal ← getConstInfoInduct recVal.getMajorInduct
+  if !indVal.hasLargeElim then failK () else
   let majorIdx := recVal.getMajorIdx
   if h : majorIdx < recArgs.size then do
     let major := recArgs[majorIdx]
-    let mut major ← if !(← isMajorProof recVal recLvls major) then
-      whnf major
-    else
-      pure major
+    let mut major ←
+      if !(← isMajorProof recVal indVal recLvls major) then
+        whnf major
+      else
+        pure major
     if recVal.k then
-      major ← toCtorWhenK recVal major
+      major ← toCtorWhenK indVal recVal.numParams major
     major ← major.toCtorIfLit
     major ← cleanupNatOffsetMajor major
-    major ← toCtorWhenStructure recVal major
+    major ← toCtorWhenStructure indVal major
     match getRecRuleFor recVal major with
     | some rule =>
       let majorArgs := major.getAppArgs

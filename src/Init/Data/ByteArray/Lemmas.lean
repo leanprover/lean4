@@ -405,4 +405,7 @@ private theorem getElem!_eq_data_getElem! (data : ByteArray) (i : Nat) :
   · next hij => subst hij; exact getElem_set!_self data i v h
   · next hij => exact getElem_set!_ne data i j v hij hj
 
+theorem get!_eq_getElem! (a : ByteArray) (i : Nat) : a.get! i = a[i]! := by
+  rw [getElem!_eq_data_getElem!]; rfl
+
 end ByteArray

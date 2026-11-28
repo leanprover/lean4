@@ -51,9 +51,7 @@ def NormSymTheorems.addEntry (s : NormSymTheorems) : NormSymEntry → NormSymThe
 
 /-- The declaration an entry refers to; entries on private declarations are not exported. -/
 private def NormSymEntry.declName? : NormSymEntry → Option Name
-  | .pre thm | .post thm | .dsimp (.thm thm) => match thm.expr with
-    | .const declName _ => some declName
-    | _ => none
+  | .pre thm | .post thm | .dsimp (.thm thm) => thm.declName?
   | .dsimp (.unfold declName) => some declName
 
 builtin_initialize normSymExt : SimpleScopedEnvExtension NormSymEntry NormSymTheorems ←

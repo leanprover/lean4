@@ -134,14 +134,6 @@ level update_max(level const & l, level const & new_lhs, level const & new_rhs);
 /** \brief Return true if lhs and rhs denote the same level.
     The check is done by normalization. */
 bool is_equivalent(level const & lhs, level const & rhs);
-/** \brief Return the given level expression normal form */
-level normalize(level const & l);
-
-/** \brief If the result is true, then forall assignments \c A that assigns all parameters and metavariables occurring
-    in \c l1 and \l2, we have that the universe level l1[A] is bigger or equal to l2[A].
-
-    \remark This function assumes l1 and l2 are normalized */
-bool is_geq_core(level l1, level l2);
 
 bool is_geq(level const & l1, level const & l2);
 

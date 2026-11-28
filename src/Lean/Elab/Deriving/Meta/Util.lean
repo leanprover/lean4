@@ -1129,9 +1129,6 @@ def makeInstancesUsingMutualBlock
               let type ← mkForallFVars allParams type (binderInfoForMVars := .instImplicit)
               let value ← instantiateMVars helper.value.get!
               let value ← mkLambdaFVars allParams value (binderInfoForMVars := .instImplicit)
-              trace[Elab.Deriving] "Helper declaration `{helper.declName.get!}` \
-                of type{indentExpr type}\
-                \nand value{indentExpr value}"
               return { helper with type, value }
           let value ← instantiateMVars info.value
           let value ← mkLambdaFVars allParams value (binderInfoForMVars := .instImplicit)
@@ -1142,7 +1139,6 @@ def makeInstancesUsingMutualBlock
 
       -- 7. create all the helper pre-definitions
       let mut helperPredefs : Array PreDefinition := #[]
-      let ref ← getRef
       let env ← getEnv
       let isUnsafe :=
         infos.any fun info =>
@@ -1153,7 +1149,8 @@ def makeInstancesUsingMutualBlock
       for info in infos do
         for helper in info.extendedHelpers do
           let predef : PreDefinition := {
-            ref
+            -- don't treat the current ref as a constant name to add binder info to
+            ref := .missing
             levelParams
             type := helper.type
             value := helper.value.get!
@@ -1163,7 +1160,11 @@ def makeInstancesUsingMutualBlock
             binders := .missing
             termination := .none
           }
-          helperPredefs := helperPredefs.push (← helper.postprocess instHyps predef)
+          let predef ← helper.postprocess instHyps predef
+          helperPredefs := helperPredefs.push predef
+          trace[Elab.Deriving]
+            "Helper declaration `{predef.declName}` of type{indentExpr predef.type}\
+              \nand value{indentExpr predef.value}"
       -- 8. add the helpers to the environment
       addPreDefinitions ({}, {}) helperPredefs
       for helper in helperPredefs do
@@ -1614,7 +1615,7 @@ def FieldHelperProvider.doubleCases
             return mkAppN res toRevert
         mkLambdaFVars #[lhs, rhs] res
 
-private def reduceCasesOnApps (e : Expr) : MetaM Expr := do
+private partial def reduceCasesOnApps (e : Expr) : MetaM Expr := do
   Meta.transform (skipConstInApp := true) e fun e => do
     let .const c _ := e.getAppFn
       | return .continue
@@ -1630,6 +1631,10 @@ private def reduceCasesOnApps (e : Expr) : MetaM Expr := do
     if numArgs < paramCount then
       return .continue
     let major := e.getArg! majorPos numArgs
+    -- TODO: keep the cache in the subcall.
+    -- It would be nice if we had a version of `Meta.transform` where `pre` and `post` can act in
+    -- `MonadCacheT` for such recursive calls but it might also just not be a performance problem
+    let major ← reduceCasesOnApps major
     let .const c' _ := major.getAppFn
       | return .continue
     let some ctorInfo ← isCtor? c'
@@ -1832,72 +1837,76 @@ def InstanceInfo.usingCtorCore
           m!" but the field #{fieldIdx + 1} of {.ofConstName ctorName} \
             contains a {kind} recurrence:{indentExpr type}"
       return m!"{header}{where?.getD "."}"
-  let classApp ← whnfR classApp -- unfold class `abbrev`s like `Std.ReflOrd`
-  classApp.withApp fun fn classParams => do
-    let .const className classLParams := fn
-      | throwError "Invalid use of `{.ofConstName decl_name%}`,{indentExpr classApp}\
-          \nis not a constant application"
-    let some structInfo := getStructureInfo? (← getEnv) className
-      | throwError "Invalid use of `{.ofConstName decl_name%}`, \
-          expected `{.ofConstName className}` to be a structure"
-    let classInfo ← getConstInfoInduct className
-    let [ctor] := classInfo.ctors
-      | unreachable!
-    let type ← mkForallFVars additionalVars classApp
-    let mut fieldHelperInfos : Array (FieldHelperInfo α) := {}
-    let mut helpers : Array (HelperInfo α) := #[]
-    let additionalVarDecls := (← additionalVars.mapM (·.fvarId!.getDecl)).toList
-    let mut ctorType ← inferType (mkAppN (.const ctor classLParams) classParams)
-    for h : i in 0...structInfo.fieldNames.size do
-      let .forallE _ expectedType ctorTypeBody _ := ctorType
-        | throwError "Malformed structure info: Constructor only has {i} field(s) but structure \
-            info claims that there are {structInfo.fieldNames.size}"
-      let some projFn := structInfo.getProjFn? i
-        | unreachable!
-      let fieldInfo ← getConstVal projFn
-      let input := { classLParams, classParams, typeApp, fieldInfo, expectedType }
-      let fieldHelperInfo ← perField projFn input
-      fieldHelperInfos := fieldHelperInfos.push fieldHelperInfo
-      match fieldHelperInfo with
-      | .usingHelper mkValue =>
-        if ctorTypeBody.hasLooseBVars then
-          let some off := identifySourceBinderBVar ctorTypeBody
-            | -- the bound variable is in the result type which should be impossible
-              -- since we should have no indices
-              unreachable!
-          let some otherProjFn := structInfo.getProjFn? (i + off + 1)
+  -- unfold class `abbrev`s like `Std.ReflOrd`
+  withReducible <|
+    forallTelescopeReducing (whnfType := true) classApp fun classVars classAppBody => do
+      withDefault <| classAppBody.withApp fun fn classParams => do
+        let .const className classLParams := fn
+          | throwError "Invalid use of `{.ofConstName decl_name%}`,{indentExpr classAppBody}\
+              \nis not a constant application"
+        let some structInfo := getStructureInfo? (← getEnv) className
+          | throwError "Invalid use of `{.ofConstName decl_name%}`, \
+              expected `{.ofConstName className}` to be a structure"
+        let classInfo ← getConstInfoInduct className
+        let [ctor] := classInfo.ctors
+          | unreachable!
+        let type ← mkForallFVars additionalVars classApp
+        let additionalVars := additionalVars ++ classVars
+        let mut fieldHelperInfos : Array (FieldHelperInfo α) := {}
+        let mut helpers : Array (HelperInfo α) := #[]
+        let additionalVarDecls := (← additionalVars.mapM (·.fvarId!.getDecl)).toList
+        let mut ctorType ← inferType (mkAppN (.const ctor classLParams) classParams)
+        for h : i in 0...structInfo.fieldNames.size do
+          let .forallE _ expectedType ctorTypeBody _ := ctorType
+            | throwError
+                "Malformed structure info: Constructor only has {i} field(s) but structure \
+                  info claims that there are {structInfo.fieldNames.size}"
+          let some projFn := structInfo.getProjFn? i
             | unreachable!
-          throwError "Invalid use of `{.ofConstName decl_name%}`: The field \
-            `{.ofConstName otherProjFn}` depends on the field `{.ofConstName projFn}` which is not \
-            given inline; dependent helpers are not supported"
-        ctorType := ctorTypeBody
-        helpers :=
-          helpers.push {
-            suffix := structInfo.fieldNames[i]
-            type := ← mkForallFVars additionalVars expectedType
-            mkValue instances val := do
-              withExistingLocalDecls additionalVarDecls do
-                let res ← mkLambdaFVars additionalVars <| ← mkValue instances val
-                return res
-            postprocess _ := postprocessUsingCtor usePartial
-          }
-      | .inline e => ctorType := ctorTypeBody.instantiate1 e
-    return {
-      induct
-      type
-      helpers
-      mkValue helpers := do
-        withExistingLocalDecls additionalVarDecls do
-          let mut ctorApp : Expr := mkAppN (.const ctor classLParams) classParams
-          let mut helperIdx := 0
-          for info in fieldHelperInfos do
-            match info with
-            | .inline e => ctorApp := ctorApp.app e
-            | .usingHelper _ =>
-              ctorApp := ctorApp.app (mkAppN helpers[helperIdx]! additionalVars)
-              helperIdx := helperIdx + 1
-          mkLambdaFVars additionalVars ctorApp
-    }
+          let fieldInfo ← getConstVal projFn
+          let input := { classLParams, classParams, typeApp, fieldInfo, expectedType }
+          let fieldHelperInfo ← perField projFn input
+          fieldHelperInfos := fieldHelperInfos.push fieldHelperInfo
+          match fieldHelperInfo with
+          | .usingHelper mkValue =>
+            if ctorTypeBody.hasLooseBVars then
+              let some off := identifySourceBinderBVar ctorTypeBody
+                | -- the bound variable is in the result type which should be impossible
+                  -- since we should have no indices
+                  unreachable!
+              let some otherProjFn := structInfo.getProjFn? (i + off + 1)
+                | unreachable!
+              throwError "Invalid use of `{.ofConstName decl_name%}`: The field \
+                `{.ofConstName otherProjFn}` depends on the field `{.ofConstName projFn}` which is \
+                not given inline; dependent helpers are not supported"
+            ctorType := ctorTypeBody
+            helpers :=
+              helpers.push {
+                suffix := structInfo.fieldNames[i]
+                type := ← mkForallFVars additionalVars expectedType
+                mkValue instances val := do
+                  withExistingLocalDecls additionalVarDecls do
+                    let res ← mkLambdaFVars additionalVars <| ← mkValue instances val
+                    return res
+                postprocess _ := postprocessUsingCtor usePartial
+              }
+          | .inline e => ctorType := ctorTypeBody.instantiate1 e
+        return {
+          induct
+          type
+          helpers
+          mkValue helpers := do
+            withExistingLocalDecls additionalVarDecls do
+              let mut ctorApp : Expr := mkAppN (.const ctor classLParams) classParams
+              let mut helperIdx := 0
+              for info in fieldHelperInfos do
+                match info with
+                | .inline e => ctorApp := ctorApp.app e
+                | .usingHelper _ =>
+                  ctorApp := ctorApp.app (mkAppN helpers[helperIdx]! additionalVars)
+                  helperIdx := helperIdx + 1
+              mkLambdaFVars additionalVars ctorApp
+        }
 
 /--
 The building block for `makeInstancesUsingCtor`: `InstanceInfo.usingCtor` creates an `InstanceInfo`
@@ -2499,6 +2508,7 @@ def deriveLawClassUsingCtor
     (preHelpers : DerivingM α := by exact pure ())
     : DerivingM Unit := do
   if nonRec then
+    let pre ← preHelpers
     for name in (← read).names do
       withoutModifyingInstanceState do
         let entries ← buildLawDerivingEntriesFor [name]
@@ -2508,7 +2518,7 @@ def deriveLawClassUsingCtor
             InstanceInfo.usingCtorCore (perField entry.lawContext) entry.typeApp entry.classApp
               entry.indices (supportsRec := supportsRec) (supportsNested := true)
               (supportsPartial := false) (induct := name)
-        makeInstancesUsingMutualBlock (preHelpers := preHelpers) #[info]
+        makeInstancesUsingMutualBlock (preHelpers := pure pre) (nonRec := true) #[info]
   else
     let entries ← buildLawDerivingEntriesFor (← read).indInfo.all
     makeInstancesUsingMutualBlock (preHelpers := preHelpers) <| ← entries.mapM fun entry => do

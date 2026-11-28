@@ -1,0 +1,5 @@
+wait for v3 sent before v2 was finalized: result
+wait pending during the crash: error -32902: Server process for file:///waitsCrash.lean crashed, see stderr for exception.
+new wait for v2 after the crash: error -32902: Server process for file:///waitsCrash.lean crashed, see stderr for exception.
+new wait for v1 after the crash: result
+wait pending during didClose: error -32801: The file worker for file:///waitsClose.lean has been terminated.

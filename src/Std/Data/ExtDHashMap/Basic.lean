@@ -317,6 +317,30 @@ def Const.alter [EquivBEq α] [LawfulHashable α] {β : Type v} (m : ExtDHashMap
   m.lift (fun m => mk (DHashMap.Const.alter m a f))
     (fun m m' (h : m ~m m') => sound (h.constAlter a f))
 
+@[inline, inherit_doc DHashMap.mergeWith?]
+def mergeWith? [LawfulBEq α]
+    (f : (a : α) → β a → β a → Option (β a)) (m₁ m₂ : ExtDHashMap α β) : ExtDHashMap α β :=
+  lift₂ (fun l r => mk (DHashMap.mergeWith? f l r))
+    (fun _ _ _ _ hl hr => sound (hl.mergeWith? f hr)) m₁ m₂
+
+@[inline, inherit_doc DHashMap.mergeWith]
+def mergeWith [LawfulBEq α]
+    (f : (a : α) → β a → β a → β a) (m₁ m₂ : ExtDHashMap α β) : ExtDHashMap α β :=
+  mergeWith? (fun a b₁ b₂ => some (f a b₁ b₂)) m₁ m₂
+
+@[inline, inherit_doc DHashMap.Const.mergeWith?]
+def Const.mergeWith? [EquivBEq α] [LawfulHashable α] {β : Type v}
+    (f : α → β → β → Option β)
+    (m₁ m₂ : ExtDHashMap α (fun _ => β)) : ExtDHashMap α (fun _ => β) :=
+  lift₂ (fun l r => mk (DHashMap.Const.mergeWith? f l r))
+    (fun _ _ _ _ hl hr => sound (hl.constMergeWith? f hr)) m₁ m₂
+
+@[inline, inherit_doc DHashMap.Const.mergeWith]
+def Const.mergeWith [EquivBEq α] [LawfulHashable α] {β : Type v}
+    (f : α → β → β → β)
+    (m₁ m₂ : ExtDHashMap α (fun _ => β)) : ExtDHashMap α (fun _ => β) :=
+  Const.mergeWith? (fun a b₁ b₂ => some (f a b₁ b₂)) m₁ m₂
+
 /-
 Note: We can't use the existing functions because weird (noncomputable) `ForIn` instances
 can break congruence. The subtype is still used to provide the `insertMany_ind` theorem.

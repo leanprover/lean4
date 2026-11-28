@@ -57,6 +57,12 @@ structure RequestOverrides where
   maxRedirects : Option Nat := none
 
 /--
+Decides whether the client follows a redirect it would otherwise follow, given the origin and the
+request of the hop that was redirected, the redirect's status, and the plan for the next hop.
+-/
+abbrev RedirectPolicy := URI.Origin → Request.Head → Status → Protocol.H1.RedirectPlan → Bool
+
+/--
 Client connection configuration.
 -/
 structure Config where
@@ -150,6 +156,33 @@ structure Config where
   Set to `0` to disable automatic redirect following.
   -/
   maxRedirects : Nat := 10
+
+  /--
+  Decides which redirects are followed, of those the client would follow (RFC 9110 §15.4, within
+  `maxRedirects`). `none` (default) follows them all.
+  -/
+  redirectPolicy : Option RedirectPolicy := none
+
+  /--
+  Statuses of final responses the client sends the request again for, like a connection-level
+  failure: only when the request can be sent again whole (an idempotent method and a body that
+  rewinds), and within the retries the client allows. The response body is read and discarded
+  first, within `intermediateBodyDrainLimit`. Empty by default; `429 Too Many Requests` and
+  `503 Service Unavailable` are the usual choices.
+  -/
+  retryStatuses : Array Status := #[]
+
+  /--
+  The delay before the first retry, doubled for each further one up to `maxRetryDelay`, whether the
+  retry follows a connection-level failure or a status in `retryStatuses`. A response's
+  `Retry-After` given in seconds sets the delay instead. `0` (default) retries at once.
+  -/
+  retryDelay : Time.Millisecond.Offset := 0
+
+  /--
+  The longest delay before a retry, whatever the doubling or a `Retry-After` asks for.
+  -/
+  maxRetryDelay : Time.Millisecond.Offset := 30000
 
   /--
   Hooks run around each hop: before it is sent, and when its response heads arrive.

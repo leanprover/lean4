@@ -14,6 +14,7 @@ public import Std.Http.Client.Interceptor
 public import Std.Http.Client.Config
 public import Std.Http.Client.Connection.Driver
 public import Std.Http.Client.Pool.Driver
+public import Std.Http.Client.Hop.Driver
 
 public section
 

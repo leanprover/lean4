@@ -15,6 +15,8 @@ public import Std.Http.Data.Chunk
 public import Std.Http.Data.Headers
 public import Std.Http.Data.URI
 public import Std.Http.Data.Body
+public import Std.Http.Data.Cookie
+public import Std.Http.Data.Cookie.Jar
 
 /-!
 # HTTP Data Types

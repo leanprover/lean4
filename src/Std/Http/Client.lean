@@ -12,6 +12,7 @@ public import Std.Http.Client.Authenticator
 public import Std.Http.Client.Error
 public import Std.Http.Client.Interceptor
 public import Std.Http.Client.Config
+public import Std.Http.Client.Connection.Driver
 
 public section
 

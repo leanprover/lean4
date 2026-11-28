@@ -11,6 +11,7 @@ public import Std.Http.Client.Proxy
 public import Std.Http.Client.Authenticator
 public import Std.Http.Client.Error
 public import Std.Http.Client.Interceptor
+public import Std.Http.Client.Config
 
 public section
 

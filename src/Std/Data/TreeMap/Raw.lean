@@ -13,3 +13,4 @@ public import Std.Data.TreeMap.Raw.WF
 public import Std.Data.TreeMap.Raw.Iterator
 public import Std.Data.TreeMap.Raw.Slice
 public import Std.Data.TreeMap.Raw.DecidableEquiv
+public import Std.Data.TreeMap.Raw.Fold

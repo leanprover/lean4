@@ -123,6 +123,8 @@ where
     trace[Meta.Tactic.bv] s!"AIG has {aigSize} nodes, added {aigSize - prevAigSize} nodes this round"
 
     if (← read).config.graphviz then
+      if (← isMetaRestricted) then
+        throwError "The `graphviz` option cannot be used because `meta.restrict` is set"
       IO.FS.writeFile ("." / "aig.gv") <| AIG.toGraphviz entry
 
 

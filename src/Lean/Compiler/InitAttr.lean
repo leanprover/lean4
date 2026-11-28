@@ -69,6 +69,8 @@ unsafe def registerInitAttrUnsafe (attrName : Name) (runAfterImport : Bool) (ref
     -- We want to run `[init]` in declaration order
     preserveOrder := true
     getParam := fun declName stx => withoutExporting do
+      if (← isMetaRestricted) then
+        throwError "Cannot use `[{attrName}]` because `meta.restrict` is set"
       let decl ← getConstInfo declName
       match (← Attribute.Builtin.getIdent? stx) with
       | some initFnStx =>

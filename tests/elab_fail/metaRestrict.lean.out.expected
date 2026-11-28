@@ -1,0 +1,33 @@
+metaRestrict.lean:29:0-29:5: error: Cannot evaluate `_eval`: code generation is disabled by `meta.restrict`
+metaRestrict.lean:31:0-31:5: error: Cannot evaluate `_eval`: code generation is disabled by `meta.restrict`
+metaRestrict.lean:33:0-33:5: error: Cannot evaluate `_eval`: code generation is disabled by `meta.restrict`
+metaRestrict.lean:35:24-35:37: error: Tactic `native_decide` failed: Could not evaluate decidable instance. Error: Cannot evaluate `_example._native.native_decide.decl_1`: code generation is disabled by `meta.restrict`
+metaRestrict.lean:37:0-37:7: error: Cannot evaluate `_eval`: code generation is disabled by `meta.restrict`
+metaRestrict.lean:41:0-41:25: error: (interpreter) unknown declaration 'commandMy_cmd'; note that code generation is disabled by `meta.restrict`
+metaRestrict.lean:43:0-43:30: error: (interpreter) unknown declaration 'termMy_term'; note that code generation is disabled by `meta.restrict`
+metaRestrict.lean:43:0-43:30: error: invalid syntax node kind `termMy_term`
+metaRestrict.lean:45:11-45:18: error(lean.unknownIdentifier): Unknown identifier `my_term`
+metaRestrict.lean:47:0-47:20: error: (interpreter) unknown declaration 'termℕ''; note that code generation is disabled by `meta.restrict`
+metaRestrict.lean:47:0-47:20: error: invalid syntax node kind `termℕ'`
+metaRestrict.lean:47:0-47:20: error: Cannot evaluate `_aux_elab_fail_metaRestrict___unexpand_Nat_1`: code generation is disabled by `meta.restrict`
+metaRestrict.lean:49:16-49:17: error(lean.synthInstanceFailed): failed to synthesize instance of type class
+  OfNat ℕ' 1
+numerals are polymorphic in Lean, but the numeral `1` cannot be used in a context where the expected type is
+  ℕ'
+due to the absence of the instance above
+
+Hint: Type class instance resolution failures can be inspected with the `set_option trace.Meta.synthInstance true` command.
+metaRestrict.lean:51:0-51:33: error: (interpreter) unknown declaration 'tacticMy_tac'; note that code generation is disabled by `meta.restrict`
+metaRestrict.lean:51:0-51:33: error: invalid syntax node kind `tacticMy_tac`
+metaRestrict.lean:53:22: error: unknown tactic
+metaRestrict.lean:53:18-53:27: error: unsolved goals
+⊢ True
+metaRestrict.lean:55:0-55:42: error: Cannot use `[init]` because `meta.restrict` is set
+metaRestrict.lean:59:2-59:19: error: Cannot use `[init]` because `meta.restrict` is set
+metaRestrict.lean:65:51-65:60: error: Cannot run the SAT solver because `meta.restrict` is set
+metaRestrict.lean:67:51-67:61: error: cannot compute parent directory of `metaRestrict.lean`
+metaRestrict.lean:69:51-69:93: error: The `graphviz` option cannot be used because `meta.restrict` is set
+metaRestrict.lean:72:37-72:46: error: The option `sat.solver` cannot be used because `meta.restrict` is set
+metaRestrict.lean:78:0-78:26: error: (interpreter) unknown declaration 'commandMy_cmd''; note that code generation is disabled by `meta.restrict`
+metaRestrict.lean:81:0-81:27: error: (interpreter) unknown declaration 'commandMy_cmd'''; note that code generation is disabled by `meta.restrict`
+metaRestrict.lean:84:37-84:46: error: The option `sat.solver` cannot be used because `meta.restrict` is set

@@ -178,15 +178,20 @@ set_option compiler.ignoreBorrowAnnotation true in
 @[extern "lean_has_compile_error"]
 opaque hasCompileError (env : Environment) (constName : Name) : Bool
 
+private def throwCompileError [Monad m] [MonadError m] [MonadOptions m] (constName : Name) : m α := do
+  if meta.restrict.get (← getOptions) then
+    throwError "Cannot evaluate `{.ofConstName constName}`: code generation is disabled by `meta.restrict`"
+  -- Otherwise compilation already emitted an error, so abort silently
+  Elab.throwAbortCommand
+
 unsafe def evalConst [Monad m] [MonadEnv m] [MonadError m] [MonadOptions m] (α) (constName : Name) (checkMeta := true) : m α := do
-  -- If compilation wasn't successful (meaning it already emitted an error), abort silently
   if hasCompileError (← getEnv) constName then
-    Elab.throwAbortCommand
+    throwCompileError constName
   ofExcept <| (← getEnv).evalConst (checkMeta := checkMeta) α (← getOptions) constName
 
 unsafe def evalConstCheck [Monad m] [MonadEnv m] [MonadError m] [MonadOptions m] (α) (typeName : Name) (constName : Name) : m α := do
   if hasCompileError (← getEnv) constName then
-    Elab.throwAbortCommand
+    throwCompileError constName
   ofExcept <| (← getEnv).evalConstCheck α (← getOptions) typeName constName
 
 def findModuleOf? [Monad m] [MonadEnv m] [MonadError m] (declName : Name) : m (Option Name) := do

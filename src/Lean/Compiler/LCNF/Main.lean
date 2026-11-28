@@ -235,6 +235,8 @@ where
 end PassManager
 
 def main (declNames : Array Name) (baseOpts : Options) : CoreM Unit := do
+  if (← isMetaRestricted) then
+    return
   withTraceNode `Compiler (fun _ => return m!"compiling: {declNames}") do
     CompilerM.run <| PassManager.run declNames baseOpts
 

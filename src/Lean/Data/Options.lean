@@ -257,4 +257,34 @@ macro (name := registerOption) mods:declModifiers "register_option" name:ident "
 
 end Option
 
+register_builtin_option meta.restrict : Bool := {
+  defValue := false
+  descr := "Prevent modules elaborated with this option from running arbitrary metaprograms \
+    during elaboration, best-effort. Declarations of the module are not compiled, so \
+    nothing defined in it can be evaluated, neither in this file (`#eval`, `macro`, \
+    `notation`, `elab`, `native_decide`, ...) nor by modules importing it; options such \
+    as `sat.solver` allowing for other effects outside the build process are rejected as \
+    well. Code of imported modules, such as their macros and tactics, is still allowed \
+    to run. Read-only effects such as from `include_str` are currently accepted as well.\n\n\
+    As this option is implemented best-effort given the large surface of potential for \
+    effects through existing metaprograms, including those imported from dependencies \
+    outside Lean itself, it cannot and does not aim to obviate the need for operating \
+    system-level sandboxing of untrusted code but any known defects (in the `lean4` \
+    repository) will be handled as high-priority issues and fixed.\n\n\
+    This option takes effect only when passed on the command line or via the module \
+    setup; `set_option` cannot enable or disable it."
+}
+
+private builtin_initialize metaRestrictedRef : IO.Ref Bool ← IO.mkRef false
+
+/-- Enables the restrictions of `meta.restrict` for the remainder of the process if it is set in `opts`. -/
+def restrictMetaIfRequested (opts : Options) : BaseIO Unit := do
+  if meta.restrict.get opts then
+    metaRestrictedRef.set true
+
+/-- Returns whether the restrictions of `meta.restrict` are enabled for this process. -/
+@[export lean_is_meta_restricted]
+def isMetaRestricted : BaseIO Bool :=
+  metaRestrictedRef.get
+
 end Lean

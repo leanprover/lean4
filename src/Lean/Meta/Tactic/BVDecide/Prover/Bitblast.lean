@@ -73,6 +73,8 @@ public def lratBitblaster (ctx : TacticContext) : UnsatProver LratCert :=
     trace[Meta.Tactic.bv] s!"AIG has {aigSize} nodes."
 
     if ctx.config.graphviz then
+      if (← isMetaRestricted) then
+        throwError "The `graphviz` option cannot be used because `meta.restrict` is set"
       IO.FS.writeFile ("." / "aig.gv") <| AIG.toGraphviz entry
 
     let cnf ←

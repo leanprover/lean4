@@ -2339,7 +2339,7 @@ private def LawDerivingContext.ofRefoldsAndEquations
   for eqn in eqns do
     let proj := eqn.projName
     let rhs ← applyRefolds eqn.unfolded refolds
-    trace[Elab.Deriving] "Refolded{indentExpr eqn.unfolded}\
+    trace[Elab.Deriving.lawClasses] "Refolded{indentExpr eqn.unfolded}\
       \n===>{indentExpr rhs}"
     let eqn := { eqn with unfolded := rhs }
     ctx := {
@@ -2380,7 +2380,6 @@ private def buildLawDerivingEntriesFor (names : List Name)
         let mut acc := { refolds, unfolds := #[] }
         for instArg in instArgs do
           acc ← findRefoldsAndEquationsIn instArg acc
-        trace[Elab.Deriving] "{acc.unfolds}"
         entries :=
           entries.push {
             induct

@@ -168,6 +168,39 @@ info: theorem instIsSmallToDataList.small.{u} : ∀ (α : Type u) [x : ToData α
 #print sig instIsSmallToDataList.small
 
 /-!
+Tests for the `Dec` deriving handler
+-/
+
+inductive MyTrue : Prop where
+  | trivial
+deriving Dec
+
+inductive MyFalse : Prop where
+deriving Dec
+
+#guard MyTrue
+#guard !MyFalse
+
+inductive Basic (p q r : Prop) : Prop where
+  | one (left : p) (right : q)
+  | other (h : r)
+deriving Dec
+
+#guard Basic False True True
+#guard ! Basic False True False
+#guard Basic True True False
+
+inductive AlmostFix {α : Type} (f : α → α) (x : α) : Prop where
+  | fix (h : f x = x)
+  | invol (h : f (f x) = x)
+deriving Dec
+
+#guard AlmostFix (!·) false
+#guard AlmostFix (· ^ 2 : Nat → Nat) 0
+#guard AlmostFix (· ^ 2 : Nat → Nat) 1
+#guard ! AlmostFix (· ^ 2 : Nat → Nat) 2
+
+/-!
 The deriving handlers also work on mutual inductives
 -/
 
@@ -553,7 +586,8 @@ meta def declareWide (name : Name) (n : Nat) : CommandElabM Unit := do
 run_cmd declareWide `Wide 200
 
 -- `IsSmallToData` fails because 200 is not small :-)
-deriving instance AllGeneralClasses, OtherDataClasses, ToDataDepLaw for Wide
+deriving instance AllGeneralClasses, OtherDataClasses, ToDataDepLaw, IsInvolution, LawfulFlatten for
+  Wide
 
 /--
 error: Error while processing constructor Wide.mk:

@@ -1,7 +1,7 @@
 module
 
 public meta import DerivingTest.TestHandlers
-import all DerivingTest.Handlers -- for `Secret` type class
+import all DerivingTest.Handlers -- for the `Secret` type class
 
 /-!
 In a `meta` section, we generate `meta` instances; this is particularly relevant for

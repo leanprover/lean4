@@ -171,6 +171,13 @@ class LawfulFlatten (α : Type u) [Flatten α] where
   flatten_append (x : α) (l l' : List Nat) : Flatten.flatten x (l ++ l') = Flatten.flatten x l ++ l'
 
 /-!
+A type class that acts on `Prop`; we define this as an alias of `Decidable` to prevent conflicts
+with potential deriving handlers of `Decidable`
+-/
+
+abbrev Dec := Decidable
+
+/-!
 Convenience type class whose deriving handler calls the deriving handler of all classes that don't
 have special assumptions about the type (i.e. work on almost every non-`Prop` inductive with
 sufficient existing instances).
@@ -747,6 +754,80 @@ where
         (.app (.const ``List.instAppend [0]) Nat.mkType))
       a b
 
+meta partial def deriveDec : DerivingHandler :=
+  mkInductiveDerivingHandler ``Dec do
+    -- Simple deriving handler for `Decidable` on non-indexed, non-recursive inductives
+    if ← isRecursive then
+      throwError "Deriving `{.ofConstName ``Dec}` is not supported for recursive inductives"
+    for name in (← read).names do
+      let info ← getConstInfoInduct name
+      if info.numIndices > 0 then
+        throwError "Deriving `{.ofConstName ``Dec}` is not supported for the indexed inductive \
+          `{.ofConstName name}`"
+      let indApp ← inductAppWithParams name
+      let (prop, imp) ← constructProp info.ctors indApp
+      let nctors := info.numCtors
+      let otherImp ←
+        withLocalDeclD `h indApp fun var => do
+          mkLambdaFVars #[var] <| ← mkDepCases var prop fun _ cval fields _ expectedType =>
+            proveBackwardOr cval.cidx nctors fields.toList expectedType
+      let iff := mkApp4 (.const ``Iff.intro []) prop indApp imp otherImp
+      let dec ← synthInstanceDeriving (.app (.const ``Dec []) prop)
+      let dec := mkApp4 (.const ``decidable_of_decidable_of_iff []) prop indApp dec iff
+      let instHyps ← produceInstanceHyps
+      mkInstanceForDeriving instHyps (.app (.const ``Dec []) indApp) dec
+    return true
+where
+  proveBackwardAnd (fields : List Expr) (goal : Expr) : DerivingM Expr := do
+    match fields, goal with
+    | [], _goal => return .const ``True.intro []
+    | [field], _goal => return field
+    | head :: tail, mkApp2 (.const ``And []) p q =>
+      return mkApp4 (.const ``And.intro []) p q head (← proveBackwardAnd tail q)
+    | _, _ => unreachable!
+  proveBackwardOr (idx : Nat) (nctors : Nat) (fields : List Expr) (goal : Expr)
+      : DerivingM Expr := do
+    match idx, nctors, goal with
+    | 0, 1, goal => proveBackwardAnd fields goal
+    | 0, _ + 1, mkApp2 (.const ``Or []) p q =>
+      return mkApp3 (.const ``Or.inl []) p q <| ← proveBackwardAnd fields p
+    | idx + 1, nctors + 1, mkApp2 (.const ``Or []) p q =>
+      return mkApp3 (.const ``Or.inr []) p q <| ← proveBackwardOr idx nctors fields q
+    | _, _, _ => unreachable!
+  /-- Returns `(e, h : e → (← inductAppWithParams (← getConstInfoCtor ctor).induct))` -/
+  constructPropForCtor (ctor : Name) : DerivingM (Expr × Expr) := do
+    let ctorApp := mkAppN (.const ctor (← read).indLParams) (← read).indParams
+    forallTelescope (← inferType ctorApp) fun fields _ => do
+      let mut res? := none
+      for field in fields.reverse do
+        let type ← inferType field
+        unless ← isProp type do
+          throwError "Non-propositional field of type{indentExpr type}\
+            \nnot supported in `{.ofConstName ``Dec}` deriving handler"
+        match res? with
+        | none => res? := type
+        | some q => res? := mkAnd type q
+      let mut ctorApp := ctorApp
+      let some res := res?
+        | return (mkConst ``True, .lam `h (mkConst ``True) ctorApp .default)
+      let mut acc : Expr := .bvar 0
+      for i in 0...fields.size do
+        if i = fields.size - 1 then
+          ctorApp := ctorApp.app acc
+        else
+          ctorApp := ctorApp.app (.proj ``And 0 acc)
+          acc := .proj ``And 1 acc
+      return (res, .lam `h res ctorApp .default)
+  /-- Returns `(e, h : e → indApp)` -/
+  constructProp (ctors : List Name) (indApp : Expr) : DerivingM (Expr × Expr) := do
+    match ctors with
+    | [] => return (mkConst ``False, .app (.const ``False.elim [0]) indApp)
+    | [ctor] => constructPropForCtor ctor
+    | head :: tail =>
+      let (l, hl) ← constructPropForCtor head
+      let (r, hr) ← constructProp tail indApp
+      return (mkOr l r, mkApp5 (.const ``Or.rec []) l r (.lam `x (mkOr l r) indApp .default) hl hr)
+
 /-!
 At the same time, this is also a good test for `.synthesize` and `derivePrerequisite`
 -/
@@ -839,6 +920,7 @@ meta initialize
   registerDerivingHandler ``AbbrevClass deriveAbbrevClass
   registerDerivingHandler ``Flatten deriveFlatten
   registerDerivingHandler ``LawfulFlatten deriveLawfulFlatten
+  registerDerivingHandler ``Dec deriveDec
   registerDerivingHandler ``AllGeneralClasses deriveAllGeneralClasses
   registerDerivingHandler ``OtherDataClasses deriveOtherDataClasses
   registerDerivingHandler ``OtherLawClasses deriveOtherLawClasses

@@ -551,10 +551,13 @@ def mkCasesOnAppAux [Monad m] [MonadEnv m] [MonadError m]
     let indices := args.drop indInfo.numParams
     let resultSort ← getLevel resultType
     let casesOnVal ← getConstVal (mkCasesOnName induct)
-    unless casesOnVal.levelParams.length = indInfo.levelParams.length + 1 do
+    let mut us := us
+    if casesOnVal.levelParams.length = indInfo.levelParams.length + 1 then
+      us := resultSort :: us
+    else if !resultSort.isAlwaysZero then
       throwError "Error in `{.ofConstName decl_name%}`: \
         The inductive `{.ofConstName induct}` does not have large elimination"
-    let casesOnApp := mkAppN (.const (mkCasesOnName induct) (resultSort :: us)) params
+    let casesOnApp := mkAppN (.const (mkCasesOnName induct) us) params
     let casesOnType ← inferType casesOnApp
     let .forallE _ motiveType body _ := casesOnType | unreachable!
     let motive ← computeMotive motiveType indices

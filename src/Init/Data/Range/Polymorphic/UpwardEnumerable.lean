@@ -268,7 +268,7 @@ theorem UpwardEnumerable.succ?_inj {α : Type u} [UpwardEnumerable α] [Linearly
 /--
 Maps elements of `α` to their immediate successor.
 -/
-@[always_inline, inline]
+@[always_inline]
 abbrev UpwardEnumerable.succ {α : Type u} [UpwardEnumerable α] [InfinitelyUpwardEnumerable α]
     (a : α) : α :=
   (succ? a).get isSome_succ?
@@ -314,7 +314,7 @@ This function uses an `UpwardEnumerable α` instance.
 
 If no other implementation is provided in UpwardEnumerable instance, succMany? repeatedly applies succ?.
 -/
-@[always_inline, inline, expose]
+@[always_inline, expose]
 def UpwardEnumerable.succMany {α : Type u} [UpwardEnumerable α]
     [LawfulUpwardEnumerable α] [InfinitelyUpwardEnumerable α]
     (n : Nat) (a : α) :=

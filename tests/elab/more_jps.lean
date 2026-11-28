@@ -2,7 +2,7 @@
   | []     => init
   | a :: l => f a (foldrNonTR f init l)
 
-@[always_inline, inline]
+@[always_inline]
 def List.forBreak_ {α : Type u} {m : Type w → Type x} [Monad m] (xs : List α) (s : σ) (body : α → OptionT (StateT σ (ExceptT ρ m)) PUnit) (kreturn : ρ → m γ) (kbreak : σ → m γ) : m γ :=
   List.foldrNonTR
     (fun a acc s => do

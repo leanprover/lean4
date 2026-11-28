@@ -34,7 +34,7 @@ public structure Iterators.Types.Flatten (α α₂ β : Type w) (m) where
 /--
 Internal iterator combinator that is used to implement all `flatMap` variants
 -/
-@[always_inline, inline]
+@[always_inline]
 def IterM.flattenAfter {α α₂ β : Type w} {m : Type w → Type w'} [Monad m]
     [Iterator α m (IterM (α := α₂) m β)] [Iterator α₂ m β]
     (it₁ : IterM (α := α) m (IterM (α := α₂) m β)) (it₂ : Option (IterM (α := α₂) m β)) :=
@@ -76,7 +76,7 @@ iterator.
 
 For each value emitted by the outer iterator `it₁`, this combinator calls `f`.
 -/
-@[always_inline, inline]
+@[always_inline]
 public def IterM.flatMapAfterM {α : Type w} {β : Type w} {α₂ : Type w}
     {γ : Type w} {m : Type w → Type w'} [Monad m] [MonadAttach m] [Iterator α m β] [Iterator α₂ m γ]
     (f : β → m (IterM (α := α₂) m γ)) (it₁ : IterM (α := α) m β) (it₂ : Option (IterM (α := α₂) m γ)) :=
@@ -115,7 +115,7 @@ This combinator incurs an additional O(1) cost with each output of `it` or an in
 
 For each value emitted by the outer iterator `it`, this combinator calls `f`.
 -/
-@[always_inline, inline, expose]
+@[always_inline, expose]
 public def IterM.flatMapM {α : Type w} {β : Type w} {α₂ : Type w}
     {γ : Type w} {m : Type w → Type w'} [Monad m] [MonadAttach m] [Iterator α m β] [Iterator α₂ m γ]
     (f : β → m (IterM (α := α₂) m γ)) (it : IterM (α := α) m β) :=
@@ -157,7 +157,7 @@ iterator.
 
 For each value emitted by the outer iterator `it₁`, this combinator calls `f`.
 -/
-@[always_inline, inline]
+@[always_inline]
 public def IterM.flatMapAfter {α : Type w} {β : Type w} {α₂ : Type w}
     {γ : Type w} {m : Type w → Type w'} [Monad m] [Iterator α m β] [Iterator α₂ m γ]
     (f : β → IterM (α := α₂) m γ) (it₁ : IterM (α := α) m β) (it₂ : Option (IterM (α := α₂) m γ)) :=
@@ -196,7 +196,7 @@ This combinator incurs an additional O(1) cost with each output of `it` or an in
 
 For each value emitted by the outer iterator `it`, this combinator calls `f`.
 -/
-@[always_inline, inline, expose]
+@[always_inline, expose]
 public def IterM.flatMap {α : Type w} {β : Type w} {α₂ : Type w}
     {γ : Type w} {m : Type w → Type w'} [Monad m] [Iterator α m β] [Iterator α₂ m γ]
     (f : β → IterM (α := α₂) m γ) (it : IterM (α := α) m β) :=

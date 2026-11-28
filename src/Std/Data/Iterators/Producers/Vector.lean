@@ -34,7 +34,7 @@ The monadic version of this iterator is
 * {name}`Finite` instance: always
 * {name}`Productive` instance: always
 -/
-@[always_inline, inline]
+@[always_inline]
 def Vector.iterFromIdx {α : Type w} (xs : Vector α n) (pos : Nat) :=
   (xs.toArray.iterFromIdx pos : Iter α)
 
@@ -50,6 +50,6 @@ The monadic version of this iterator is
 * {name}`Finite` instance: always
 * {name}`Productive` instance: always
 -/
-@[always_inline, inline]
+@[always_inline]
 def Vector.iter {α : Type w} (xs : Vector α n) :=
   (xs.toArray.iter : Iter α)

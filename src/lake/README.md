@@ -461,6 +461,22 @@ The `scope` is used to disambiguate between packages in the registry with the sa
 
 The `with` clause specifies a `NameMap String` of Lake options used to configure the dependency. This is equivalent to passing `-K` options to the dependency on the command line.
 
+A `-K name=value` flag on `lake build` only populates the **workspace-root** package's options, so a transitive dependency's `get_config? name` returns `none` even when the root was invoked with the flag set. The `with` clause is the documented per-edge channel for forwarding a workspace-root option to a specific dependency:
+
+```lean
+-- In the workspace-root lakefile. Forward our own `-KleanLibDir=...` value
+-- into a dependency whose own lakefile reads `get_config? leanLibDir`.
+def forwardedDepOpts : Lean.NameMap String :=
+  match get_config? leanLibDir with
+  | some d => Lean.NameMap.empty.insert `leanLibDir d
+  | none => Lean.NameMap.empty
+
+require SoplexFFI from git "https://github.com/leanprover/soplex-ffi" @ "..." with
+  forwardedDepOpts
+```
+
+If two `require`s in the workspace resolve to the same dependency `X` with different `opts` maps, one configuration wins for the workspace-wide `X` instance and the other is silently discarded; the precedence is currently underspecified. See https://github.com/leanprover/lean4/issues/14005.
+
 ### Supported Sources
 
 Lake supports the following types of dependencies as sources in a `from` clause.

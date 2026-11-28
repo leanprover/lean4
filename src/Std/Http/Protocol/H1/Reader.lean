@@ -77,6 +77,11 @@ structure Reader where
   headerBytesRead : Nat := 0
   /-- The peer closed its side of the connection. -/
   peerClosed : Bool := false
+  /--
+  The trailer fields of the incoming message read so far, but for those that may not appear in a
+  trailer (RFC 9110 §6.5.1), which are dropped. A continuation line of a field is dropped too.
+  -/
+  trailers : Array (String × String) := #[]
   /-- The machine stopped taking input. Input already buffered is still parsed. -/
   inputStopped : Bool := false
   /-- The scan of the incomplete line at the start of `input`, resumed by the next read of it. -/

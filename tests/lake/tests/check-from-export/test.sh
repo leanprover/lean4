@@ -3,12 +3,7 @@ source ../common.sh
 
 ./clean.sh
 
-if [ "`uname`" != Linux ]; then
-  echo "Skipping test: lake check needs Linux namespaces"
-  exit 0
-fi
-
-export COMPARATOR_BWRAP="$PWD/../fake-bwrap.sh"
+init_check_sandbox
 
 test_status_out 2 "'no-such.export' does not exist" check --from-export no-such.export
 test_status_out 2 "is a directory" check --from-export .

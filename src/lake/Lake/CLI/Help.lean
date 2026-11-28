@@ -439,10 +439,10 @@ REQUIREMENTS:
      all the dependencies they require are trusted.
   3. The project operates from a clean build, that is, there is no
      pre-existing `.lake` directory.
-  4. You have `bubblewrap` installed for sandboxing the, potentially
-     dangerous, build of the solution. `bubblewrap` is currently only
-     available on Linux systems so comparator can only be safely
-     used on Linux.
+  4. The, potentially dangerous, build of the solution can be sandboxed:
+     on Linux you have `bubblewrap` installed, and on macOS the system
+     provides `sandbox-exec`. There is no sandbox for other systems, so
+     comparator can only be safely used on Linux and macOS.
   5. You are not running `lake comparator` as a privileged user.
   6. The lean default kernel, or with `--paranoid` at least one of
      the used kernels, does not have a soundness issue that causes
@@ -501,9 +501,9 @@ EXIT CODES:
   0                     accepted
   1                     rejected: statement mismatch, forbidden axiom, kernel
                         rejection, or a build that did not succeed
-  2                     could not start: `bwrap` or the manifest is missing,
-                        or the configuration is missing, unreadable or
-                        malformed
+  2                     could not start: the sandbox or the manifest is
+                        missing, or the configuration is missing, unreadable
+                        or malformed
 
 JSON REPORT:
   With `--json` comparator only prints one final JSON report to stdout
@@ -555,18 +555,24 @@ EXPORTS:
     `lake build`.
 
 ENVIRONMENT:
-  COMPARATOR_BWRAP      sandbox executable (default: `bwrap` on PATH)
+  COMPARATOR_BWRAP      sandbox executable on Linux (default: `bwrap` on PATH)
 
   The exporter is always the `leanexport` of this toolchain, and deliberately
   not configurable: the export format has to match the compiler that produced
   the `.olean` files being exported.
 
 HARDENING:
-  `comparator` uses `bwrap` for sandboxing. `/` is bound read-only and the home directories are then
-  covered, so the code being judged builds against the system it expects and reads none of the
-  invoking user's files. Only `.lake` is writable. Only dependency resolution has a network, because
-  it has to fetch git dependencies; the build, the export and any external kernels run in an empty
-  network namespace."
+  On Linux, `comparator` uses `bwrap` for sandboxing. `/` is bound read-only and the home directories
+  are then covered, so the code being judged builds against the system it expects and reads none of
+  the invoking user's files. Only `.lake` is writable. Only dependency resolution has a network,
+  because it has to fetch git dependencies; the build, the export and any external kernels run in an
+  empty network namespace.
+
+  On macOS, `comparator` uses `sandbox-exec` to apply a Seatbelt profile to the same effect: the
+  home directories, other volumes and the temporary directories are unreadable, only `.lake` and a
+  temporary directory of the run are writable, and only dependency resolution has a network. A
+  profile restricts processes but does not isolate them in namespaces, so unlike on Linux, processes
+  started by the code being judged are not terminated at the end of the run."
 
 def helpCheck :=
 "Check this project against external checker(s)
@@ -579,9 +585,10 @@ Builds the default build targets, exports them, and replays the result through
 the kernel, erroring on any use of non-standard axioms.
 
 The project is untrusted input: its configuration is evaluated, and its code
-built and exported, inside a `bwrap` sandbox, and none of its `.olean` files
-is ever loaded into Lake's own address space. `bubblewrap` is required, and
-needs either unprivileged user namespaces or to be installed setuid root.
+built and exported, inside a sandbox, and none of its `.olean` files is ever
+loaded into Lake's own address space. On Linux, `bubblewrap` is required, and
+needs either unprivileged user namespaces or to be installed setuid root. On
+macOS, the system's `sandbox-exec` is used. Other systems have no sandbox.
 
 The project has to carry a `lake-manifest.json`, because dependencies are
 resolved inside the sandbox and it cannot write to the project directory.
@@ -616,8 +623,9 @@ EXIT CODES:
                         only the permitted axioms
   1                     a checker rejects it, an axiom is not permitted, or a
                         build did not succeed
-  2                     could not start: `bwrap` is missing, the project has
-                        no `lake-manifest.json`, or it has no default targets
+  2                     could not start: the sandbox is missing, the project
+                        has no `lake-manifest.json`, or it has no default
+                        targets
 
 JSON REPORT:
   With `--json` check only prints one final JSON report to stdout
@@ -641,7 +649,7 @@ JSON REPORT:
    \"judgement\": \"accepted\"}
 
 ENVIRONMENT:
-  COMPARATOR_BWRAP      sandbox executable (default: `bwrap` on PATH)
+  COMPARATOR_BWRAP      sandbox executable on Linux (default: `bwrap` on PATH)
 
   The exporter is always the `leanexport` of this toolchain, and deliberately
   not configurable: the export format has to match the compiler that produced

@@ -3,13 +3,7 @@ source ../common.sh
 
 ./clean.sh
 
-if [ "`uname`" != Linux ]; then
-  echo "Skipping test: lake check needs Linux namespaces"
-  exit 0
-fi
-
-# User namespaces cannot be assumed available in CI containers; see `../fake-bwrap.sh`.
-export COMPARATOR_BWRAP="$PWD/../fake-bwrap.sh"
+init_check_sandbox
 
 # Both commands resolve dependencies inside the sandbox, which cannot write to the project
 # directory, so the manifest has to be in place first.
@@ -33,6 +27,12 @@ if [ $bundled = 1 ]; then
   for kernel in "${KERNELS[@]}" "Lean default"; do
     match_text "$kernel kernel accepts the solution" produced.out
   done
+fi
+
+if [ "$UNAME" = Darwin ]; then
+  echo "Skipping the rest of the test: the stub toolchain links to files outside of the sandbox"
+  rm -f produced.out
+  exit 0
 fi
 
 # Everywhere else, point Lake at a copy of this toolchain whose bundled checkers are stubs that

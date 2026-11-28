@@ -813,6 +813,12 @@ def mergeWith [TransCmp cmp] [LawfulEqCmp cmp] (mergeFn : (a : α) → β a → 
   t₁.liftOn₂ t₂ (fun m₁ m₂ => mk (m₁.mergeWith mergeFn m₂))
     (fun _ _ _ _ h₁ h₂ => sound (h₁.mergeWith mergeFn h₂))
 
+@[inline, inherit_doc DTreeMap.mergeWith?]
+def mergeWith? [TransCmp cmp] [LawfulEqCmp cmp] (mergeFn : (a : α) → β a → β a → Option (β a)) (t₁ t₂ : ExtDTreeMap α β cmp) :
+    ExtDTreeMap α β cmp :=
+  t₁.liftOn₂ t₂ (fun m₁ m₂ => mk (m₁.mergeWith? mergeFn m₂))
+    (fun _ _ _ _ h₁ h₂ => sound (h₁.mergeWith? mergeFn h₂))
+
 namespace Const
 
 variable {β : Type v}
@@ -857,6 +863,11 @@ def alter [TransCmp cmp] (t : ExtDTreeMap α β cmp) (a : α) (f : Option β →
 def mergeWith [TransCmp cmp] (mergeFn : α → β → β → β) (t₁ t₂ : ExtDTreeMap α β cmp) : ExtDTreeMap α β cmp :=
   t₁.liftOn₂ t₂ (fun m₁ m₂ => mk (DTreeMap.Const.mergeWith mergeFn m₁ m₂))
     (fun _ _ _ _ h₁ h₂ => sound (h₁.constMergeWith mergeFn h₂))
+
+@[inline, inherit_doc ExtDTreeMap.mergeWith?]
+def mergeWith? [TransCmp cmp] (mergeFn : α → β → β → Option β) (t₁ t₂ : ExtDTreeMap α β cmp) : ExtDTreeMap α β cmp :=
+  t₁.liftOn₂ t₂ (fun m₁ m₂ => mk (DTreeMap.Const.mergeWith? mergeFn m₁ m₂))
+    (fun _ _ _ _ h₁ h₂ => sound (h₁.constMergeWith? mergeFn h₂))
 
 end Const
 

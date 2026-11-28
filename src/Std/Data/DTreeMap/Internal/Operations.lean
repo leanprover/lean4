@@ -943,6 +943,15 @@ def mergeWith [Ord α] [LawfulEqOrd α] (mergeFn : (a : α) → β a → β a �
       | none => some b₂
       | some b₁ => some <| mergeFn a b₁ b₂) t.balanced_impl).toBalancedTree
 
+/-- Merge into the first tree, deleting collisions for which the callback returns `none`. -/
+@[inline]
+def mergeWith? [Ord α] [LawfulEqOrd α] (mergeFn : (a : α) → β a → β a → Option (β a)) (t₁ t₂ : Impl α β)
+    (ht₁ : t₁.Balanced) : BalancedTree α β :=
+  t₂.foldl (δ := BalancedTree α β) (init := (⟨t₁, ht₁⟩ : BalancedTree α β)) fun t a b₂ =>
+    (t.impl.alter a (fun
+      | none => some b₂
+      | some b₁ => mergeFn a b₁ b₂) t.balanced_impl).toBalancedTree
+
 /--
 Returns a map that contains all mappings of `t₁` and `t₂`. In case that both maps contain the
 same key `k` with respect to `cmp`, the provided function is used to determine the new value from
@@ -955,6 +964,15 @@ def mergeWith! [Ord α] [LawfulEqOrd α] (mergeFn : (a : α) → β a → β a �
     t.alter! a fun
       | none => some b₂
       | some b₁ => some <| mergeFn a b₁ b₂
+
+/-- Merge into the first tree, deleting collisions for which the callback returns `none`. -/
+@[inline]
+def mergeWith?! [Ord α] [LawfulEqOrd α] (mergeFn : (a : α) → β a → β a → Option (β a)) (t₁ t₂ : Impl α β) :
+    Impl α β :=
+  t₂.foldl (init := t₁) fun t a b₂ =>
+    t.alter! a fun
+      | none => some b₂
+      | some b₁ => mergeFn a b₁ b₂
 
 namespace Const
 
@@ -1055,6 +1073,15 @@ def mergeWith [Ord α] (mergeFn : (a : α) → β → β → β) (t₁ t₂ : Im
       | none => some b₂
       | some b₁ => some <| mergeFn a b₁ b₂) t.impl t.balanced_impl).toBalancedTree
 
+/-- Merge into the first tree, deleting collisions for which the callback returns `none`. -/
+@[inline]
+def mergeWith? [Ord α] (mergeFn : (a : α) → β → β → Option β) (t₁ t₂ : Impl α β)
+    (ht₁   : t₁.Balanced) : BalancedTree α β :=
+  t₂.foldl (δ := BalancedTree α β) (init := (⟨t₁, ht₁⟩ : BalancedTree α β)) fun t a b₂ =>
+    (alter a (fun
+      | none => some b₂
+      | some b₁ => mergeFn a b₁ b₂) t.impl t.balanced_impl).toBalancedTree
+
 /--
 Returns a map that contains all mappings of `t₁` and `t₂`. In case that both maps contain the
 same key `k` with respect to `cmp`, the provided function is used to determine the new value from
@@ -1066,6 +1093,14 @@ def mergeWith! [Ord α] (mergeFn : (a : α) → β → β → β) (t₁ t₂ : I
     alter! (t := t) a fun
       | none => some b₂
       | some b₁ => some <| mergeFn a b₁ b₂
+
+/-- Merge into the first tree, deleting collisions for which the callback returns `none`. -/
+@[inline]
+def mergeWith?! [Ord α] (mergeFn : (a : α) → β → β → Option β) (t₁ t₂ : Impl α β) : Impl α β :=
+  t₂.foldl (init := t₁) fun t a b₂ =>
+    alter! (t := t) a fun
+      | none => some b₂
+      | some b₁ => mergeFn a b₁ b₂
 
 end Const
 

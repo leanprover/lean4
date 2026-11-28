@@ -61,6 +61,10 @@ inductive WF [Ord α] : {β : α → Type v} → Impl α β → Prop where
   | mergeWith {t₁ t₂ f h} [LawfulEqOrd α] : WF t₁ → WF (t₁.mergeWith f t₂ h).impl
   /-- `mergeWith` preserves well-formedness. Later shown to be subsumed by `.wf`. -/
   | constMergeWith {t₁ t₂ f h} : WF t₁ → WF (Impl.Const.mergeWith f t₁ t₂ h).impl
+  /-- Deletion-capable merging preserves well-formedness. -/
+  | mergeWith? {t₁ t₂ f h} [LawfulEqOrd α] : WF t₁ → WF (t₁.mergeWith? f t₂ h).impl
+  /-- Nondependent deletion-capable merging preserves well-formedness. -/
+  | constMergeWith? {t₁ t₂ f h} : WF t₁ → WF (Impl.Const.mergeWith? f t₁ t₂ h).impl
   /-- `inter` preserves well-formedness. Later shown to be subsumed by `.wf`. -/
   | inter {t₁ t₂ h} : WF t₁ → WF (t₁.inter t₂ h)
 

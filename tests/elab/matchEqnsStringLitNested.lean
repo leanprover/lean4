@@ -27,8 +27,8 @@ fun motive x h_1 h_2 h_3 h_4 heq_1 =>
   Eq.symm heq_1 ▸
     id
       (heq_of_eq
-        (dite_eq_of_not (id (String.Internal.ofList_ne_ofList ['c'] ['a'] 0 (Eq.refl false))) fun h =>
-          dite_eq_of_not (id (String.Internal.ofList_ne_ofList ['c'] ['b'] 0 (Eq.refl false))) fun h =>
+        (dite_eq_of_not (id (String.Internal.ne_of_sameByteAt "c" "a" 0 (Eq.refl false))) fun h =>
+          dite_eq_of_not (id (String.Internal.ne_of_sameByteAt "c" "b" 0 (Eq.refl false))) fun h =>
             Eq.trans (dite_eq_left (Eq.refl "c")) (id (Eq.refl (h_3 ())))))
 -/
 #guard_msgs in

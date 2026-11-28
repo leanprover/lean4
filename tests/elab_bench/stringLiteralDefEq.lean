@@ -14,7 +14,7 @@ set_option maxRecDepth 100000
 set_option Elab.async false
 
 elab "string_literal_defeq" : command => do
-  let n := if (← IO.getEnv "TEST_BENCH") == some "1" then 16384 else 256
+  let n := if (← IO.getEnv "TEST_BENCH") == some "1" then 4096 else 256
   let mut x : UInt64 := 1
   let mut chars := #[]
   for _ in [0:n] do

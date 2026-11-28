@@ -60,20 +60,20 @@ private def unfoldElimOffset (mvarId : MVarId) : MetaM MVarId := do
 
 /--
 The codes of the `String` literals of a matcher: a mapping from a literal `s` to the numeral `n`
-such that `String.Internal.code s = n`, and a proof of this equation. See `getStrLitCodes`.
+such that `String.Internal.byteCode s = n`, and a proof of this equation. See `getStrLitCodes`.
 -/
 private abbrev StrLitCodes := Std.HashMap String (Expr × Expr)
 
 /--
 Returns `true` if `e` is a `String` literal that has a code in `StrLitCodes`.
 
-A literal with more than `256` characters does not have one: the kernel evaluates
-`String.Internal.codeOfList` with one multiplication for each character, on a number whose size
-is proportional to the number of characters already processed.
+A literal with more than `256` bytes does not have one: the kernel evaluates
+`String.Internal.codeOfBytes` with one multiplication for each byte, on a number whose size
+is proportional to the number of bytes already processed.
 -/
 private def hasStrLitCode (e : Expr) : Bool :=
   match e with
-  | .lit (.strVal s) => s.length ≤ 256
+  | .lit (.strVal s) => s.utf8ByteSize ≤ 256
   | _ => false
 
 /--
@@ -111,17 +111,17 @@ where
 
 /--
 Returns the codes of the `String` literals occurring in the definition of the matcher
-`matchDeclName`. Only literals with at most `256` characters have a code (see `hasStrLitCode`),
+`matchDeclName`. Only literals with at most `256` bytes have a code (see `hasStrLitCode`),
 and the result is empty if there are less than `minStrLits` different ones.
 
 The proof of an equation of a matcher with `n` `String` literal patterns contains up to `n-1`
 proofs that two of these literals are different, and there is one equation for each alternative.
-With `String.Internal.ne_of_code`, such a proof is a comparison between the codes of the two
+With `String.Internal.ne_of_byteCode`, such a proof is a comparison between the codes of the two
 literals. Computing the code of a literal is the expensive step: the kernel evaluates
-`String.Internal.codeOfList` on its characters. So, it is performed once for each literal, in
+`String.Internal.codeOfBytes` on its bytes. So, it is performed once for each literal, in
 the auxiliary theorem
 ```
-matchDeclName.strLitCodes : code "a" = n₁ ∧ code "b" = n₂ ∧ ...
+matchDeclName.strLitCodes : byteCode "a" = n₁ ∧ byteCode "b" = n₂ ∧ ...
 ```
 and the proof for the literal `i` returned by this function is a projection of this theorem.
 -/
@@ -135,7 +135,7 @@ private def getStrLitCodes (matchDeclName : Name) : MetaM StrLitCodes := do
   realizeConst matchDeclName thmName do
     let mkFact (lit : String) : Expr × Expr :=
       let (n, h) := mkStringLitCodeProof lit
-      let code := mkApp (mkConst ``String.Internal.code) (mkStrLit lit)
+      let code := mkApp (mkConst ``String.Internal.byteCode) (mkStrLit lit)
       (mkApp3 (mkConst ``Eq [1]) (mkConst ``Nat) code n, h)
     let lits ← collectStrLits value
     let (type, value) := lits.pop.foldr (init := mkFact lits.back!) fun lit (type, value) =>
@@ -144,7 +144,7 @@ private def getStrLitCodes (matchDeclName : Name) : MetaM StrLitCodes := do
     addDecl <| Declaration.thmDecl { name := thmName, levelParams := [], type, value }
   -- The literals and their codes are retrieved from the statement of the theorem.
   let getCode (fact : Expr) : String × Expr :=
-    -- `fact` is `code lit = n`
+    -- `fact` is `byteCode lit = n`
     match fact.appFn!.appArg! with
     | .app _ (.lit (.strVal lit)) => (lit, fact.appArg!)
     | _ => unreachable!
@@ -165,15 +165,15 @@ Returns a proof of `¬ a = b`, where `a` and `b` are the `String` literals `s₁
 which must be different.
 
 If both literals have a code in `codes`, the proof compares the codes. Otherwise, it compares the
-characters at the first position where the two literals differ (see `mkStringLitNeProof`).
+bytes at the first position where the two literals differ (see `mkStringLitNeProof`).
 -/
 private def mkStrLitNeProof (codes : StrLitCodes) (a b : Expr) (s₁ s₂ : String) : MetaM Expr := do
-  let some (n₁, h₁) := codes[s₁]? | mkCharNeProof
-  let some (n₂, h₂) := codes[s₂]? | mkCharNeProof
+  let some (n₁, h₁) := codes[s₁]? | mkByteNeProof
+  let some (n₂, h₂) := codes[s₂]? | mkByteNeProof
   let h := mkApp2 (mkConst ``Eq.refl [1]) (mkConst ``Bool) (mkConst ``false)
-  return mkApp7 (mkConst ``String.Internal.ne_of_code) a b n₁ n₂ h₁ h₂ h
+  return mkApp7 (mkConst ``String.Internal.ne_of_byteCode) a b n₁ n₂ h₁ h₂ h
 where
-  mkCharNeProof : MetaM Expr :=
+  mkByteNeProof : MetaM Expr :=
     return mkExpectedPropHint (← mkStringLitNeProof s₁ s₂)
       (mkNot (mkApp3 (mkConst ``Eq [1]) (mkConst ``String) a b))
 

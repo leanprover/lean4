@@ -445,6 +445,95 @@ theorem String.Internal.ne_of_code {s₁ s₂ : String} {n₁ n₂ : Nat} (h₁ 
   rw [Nat.beq_refl] at h
   contradiction
 
+/--
+Auxiliary function for proving that two `String` literals are different. See
+`String.Internal.ne_of_sameByteAt`.
+
+Returns `false` if `l₁` and `l₂` have different bytes at position `i`, or if exactly one of them
+has a byte at position `i`. It assumes the two lists have at least `i` elements, and returns `true`
+otherwise.
+
+It traverses the two lists simultaneously, and is defined using recursors to minimize the number of
+steps the kernel has to perform when evaluating it.
+-/
+@[expose] noncomputable def String.Internal.sameByteAt (i : Nat) (l₁ l₂ : List UInt8) : Bool :=
+  Nat.rec (motive := fun _ => List UInt8 → List UInt8 → Bool)
+    (fun l₁ l₂ => List.rec (motive := fun _ => Bool)
+      (List.rec (motive := fun _ => Bool) true (fun _ _ _ => false) l₂)
+      (fun b₁ _ _ => List.rec (motive := fun _ => Bool) false (fun b₂ _ _ => Nat.beq b₁.toNat b₂.toNat) l₂)
+      l₁)
+    (fun _ f l₁ l₂ => List.rec (motive := fun _ => Bool) true
+      (fun _ l₁ _ => List.rec (motive := fun _ => Bool) true (fun _ l₂ _ => f l₁ l₂) l₂)
+      l₁)
+    i l₁ l₂
+
+theorem String.Internal.sameByteAt_self (i : Nat) (l : List UInt8) : sameByteAt i l l = true := by
+  induction i generalizing l with
+  | zero => cases l with
+    | nil => rfl
+    | cons b l => exact Nat.beq_refl _
+  | succ i ih => cases l with
+    | nil => rfl
+    | cons b l => exact ih l
+
+/--
+Auxiliary theorem for proving that two `String` literals are different. `i` is the first position
+where the UTF-8 encodings of `s₁` and `s₂` differ, and `h` is `Eq.refl false`.
+
+The kernel represents a literal by the list of its bytes, so it evaluates `sameByteAt` without
+encoding or decoding any character.
+-/
+theorem String.Internal.ne_of_sameByteAt (s₁ s₂ : String) (i : Nat)
+    (h : sameByteAt i s₁.toByteArray.data.toList s₂.toByteArray.data.toList = false) : s₁ ≠ s₂ := by
+  intro h'
+  subst h'
+  rw [sameByteAt_self] at h
+  contradiction
+
+/--
+Auxiliary function for proving that two `String` literals are different. See
+`String.Internal.ne_of_byteCode`.
+
+`codeOfBytes l` is a natural number that identifies the list of bytes `l`: two different lists
+have different codes. It is the value of the numeral in base `257` whose digits are `b.toNat + 1`
+for the bytes `b` of `l`, the first byte being the least significant digit. No digit is zero, so
+lists with different lengths also have different codes.
+This property is not needed for soundness, and is not proved: `String.Internal.ne_of_byteCode`
+holds for any function, and the kernel rejects its proof if the two codes are equal.
+
+It is defined using a recursor to minimize the number of steps the kernel has to perform when
+evaluating it.
+-/
+@[expose] noncomputable def String.Internal.codeOfBytes (l : List UInt8) : Nat :=
+  List.rec (motive := fun _ => Nat) 0
+    (fun b _ n => Nat.add (Nat.add b.toNat 1) (Nat.mul 257 n)) l
+
+/--
+Auxiliary function for proving that two `String` literals are different. See
+`String.Internal.ne_of_byteCode`.
+
+`byteCode s` is a natural number that identifies the string `s`, see `codeOfBytes`. The kernel
+evaluates it on a literal `s`, so `Eq.refl n` proves `byteCode s = n`.
+-/
+@[expose] noncomputable def String.Internal.byteCode (s : String) : Nat :=
+  codeOfBytes s.toByteArray.data.toList
+
+/--
+Auxiliary theorem for proving that two `String` literals are different: their codes `n₁` and `n₂`
+are different numerals, and `h` is `Eq.refl false`.
+
+The kernel evaluates `Nat.beq n₁ n₂` using arbitrary precision arithmetic, so the cost of this
+proof does not depend on the two literals, once their codes are known. Use this theorem instead of
+`String.Internal.ne_of_sameByteAt` when many disequalities between the same literals are needed
+and the proofs `h₁` and `h₂` can be shared.
+-/
+theorem String.Internal.ne_of_byteCode {s₁ s₂ : String} {n₁ n₂ : Nat} (h₁ : byteCode s₁ = n₁)
+    (h₂ : byteCode s₂ = n₂) (h : Nat.beq n₁ n₂ = false) : ¬ s₁ = s₂ := by
+  intro h'
+  subst h' h₁ h₂
+  rw [Nat.beq_refl] at h
+  contradiction
+
 @[deprecated String.ofList_inj (since := "2025-10-30")]
 theorem List.asString_inj {l₁ l₂ : List Char} : String.ofList l₁ = String.ofList l₂ ↔ l₁ = l₂ :=
   String.ofList_inj

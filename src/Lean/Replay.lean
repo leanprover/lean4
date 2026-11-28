@@ -202,12 +202,13 @@ public def replay (newConstants : Std.HashMap Name ConstantInfo) (env : Kernel.E
       remaining := remaining.insert n
   let (_, s) ← StateRefT'.run (s := { env, remaining }) do
     ReaderT.run (r := { newConstants }) do
-      -- The kernel unfolds string literals to `String.ofList [Char.ofNat n, ...]`
+      -- The kernel unfolds string literals to
+      -- `String.ofByteArray ⟨⟨[UInt8.ofNat b, ...]⟩⟩ (String.isValidUTF8 _)`
       -- (see `string_lit_to_constructor`), so these constants are needed to check any declaration
       -- that reduces a string literal, but `getUsedConstants` does not report them.
       -- Replay them (if present) before anything else.
-      replayConstant ``String.ofList
-      replayConstant ``Char.ofNat
+      replayConstant ``String.isValidUTF8
+      replayConstant ``UInt8.ofNat
       for n in remaining do
         replayConstant n
       checkPostponedConstructors

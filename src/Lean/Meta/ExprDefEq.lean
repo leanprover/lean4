@@ -299,16 +299,6 @@ def isDefEqFloatLit (s t : Expr) : MetaM LBool := do
   if (← getTransparency) matches .default | .all then return .true
   return .undef
 
-/-- Support for constraints of the form `("..." =?= String.ofList cs)` -/
-def isDefEqStringLit (s t : Expr) : MetaM LBool := do
-  let isDefEq (s t) : MetaM LBool := toLBoolM <| Meta.isExprDefEqAux s t
-  if s.isStringLit && t.isAppOf ``String.ofList then
-    isDefEq (← s.toCtorIfLit) t
-  else if s.isAppOf ``String.ofList && t.isStringLit then
-    isDefEq s (← t.toCtorIfLit)
-  else
-    pure LBool.undef
-
 /--
   Return `true` if `e` is of the form `fun (x_1 ... x_n) => ?m x_1 ... x_n)`, and `?m` is unassigned.
   Remark: `n` may be 0. -/
@@ -2443,9 +2433,7 @@ is a decline (the rule does not apply), not a negative verdict, hence `.undef`.
 private def isDefEqLateSpecialCases (t s : Expr) : MetaM LBool := do
   match (← isDefEqProjInst t s) with
   | .undef =>
-    match (← isDefEqStringLit t s) with
-    | .undef => return if (← isDefEqUnitLike t s) then .true else .undef
-    | r      => return r
+    return if (← isDefEqUnitLike t s) then .true else .undef
   | r => return r
 
 /--

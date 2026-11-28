@@ -1990,8 +1990,8 @@ the end of the process! It can still be useful to do eagerly when the value
 will be marked persistent later anyway and there is available time budget to
 mark it now or it would be unnecessarily marked multi-threaded in between.
 
-This function is only safe to use on objects (in the full closure) which are
-not used concurrently or which are already persistent.
+Objects in the closure may be in use by other threads. Reference counting stops for such objects as
+well, but they are not reported as persistent by the runtime.
 -/
 @[extern "lean_runtime_mark_persistent"]
 unsafe def Runtime.markPersistent (a : α) : BaseIO α := return a

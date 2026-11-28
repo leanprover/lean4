@@ -602,14 +602,33 @@ static obj_res mark_persistent_fn(obj_arg o) {
 #endif
 #endif
 
+/* Count that `lean_mark_persistent` gives to thread-shared objects: the middle of the sticky range,
+   so that adjustments other threads have in flight cannot move it back out of the range. */
+#define LEAN_RC_FROZEN (INT_MIN + 0x08000000)
+
+/* Stops reference counting of `o`. Returns false if that was already the case. */
+static bool freeze_rc(object * o) {
+    if (lean_is_st(o)) {
+        // Only this thread can reach the object.
+        lean_internal_set_rc(o, 0);
+        return true;
+    } else if (lean_is_unstuck_mt(o)) {
+        // Other threads may be adjusting the count, so it cannot be set to zero: an adjustment in
+        // flight would land on top of the zero and revive the object with a wrong count.
+        std::atomic_store_explicit(lean_get_rc_mt_addr(o), LEAN_RC_FROZEN, std::memory_order_relaxed);
+        return true;
+    } else {
+        return false;
+    }
+}
+
 extern "C" LEAN_EXPORT void lean_mark_persistent(object * o) {
     buffer<object*> todo;
     todo.push_back(o);
     while (!todo.empty()) {
         object * o = todo.back();
         todo.pop_back();
-        if (!lean_is_scalar(o) && lean_has_rc(o)) {
-            lean_internal_set_rc(o, 0);
+        if (!lean_is_scalar(o) && freeze_rc(o)) {
 #if defined(__has_feature)
 #if __has_feature(address_sanitizer)
             // do not report as leak

@@ -73,6 +73,11 @@ inductive Error where
   Any other I/O failure, e.g. raised by an interceptor or a user-supplied body.
   -/
   | io (error : IO.Error)
+
+  /--
+  The caller cancelled the request.
+  -/
+  | cancelled
 deriving Inhabited
 
 namespace Error
@@ -87,6 +92,7 @@ instance : ToString Error where
     | .bodyLimitExceeded => "response body exceeds maximum allowed size"
     | .invalidRequest msg => msg
     | .io e => toString e
+    | .cancelled => "request cancelled"
 
 /--
 Renders this error as an `IO.Error` for callers working in `Async`.
@@ -112,7 +118,7 @@ was reused.
 def isRetryable : Error → Bool
   | .connect _ | .closed _ | .notSent _ => true
   | .protocol e => e == Protocol.H1.Error.connectionClosed
-  | .timeout | .bodyLimitExceeded | .invalidRequest _ | .io _ => false
+  | .timeout | .bodyLimitExceeded | .invalidRequest _ | .io _ | .cancelled => false
 
 /--
 `true` for failures that prove the request never reached the peer: no connection could be opened, or

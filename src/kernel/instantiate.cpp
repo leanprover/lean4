@@ -95,7 +95,7 @@ extern "C" LEAN_EXPORT object * lean_expr_instantiate_range(b_obj_arg a, b_obj_a
 }
 
 expr instantiate_rev(expr const & a, size_t n, expr const * subst) {
-    if (!has_loose_bvars(a))
+    if (!has_loose_bvars(a) || n == 0)
         return a;
     return replace_tpl(a, [=](expr const & m, unsigned offset) -> optional<expr> {
             if (is_bvar(m)) {
@@ -115,7 +115,7 @@ expr instantiate_rev(expr const & a, size_t n, expr const * subst) {
 
 static object * lean_expr_instantiate_rev_core(object * a0, size_t n, object ** subst) {
     expr const & a = reinterpret_cast<expr const &>(a0);
-    if (!has_loose_bvars(a)) {
+    if (!has_loose_bvars(a) || n == 0) {
         lean_inc(a0);
         return a0;
     }

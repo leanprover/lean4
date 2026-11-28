@@ -930,7 +930,7 @@ bool type_checker::is_def_eq_app(expr const & t, expr const & s) {
         buffer<expr> s_args;
         expr t_fn = get_app_args(t, t_args);
         expr s_fn = get_app_args(s, s_args);
-        if (is_def_eq(t_fn, s_fn) && t_args.size() == s_args.size()) {
+        if (t_args.size() == s_args.size() && is_def_eq(t_fn, s_fn)) {
             size_t i = 0;
             for (; i < t_args.size(); i++) {
                 if (!is_def_eq(t_args[i], s_args[i]))

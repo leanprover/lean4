@@ -176,26 +176,12 @@ private def addDeclCore (decl : Declaration) (forceExpose : Bool) : CoreM Unit :
   async.commitConst async.asyncEnv (some info) (exportedInfo? <|> info)
   setEnv async.mainEnv
 
-  let doAddAndCommit := do
+  Core.forkAsSnapshot (after := env.checked) do
     setEnv async.asyncEnv
     try
       doAdd
     finally
       async.commitCheckEnv (← getEnv)
-
-  if Elab.async.get (← getOptions) then
-    let cancelTk ← IO.CancelToken.new
-    let checkAct ← Core.wrapAsyncAsSnapshot (cancelTk? := cancelTk) fun _ => doAddAndCommit
-    let t ← BaseIO.mapTask checkAct env.checked
-    -- Do not display reporting range; most uses of `addDecl` are for registering auxiliary decls
-    -- users should not worry about and other callers can add a separate task with ranges
-    -- themselves, see `MutualDef`.
-    Core.logSnapshotTask { stx? := none, reportingRange := .skip, task := t, cancelTk? := cancelTk }
-  else
-    try
-      doAddAndCommit
-    finally
-      setEnv async.mainEnv
 where
   doAdd := do
     profileitM Exception "type checking" (← getOptions) do

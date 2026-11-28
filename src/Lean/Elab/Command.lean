@@ -490,17 +490,23 @@ Interrupt and abort exceptions are caught but not logged.
 @[inline] def withLoggingExceptions (x : CommandElabM Unit) : CommandElabM Unit := fun ctx ref =>
   EIO.catchExceptions (withLogging x ctx ref) (fun _ => pure ())
 
+/--
+Advances the name generators of the current state and returns a state for a forked computation
+whose generators cannot produce names clashing with the current branch.
+-/
+private def forkState : CommandElabM State := do
+  let (childNGen, parentNGen) := (← get).ngen.mkChild
+  modify fun s => { s with ngen := parentNGen }
+  let (childDeclNGen, parentDeclNGen) := (← getDeclNGen).mkChild
+  setDeclNGen parentDeclNGen
+  return { (← get) with auxDeclNGen := childDeclNGen, ngen := childNGen }
+
 @[inherit_doc Core.wrapAsync]
 def wrapAsync {α β : Type} (act : α → CommandElabM β) (cancelTk? : Option IO.CancelToken) :
     CommandElabM (α → EIO Exception β) := do
   let ctx ← read
   let ctx := { ctx with cancelTk? }
-  let (childNGen, parentNGen) := (← get).ngen.mkChild
-  modify fun s => { s with ngen := parentNGen }
-  let (childDeclNGen, parentDeclNGen) := (← getDeclNGen).mkChild
-  setDeclNGen parentDeclNGen
-  let st ← get
-  let st := { st with auxDeclNGen := childDeclNGen, ngen := childNGen }
+  let st ← forkState
   return (act · |>.run ctx |>.run' st)
 
 open Language in
@@ -554,6 +560,10 @@ open Language in
 def runLintersAsync (stx : Syntax) : CommandElabM Unit := do
   let lintersCodeQualityEntriesPromise ← IO.Promise.new (α := Array Linter.CodeQualityLogEntry)
   if !Elab.async.get (← getOptions) then
+    -- generated names must not depend on `Elab.async`: advance the name generators as the fork
+    -- and the info tree hole do below
+    discard forkState
+    discard <| liftCoreM mkFreshMVarId
     withoutModifyingEnv do
       runLinters stx (codeQualityEntriesPromise? := lintersCodeQualityEntriesPromise)
       modify fun s => { s with codeQualityEntryTasks :=
@@ -606,6 +616,9 @@ def runModuleLintersAsync (cmds : Array Syntax) : CommandElabM Unit := do
   modify fun s => { s with codeQualityEntryTasks :=
     s.codeQualityEntryTasks.push (codeQualityEntriesPromise.resultD #[]) }
   if !Elab.async.get (← getOptions) then
+    -- generated names must not depend on `Elab.async`: advance the name generators as the fork
+    -- does below
+    discard forkState
     withoutModifyingEnv do
       runModuleLinters cmds codeQualityEntriesPromise
     return
@@ -621,6 +634,10 @@ def runStatefulLintersAsync (stx : Syntax) : CommandElabM Unit := do
   if (← statefulLintersRef.get).isEmpty then return
   let statefulLintersCodeQualityEntriesPromise ← IO.Promise.new (α := Array Linter.CodeQualityLogEntry)
   if !Elab.async.get (← getOptions) then
+    -- generated names must not depend on `Elab.async`: advance the name generators as the fork
+    -- and the info tree hole do below
+    discard forkState
+    discard <| liftCoreM mkFreshMVarId
     -- We only block when switching the `Elab.async` in the middle of elaborating a file.
     let prev := (← prevLinterStatesTask (← get).prevLinterStates).get
     let postSt ← withoutModifyingEnv <|

@@ -13,6 +13,7 @@ public import Lean.AutoDecl
 import Lean.Linter.Init
 import Lean.Compiler.MetaAttr
 import Lean.Util.RecDepth
+import Init.Data.Queue
 import all Lean.OriginalConstKind  -- for accessing `privateConstKindsExt`
 
 public section
@@ -35,7 +36,7 @@ def Kernel.Environment.addDecl (env : Environment) (opts : Options) (decl : Decl
 private def Environment.addDeclAux (env : Environment) (opts : Options) (decl : Declaration)
     (cancelTk? : Option IO.CancelToken := none) : Except Kernel.Exception Environment :=
   env.addDeclCore (Core.getMaxHeartbeats opts).toUSize (kernelMaxRecDepth opts) decl cancelTk?
-    (!debug.skipKernelTC.get opts)
+    (!debug.skipKernelTC.get opts) (nonblocking := Elab.async.get opts)
 
 open Linter in
 /--
@@ -100,6 +101,70 @@ def warnIfUsesSorry (decl : Declaration) : CoreM Unit := do
         -- This case should not happen, but it ensures a warning will get logged no matter what.
         logWarning <| .tagged `hasSorry m!"declaration uses `sorry`"
 
+register_builtin_option Elab.persistentSignatures : Bool := {
+  defValue := true
+  descr    := "mark the types of declarations as persistent when they are added to the environment, \
+    which stops reference counting on them, in particular from multiple threads at once, but means \
+    they are never deallocated; the language server turns this off by default"
+}
+
+/-- Marks `type`, the type of a constant about to be added, as persistent if so configured. -/
+def markSignaturePersistent (type : Expr) : CoreM Unit := do
+  if Elab.persistentSignatures.get (← getOptions) then
+    discard <| unsafe Runtime.markPersistent type
+
+/-- Applies `markSignaturePersistent` to the types of all constants given in `decl`. -/
+private def markSignaturesPersistent (decl : Declaration) : CoreM Unit := do
+  match decl with
+  | .axiomDecl d => markSignaturePersistent d.type
+  | .defnDecl d => markSignaturePersistent d.type
+  | .thmDecl d => markSignaturePersistent d.type
+  | .opaqueDecl d => markSignaturePersistent d.type
+  | .mutualDefnDecl ds => ds.forM (markSignaturePersistent ·.type)
+  | .inductDecl _ _ types _ =>
+    for type in types do
+      markSignaturePersistent type.type
+      type.ctors.forM (markSignaturePersistent ·.type)
+  | .quotDecl => pure ()
+
+/--
+Maximum number of declarations the kernel checks at the same time. A check holds on to its reduction
+caches until it is done, so the memory of concurrent checks adds up.
+-/
+private def maxParallelKernelChecks : Nat := 4
+
+private structure KernelCheckSlots where
+  /-- Number of slots in use. -/
+  used : Nat := 0
+  /-- Checks waiting for a slot, each resolved by the check that hands its slot over. -/
+  waiting : Std.Queue (IO.Promise Unit) := .empty
+
+private instance : Inhabited KernelCheckSlots := ⟨{}⟩
+
+private builtin_initialize kernelCheckSlotsRef : IO.Ref KernelCheckSlots ← IO.mkRef {}
+
+/-- Returns a task that finishes when a kernel check slot has been reserved for the caller. -/
+private def acquireKernelCheckSlot : BaseIO (Task Unit) := do
+  let promise ← IO.Promise.new
+  let wait ← kernelCheckSlotsRef.modifyGet fun s =>
+    if s.used < maxParallelKernelChecks then
+      (false, { s with used := s.used + 1 })
+    else
+      (true, { s with waiting := s.waiting.enqueue promise })
+  if wait then
+    return promise.resultD ()
+  else
+    return .pure ()
+
+/-- Releases a slot from `acquireKernelCheckSlot`, handing it to the next waiting check if any. -/
+private def releaseKernelCheckSlot : BaseIO Unit := do
+  let next? ← kernelCheckSlotsRef.modifyGet fun s =>
+    match s.waiting.dequeue? with
+    | some (promise, waiting) => (some promise, { s with waiting })
+    | none => (none, { s with used := s.used - 1 })
+  if let some promise := next? then
+    promise.resolve ()
+
 builtin_initialize
   registerTraceClass `addDecl
 
@@ -115,6 +180,7 @@ def recordOriginalConstKind (env : Environment) (declName : Name) (kind : Consta
 
 private def addDeclCore (decl : Declaration) (forceExpose : Bool) : CoreM Unit :=
   withTraceNode `addDecl (fun _ => return m!"adding declarations {decl.getNames}") do
+  markSignaturesPersistent decl
   -- register namespaces for newly added constants; this used to be done by the kernel itself
   -- but that is incompatible with moving it to a separate task
   -- NOTE: we do not use `getTopLevelNames` here so that inductive types are registered as
@@ -143,7 +209,12 @@ private def addDeclCore (decl : Declaration) (forceExpose : Bool) : CoreM Unit :
     | .axiomDecl ax => pure (ax.name, .axiomInfo ax, .axiom)
     | _ =>
       trace[addDecl] "no matching async adding rules, adding synchronously"
-      return (← doAdd)
+      doAdd
+      -- the kernel generates further constants for inductive types
+      for n in decl.getNames do
+        if let some info := (← getEnv).find? n then
+          markSignaturePersistent info.type
+      return
 
   -- Check early so we can avoid related env ext panics that would happen before the check in the
   -- kernel.
@@ -185,8 +256,42 @@ private def addDeclCore (decl : Declaration) (forceExpose : Bool) : CoreM Unit :
 
   if Elab.async.get (← getOptions) then
     let cancelTk ← IO.CancelToken.new
-    let checkAct ← Core.wrapAsyncAsSnapshot (cancelTk? := cancelTk) fun _ => doAddAndCommit
-    let t ← BaseIO.mapTask checkAct env.checked
+    -- Kernel diagnostics are accumulated in the resulting kernel environment, so we need to keep it.
+    let t ← if Kernel.isDiagnosticsEnabled env then
+      let checkAct ← Core.wrapAsyncAsSnapshot (cancelTk? := cancelTk) fun _ => doAddAndCommit
+      BaseIO.mapTask checkAct env.checked
+    else
+      -- Check against `uncheckedKernelEnv` so that we do not wait for preceding checks, and in turn
+      -- let following checks proceed by committing an unchecked version of the declaration right
+      -- away.
+      let opts ← getOptions
+      let okPromise ← IO.Promise.new
+      let checkAct ← Core.wrapAsyncAsSnapshot (cancelTk? := cancelTk) fun _ => do
+        setEnv async.asyncEnv.useUncheckedKernelEnv
+        try
+          doCheck
+          okPromise.resolve true
+        catch ex =>
+          okPromise.resolve false
+          throw ex
+      let slot ← acquireKernelCheckSlot
+      let t ← BaseIO.bindTask slot fun _ =>
+        BaseIO.mapTask (t := env.uncheckedKernelEnv) fun kenv => do
+          let r ← checkAct kenv
+          releaseKernelCheckSlot
+          return r
+      -- A theorem is represented by its signature in `uncheckedKernelEnv`; see `addConstAsync`.
+      let unchecked := if decl matches .thmDecl .. then env.uncheckedKernelEnv else
+        env.uncheckedKernelEnv.map (sync := true) fun kenv =>
+          kenv.addDeclWithoutChecking decl |>.toOption.getD kenv
+      let checked := okPromise.result?.bind (sync := true) fun ok? =>
+        env.checked.bind (sync := true) fun kenv =>
+          if ok? == some true then
+            .pure <| kenv.addDeclWithoutChecking decl |>.toOption.getD kenv
+          else
+            Task.spawn fun _ => addAsAxiomKernel opts kenv
+      async.commitKernelEnvs async.asyncEnv unchecked checked
+      pure t
     -- Do not display reporting range; most uses of `addDecl` are for registering auxiliary decls
     -- users should not worry about and other callers can add a separate task with ranges
     -- themselves, see `MutualDef`.
@@ -197,45 +302,47 @@ private def addDeclCore (decl : Declaration) (forceExpose : Bool) : CoreM Unit :
     finally
       setEnv async.mainEnv
 where
-  doAdd := do
+  doCheck := do
     profileitM Exception "type checking" (← getOptions) do
       withTraceNode `Kernel (fun _ => return m!"typechecking declarations {decl.getTopLevelNames}") do
         warnIfUsesSorry decl
-        try
-          let env ← (← getEnv).addDeclAux (← getOptions) decl (← read).cancelTk?
-            |> ofExceptKernelException
-          setEnv env
-        catch ex =>
-          -- avoid follow-up errors by (trying to) add broken decl as axiom
-          addAsAxiom
-          throw ex
+        let env ← (← getEnv).addDeclAux (← getOptions) decl (← read).cancelTk?
+          |> ofExceptKernelException
+        setEnv env
+  doAdd := do
+    try
+      doCheck
+    catch ex =>
+      -- avoid follow-up errors by (trying to) add broken decl as axiom
+      addAsAxiom
+      throw ex
   addAsAxiom := do
-    -- try to add as axiom with given type for def/theorem
-    match decl with
-    | .defnDecl d | .thmDecl d =>
-      let fallbackDecl := .axiomDecl {
-        name := d.name, levelParams := d.levelParams, type := d.type, isUnsafe := false
-      }
+    for fallbackDecl in fallbackDecls do
       try
         let env ← (← getEnv).addDeclAux (← getOptions) fallbackDecl (← read).cancelTk?
           |> ofExceptKernelException
         setEnv env
         return
       catch _ => pure ()
-    | _ => pure ()
-
-    -- otherwise, add as axiom with type `sorry`
-    for n in decl.getNames do
-      let fallbackDecl := .axiomDecl {
-        name := n, levelParams := []
-        type := mkApp2 (mkConst ``sorryAx [1]) (mkSort 0) (mkConst ``true), isUnsafe := false
-      }
-      try
-        let env ← (← getEnv).addDeclAux (← getOptions) fallbackDecl (← read).cancelTk?
-          |> ofExceptKernelException
-        setEnv env
-        return
-      catch _ => pure ()
+  /-- Like `addAsAxiom` for the kernel environment only. -/
+  addAsAxiomKernel (opts : Options) (kenv : Kernel.Environment) : Kernel.Environment := Id.run do
+    for fallbackDecl in fallbackDecls do
+      if let .ok kenv := kenv.addDecl opts fallbackDecl then
+        return kenv
+    return kenv
+  /--
+  Axioms to try adding in place of `decl` if it fails to check: one with the given type for
+  def/theorem, otherwise one with type `sorry`.
+  -/
+  fallbackDecls : List Declaration :=
+    let typed := match decl with
+      | .defnDecl d | .thmDecl d =>
+        [.axiomDecl { name := d.name, levelParams := d.levelParams, type := d.type, isUnsafe := false }]
+      | _ => []
+    typed ++ decl.getNames.map fun n => .axiomDecl {
+      name := n, levelParams := []
+      type := mkApp2 (mkConst ``sorryAx [1]) (mkSort 0) (mkConst ``true), isUnsafe := false
+    }
 
 /--
 Adds the given declaration to the environment's private scope, deriving a suitable presentation in

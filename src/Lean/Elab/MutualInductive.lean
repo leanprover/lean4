@@ -1235,26 +1235,6 @@ private structure FinalizeInductiveDecl where
   numParams : Int
   rs : Array PreElabHeaderResult
 
-/--
-  For nested inductive types, the kernel adds a variable number of auxiliary recursors.
-  Let the elaborator know about them as well. (Other auxiliaries have already been
-  registered by `addDecl` via `Declaration.getNames`.)
-  NOTE: If we want to make inductive elaboration parallel, this should switch to using
-  reserved names.
--/
-private def addAuxRecs (indTypes : List InductiveType) : TermElabM Unit := do
-  for indType in indTypes do
-    let mut i := 1
-    while true do
-      let auxRecName := indType.name ++ `rec |>.appendIndexAfter i
-      let env ← getEnv
-      let some const := env.toKernelEnv.find? auxRecName | break
-      let res ← env.addConstAsync auxRecName .recursor
-      res.commitConst res.asyncEnv (info? := const)
-      res.commitCheckEnv res.asyncEnv
-      setEnv res.mainEnv
-      i := i + 1
-
 private def mkReplaceIndFVars (views : Array InductiveView) (indFVars : Array Expr)
    (levelParams : List Name) (vars : Array Expr) : Expr → MetaM Expr := fun e => do
     let indFVar2Const := mkIndFVar2Const views indFVars levelParams
@@ -1431,7 +1411,6 @@ private def addAndFinalizeInductiveDecl (context : AddAndFinalizeContext) : Term
     let decl := Declaration.inductDecl context.levelParams context.numParams indTypes context.isUnsafe
     Term.ensureNoUnassignedMVars decl
     addDecl decl
-    addAuxRecs indTypes
     buildFinalizeContext context.elabs' context.levelParams context.vars context.params context.views context.indFVars context.rs
 
 private def addTermInfoViews (views : Array InductiveView) : TermElabM Unit := -- save new env

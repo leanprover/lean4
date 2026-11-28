@@ -1302,6 +1302,7 @@ this warning can be disabled with `set_option warn.classDefReducibility false`."
       else
         pure type
 
+      markSignaturePersistent type
       async.commitSignature { name := header.declName, levelParams, type }
 
     -- attributes should be applied on the main thread; see below

@@ -434,6 +434,9 @@ def setupImports
 
   let opts := Elab.inServer.set opts true
 
+  -- declarations are added again on every edit, so their types would accumulate
+  let opts := Elab.persistentSignatures.setIfNotSet opts false
+
   return .ok {
     mainModuleName := doc.mod
     package? := setup.package?

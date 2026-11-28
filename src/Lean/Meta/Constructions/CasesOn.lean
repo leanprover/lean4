@@ -74,7 +74,7 @@ def mkCasesOn (declName : Name) : MetaM Unit := do
   let decl ←
     match ← mkCasesOnViaProjs? declName with
     | some decl => pure (.defnDecl decl)
-    | none => ofExceptKernelException (mkCasesOnImp (← getEnv).toKernelEnv declName)
+    | none => ofExceptKernelException (mkCasesOnImp (← getEnv).uncheckedKernelEnv.get declName)
   addDecl decl
   setReducibleAttribute name
   modifyEnv fun env => markAuxRecursor env name

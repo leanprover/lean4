@@ -76,7 +76,7 @@ def mkFreshRevertedMVarAt (lctx : LocalContext) (linsts : LocalInstances) (ty : 
   let ty ← instantiateMVars ty
   let curLCtx ← getLCtx
   let state ← (collectFVars {} ty).addDependencies
-  let toRevert := curLCtx.getFVarIds.filter (fun f => state.fvarSet.contains f && !lctx.contains f)
+  let toRevert := (← sortFVarIds state.fvarIds).filter (!lctx.contains ·)
   let toRevert := toRevert.map Expr.fvar
   let ty' ← mkForallFVars toRevert ty
   let revertArgs := toRevert.filter (fun fvar => !(curLCtx.getFVar! fvar).isLet)

@@ -154,10 +154,15 @@ def mkDefViewOfDef (modifiers : Modifiers) (stx : Syntax) : DefView :=
     docString? := modifiers.docString? }
 
 def mkDefViewOfTheorem (modifiers : Modifiers) (stx : Syntax) : DefView :=
-  -- leading_parser "theorem " >> declId >> declSig >> declVal
-  let (binders, type) := expandDeclSig stx[2]
+  -- leading_parser "theorem " >> declId >> (typelessDeclSig <|> declSig) >> declVal
+  let (binders, type?) :=
+    if stx[2].isOfKind ``Parser.Command.typelessDeclSig then
+      (stx[2][0], none)
+    else
+      let (binders, type) := expandDeclSig stx[2]
+      (binders, some type)
   { ref := stx, headerRef := mkNullNode stx.getArgs[*...3], kind := DefKind.theorem, modifiers,
-    declId := stx[1], binders, type? := some type, value := stx[3],
+    declId := stx[1], binders, type?, value := stx[3],
     docString? := modifiers.docString? }
 
 def mkDefViewOfInstance (modifiers : Modifiers) (stx : Syntax) : CommandElabM DefView := do

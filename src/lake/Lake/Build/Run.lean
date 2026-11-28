@@ -362,6 +362,7 @@ def mkBuildContext
       some <$> CacheRef.mk
     else
       return none
+  publicOLeanPromises? := some (← IO.mkRef {})
   registeredJobs := jobs
   leanTrace := .ofHash (pureHash ws.lakeEnv.leanGithash)
     s!"Lean {Lean.versionStringCore}, commit {ws.lakeEnv.leanGithash}"

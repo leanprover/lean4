@@ -13,6 +13,7 @@ public import Lean.Util.Profiler
 import Lean.Compiler.Options
 import Lean.Compiler.InitAttr  -- for `runInitAttrsForModules` on snapshot load
 import Lean.Linter.PersistentLintLog
+import Lean.OriginalConstKind
 import Lean.Util.ProfilerServer
 
 public section
@@ -389,7 +390,18 @@ def runFrontend
     profileitIO ".olean serialization" finalOpts do
       let commandLints := collectCommandLints snaps none #[]
       let env ← Linter.recordLints inputCtx.fileMap env commandLints
+      let splitPart? ←
+        if let some publicEnv := SplitModule.getPublicEnv? env then
+          pure (some (.private publicEnv))
+        else if env.header.isModule && (← (privateFileOfPublicFile fileName).pathExists) then
+          let privateFile := privateFileOfPublicFile fileName
+          let privateCtx := Parser.mkInputContext (← IO.FS.readFile privateFile) privateFile.toString
+          let (privateHeader, _, _) ← Parser.parseHeader privateCtx
+          pure (some (.public (HeaderSyntax.imports ⟨privateHeader⟩)))
+        else
+          pure none
       writeModule (writeIR := !Compiler.compiler.postponeCompile.get finalOpts) env oleanFileName
+        splitPart?
 
   if let some ileanFileName := ileanFileName? then
     let trees := snaps.getAll.flatMap (match ·.infoTree? with | some t => #[t] | _ => #[])

@@ -91,6 +91,13 @@ public def JobQueue := IO.Ref (Array OpaqueJob)
 /-- A Lake context with a build configuration and additional build data. -/
 public structure BuildContext extends BuildConfig, Context where
   leanTrace : BuildTrace
+  /--
+  For each split module (see `Lean.SplitModule`), keyed by its `.olean` path, the promise of its
+  `.olean` artifact, which its build resolves before elaborating the private file. If `none`,
+  importers wait for the complete build of split modules.
+  -/
+  publicOLeanPromises? : Option (IO.Ref (Std.HashMap FilePath (IO.Promise (Option Artifact)))) :=
+    none
   leanIncludeDirs : Array (Option (FilePath × BuildTrace))
   registeredJobs : JobQueue
   /--

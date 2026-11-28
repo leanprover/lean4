@@ -1336,6 +1336,29 @@ not block.
 def containsOnBranch (env : Environment) (n : Name) : Bool :=
   (env.asyncConsts.find? n |>.isSome) || (env.base.get env).constants.contains n
 
+private def _root_.Lean.AsyncConsts.erase (aconsts : AsyncConsts) (declName : Name) : AsyncConsts :=
+  if aconsts.map.contains declName then
+    aconsts.revList.foldr (init := default) fun c acc =>
+      if c.constInfo.name == declName then acc else acc.add c
+  else
+    aconsts
+
+/--
+Removes the local constant `declName` from the current environment branch and from the kernel
+environment, so that it can be added again. This replaces the placeholder axiom of a declaration in
+the public file of a split module by its implementation from the private file; the caller must make
+sure the implementation has the same signature.
+-/
+def eraseLocalConst (env : Environment) (declName : Name) : Environment :=
+  let env := env.modifyCheckedAsync fun kenv =>
+    { kenv with constants := kenv.constants.erase declName }
+  { env with
+    base.public := { env.base.public with
+      constants := env.base.public.constants.erase declName }
+    asyncConstsMap := env.asyncConstsMap.map (·.erase declName)
+    localRealizationCtxMap := env.localRealizationCtxMap.erase declName
+    constAddedGens := env.constAddedGens.erase declName }
+
 /--
 Returns whether `realizeConst forConst` callbacks can access `c` in the private scope, i.e. whether
 `c` is part of the realization environment of `forConst`. Returns `false` if realizations for
@@ -2278,15 +2301,57 @@ private def mkIRData (env : Environment) : ModuleData :=
     extraConstNames := getIRExtraConstNames env .private (includeDecls := true)
   }
 
-def writeModule (env : Environment) (fname : System.FilePath) (writeIR := true) : IO Unit := do
+/-- Which file of a split module (see `Lean.SplitModule`) was elaborated. -/
+inductive SplitModulePart where
+  /--
+  The public file `M.lean`, which produces only the `.olean` part. It lists the imports of the
+  private file as well, which are not loaded but needed by importers at levels above `.exported`.
+  -/
+  | «public» (privateImports : Array Import)
+  /--
+  The private file `M.private.lean`, which produces all other parts. They can only be loaded together
+  with an `.olean` part from the same elaboration, so the `.olean` part produced from the public file
+  must be byte-identical to the one we would have written from `publicEnv`, the environment at the end
+  of the public file.
+  -/
+  | «private» (publicEnv : Environment)
+
+def writeModule (env : Environment) (fname : System.FilePath) (writeIR := true)
+    (splitPart? : Option SplitModulePart := none) : IO Unit := do
   if env.header.isModule then
     let extEntries ← computeExtEntries env
-    let mkPart (level : OLeanLevel) :=
-      return (level.adjustFileName fname, (← mkModuleData env level extEntries))
-    saveModuleDataParts env.mainModule #[
-      (← mkPart .exported),
-      (← mkPart .server),
-      (← mkPart .private)]
+    let mkPart (level : OLeanLevel) (fname := level.adjustFileName fname) :=
+      return (fname, (← mkModuleData env level extEntries))
+    if let some (.public privateImports) := splitPart? then
+      -- Must match the imports of the private file's elaboration; see `Lean.Language.Lean.process`
+      let imports := env.header.imports ++ privateImports.filter (!env.header.imports.contains ·)
+      let (fname, data) ← mkPart .exported
+      saveModuleDataParts env.mainModule #[(fname, { data with imports })]
+      return
+    if let some (.private publicEnv) := splitPart? then
+      -- Write to temporary files first so that mismatching parts never end up next to the `.olean`
+      let tmp (level : OLeanLevel) := (level.adjustFileName fname).addExtension "fromPrivate"
+      let exported ← mkModuleData publicEnv .exported (← computeExtEntries publicEnv)
+      saveModuleDataParts env.mainModule #[
+        (tmp .exported, exported),
+        (← mkPart .server (tmp .server)),
+        (← mkPart .private (tmp .private))]
+      let new ← IO.FS.readBinFile (tmp .exported)
+      let old ← try IO.FS.readBinFile fname catch e =>
+        throw <| .userError s!"failed to read '{fname}' produced from the public file of split \
+          module '{env.mainModule}': {e}"
+      if old != new then
+        throw <| .userError s!"the public file of split module '{env.mainModule}' elaborates \
+          differently when followed by its private file, likely because of the private file's \
+          imports; the `.olean` produced from the public file differs from '{tmp .exported}'"
+      IO.FS.removeFile (tmp .exported)
+      for level in [OLeanLevel.server, .private] do
+        IO.FS.rename (tmp level) (level.adjustFileName fname)
+    else
+      saveModuleDataParts env.mainModule #[
+        (← mkPart .exported),
+        (← mkPart .server),
+        (← mkPart .private)]
     if writeIR then
       let irData := mkIRData env
       -- Make sure to change the module name so we derive a different base address
@@ -2488,6 +2553,9 @@ private def readModuleDataPartsOfMod (mod : Name) : IO (Array (ModuleData × Com
   -- Opportunistically load all available parts.
   -- Necessary because the import level may be upgraded a later import.
   let sFile := OLeanLevel.server.adjustFileName mFile
+  -- The other parts of a split module may not have been produced yet.
+  unless (← sFile.pathExists) do
+    return #[main]
   let server ← unsafe CompactedRegion.read (α := ModuleData) sFile #[main.2]
   let pFile := OLeanLevel.private.adjustFileName mFile
   let priv ← unsafe CompactedRegion.read (α := ModuleData) pFile #[main.2, server.2]

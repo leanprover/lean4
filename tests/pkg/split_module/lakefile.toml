@@ -1,0 +1,9 @@
+name = "split_module"
+defaultTargets = ["SplitMod"]
+
+[[lean_lib]]
+name = "SplitMod"
+
+# Each module is expected to fail; built one at a time by `run_test.sh`.
+[[lean_lib]]
+name = "Errors"

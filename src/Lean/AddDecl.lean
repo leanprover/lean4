@@ -111,7 +111,9 @@ information available on the current branch early.
 -/
 def recordOriginalConstKind (env : Environment) (declName : Name) (kind : ConstantKind) :
     Environment :=
-  privateConstKindsExt.insert env declName kind
+  -- already recorded for the placeholder of a declaration of a split module
+  if (privateConstKindsExt.find? (asyncMode := .local) env declName).isSome then env
+  else privateConstKindsExt.insert env declName kind
 
 private def addDeclCore (decl : Declaration) (forceExpose : Bool) : CoreM Unit :=
   withTraceNode `addDecl (fun _ => return m!"adding declarations {decl.getNames}") do
@@ -144,6 +146,16 @@ private def addDeclCore (decl : Declaration) (forceExpose : Bool) : CoreM Unit :
     | _ =>
       trace[addDecl] "no matching async adding rules, adding synchronously"
       return (← doAdd)
+
+  if let some deferred := SplitModule.findSupplied? (← getEnv) name then
+    -- The exported form must be identical to the placeholder from the public file. Recursive
+    -- declarations are temporarily added as axioms while elaborating them.
+    unless (kind == deferred.kind || kind == .axiom) && info.levelParams == deferred.levelParams &&
+        info.type == deferred.type do
+      throwError "implementation of '{name}' does not match its declaration in the public file: \
+        expected {repr deferred.kind} with universe parameters {deferred.levelParams} and \
+        type{indentExpr deferred.type}\nbut got {repr kind} with universe parameters \
+        {info.levelParams} and type{indentExpr info.type}"
 
   -- Check early so we can avoid related env ext panics that would happen before the check in the
   -- kernel.

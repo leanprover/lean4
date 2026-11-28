@@ -15,6 +15,8 @@ public import Lean.Language.Util
 public import Lean.Language.Lean.Types
 public import Lean.Language.Lean.Util
 public import Lean.Elab.Import
+import Lean.OriginalConstKind
+import Lean.Util.Path
 
 public section
 
@@ -496,11 +498,30 @@ where
         | .ok setup => pure setup
         | .error snap => return snap
 
+      -- The private file of a split module is elaborated as a continuation of its public file, so
+      -- the imports of both are loaded.
+      let mut imports := setup.imports
+      let mut publicInput? := none
+      if let some publicFile := publicFileOfPrivateFile? ctx.fileName then
+        let publicCtx := Parser.mkInputContext (← IO.FS.readFile publicFile) publicFile.toString
+        let (publicStx, publicParserState, publicMsgLog) ← Parser.parseHeader publicCtx
+        let publicStx : HeaderSyntax := ⟨publicStx⟩
+        if publicMsgLog.hasErrors then
+          throw <| .userError s!"failed to parse the header of public file '{publicFile}'"
+        unless stx.isModule && publicStx.isModule do
+          throw <| .userError s!"both the private file '{ctx.fileName}' and the public file \
+            '{publicFile}' must start with `module`"
+        if (stx.imports (includeInit := false)).any (·.isExported) then
+          throw <| .userError "private files cannot have `public import`s"
+        let publicImports := publicStx.imports
+        imports := publicImports ++ imports.filter (!publicImports.contains ·)
+        publicInput? := some (publicCtx, publicParserState)
+
       let startTime := (← IO.monoNanosNow).toFloat / 1000000000
       let mut opts := setup.opts
       -- allows `headerEnv` to be leaked, which would live until the end of the process anyway
       let (headerEnv, msgLog) ← Elab.processHeaderCore (leakEnv := true)
-        stx.startPos setup.imports setup.isModule setup.opts .empty ctx.toInputContext
+        stx.startPos imports setup.isModule setup.opts .empty ctx.toInputContext
         setup.trustLevel setup.plugins setup.mainModuleName setup.package? setup.importArts
         (headerStx? := stx) (origHeaderStx? := origStx)
       let stopTime := (← IO.monoNanosNow).toFloat / 1000000000
@@ -520,6 +541,10 @@ where
         }
       -- now that imports have been loaded, check options again
       opts ← reparseOptions opts
+      if publicInput?.isSome ||
+          (setup.isModule && (← (privateFileOfPublicFile ctx.fileName).pathExists)) then
+        -- Code generation of a split module needs the declarations of the private file.
+        opts := opts.set `compiler.postponeCompile true
       let cmdState := Elab.Command.mkState headerEnv msgLog opts
       let cmdState := { cmdState with
         infoState := {
@@ -540,6 +565,21 @@ where
         }
         traceState
       }
+      let headerInfoTree := cmdState.infoState.trees[0]!
+      let mut cmdState := cmdState
+      let mut publicCmdSnap? := none
+      if let some (publicCtx, publicParserState) := publicInput? then
+        let publicProm ← IO.Promise.new
+        let publicCancelTk ← IO.CancelToken.new
+        parseCmd none publicParserState cmdState publicProm (sync := true) publicCancelTk []
+          { ctx with toInputContext := publicCtx, firstDiffPos? := none }
+        publicCmdSnap? := some { stx? := none, task := publicProm.result!, cancelTk? := publicCancelTk }
+        let publicState := finalCmdState publicProm.result!.get
+        cmdState := { publicState with
+          env := SplitModule.startPrivateFile publicState.env
+          messages := cmdState.messages
+          infoState := cmdState.infoState
+          traceState := cmdState.traceState }
       let prom ← IO.Promise.new
       let cancelTk ← IO.CancelToken.new
       parseCmd none parserState cmdState prom (sync := true) cancelTk [] ctx
@@ -547,13 +587,20 @@ where
         diagnostics := .empty
         metaSnap := .finished stx {
           diagnostics
-          infoTree? := cmdState.infoState.trees[0]!
+          infoTree? := headerInfoTree
         }
         result? := some {
           cmdState
           firstCmdSnap := { stx? := none, task := prom.result!, cancelTk? := cancelTk }
+          publicCmdSnap?
         }
       }
+
+  finalCmdState (snap : CommandParsedSnapshot) : Command.State :=
+    if let some next := snap.nextCmdSnap? then
+      finalCmdState next.get
+    else
+      snap.elabSnap.resultSnap.get.cmdState
 
   parseCmd (old? : Option CommandParsedSnapshot) (parserState : Parser.ModuleParserState)
       (cmdState : Command.State) (prom : IO.Promise CommandParsedSnapshot) (sync : Bool)
@@ -769,6 +816,10 @@ where
       let _ ← getResetInfoTrees
       Elab.Command.elabCommandTopLevel stx
       if Parser.isTerminalCommand stx then
+        if SplitModule.isInPrivateFile (← getEnv) then
+          for declName in SplitModule.unfilledDecls (← getEnv) do
+            logError m!"'{.ofConstName declName}' is declared in the public file but has no \
+              implementation"
         Elab.Command.runModuleLintersAsync revCmds.reverse.toArray
     let (output, _) ←
       IO.FS.withIsolatedStreams (isolateStderr := Core.stderrAsMessages.get scope.opts) do

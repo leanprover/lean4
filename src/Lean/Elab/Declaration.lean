@@ -98,13 +98,18 @@ private def expandDeclNamespace? (stx : Syntax) : MacroM (Option (Name × Syntax
   | .str pre shortName => return some (pre, setDeclName stx { scpView with name := .mkSimple shortName }.review)
   | _ => return none
 
-def elabAxiom (modifiers : Modifiers) (stx : Syntax) : CommandElabM Unit := do
-  -- leading_parser "axiom " >> declId >> declSig
-  let declId             := stx[1]
-  let (binders, typeStx) := expandDeclSig stx[2]
+/--
+Elaborates an axiom with the given binders and type. If `deferredKind?` is set, the axiom is the
+placeholder of a `def` or `theorem` of that kind in the public file of a split module.
+-/
+private def elabAxiomCore (modifiers : Modifiers) (stx declId binders typeStx : Syntax)
+    (deferredKind? : Option ConstantKind := none) : CommandElabM Unit := do
+  let sc ← getScope
   runTermElabM fun vars => do
     let scopeLevelNames ← Term.getLevelNames
     let ⟨shortName, declName, allUserLevelNames, docString?⟩ ← Term.expandDeclId (← getCurrNamespace) scopeLevelNames declId modifiers
+    if deferredKind?.isSome && modifiers.isMeta then
+      throwErrorAt stx "`meta` declaration '{declName}' must have a body"
     addDeclarationRangesForBuiltin declName modifiers.stx stx
     Term.withAutoBoundImplicit do
     Term.withAutoBoundImplicitForbiddenPred (fun n => shortName == n) do
@@ -115,7 +120,11 @@ def elabAxiom (modifiers : Modifiers) (stx : Syntax) : CommandElabM Unit := do
       let xs ← Term.addAutoBoundImplicits xs (declId.getTailPos? (canonicalOnly := true))
       let type ← instantiateMVars type
       let type ← mkForallFVars xs type
-      let type ← mkForallFVars vars type (usedOnly := true)
+      let type ← if deferredKind?.isSome then
+          -- like the header of a theorem, as the body is not known
+          Term.withSecVarsUsedBy vars sc #[type] (mkForallFVars · type)
+        else
+          mkForallFVars vars type (usedOnly := true)
       let type ← Term.levelMVarToParam type
       let usedParams  := collectLevelParams {} type |>.params
       match sortDeclLevelParams scopeLevelNames allUserLevelNames usedParams with
@@ -130,6 +139,11 @@ def elabAxiom (modifiers : Modifiers) (stx : Syntax) : CommandElabM Unit := do
         }
         trace[Elab.axiom] "{declName} : {type}"
         Term.ensureNoUnassignedMVars decl
+        if let some kind := deferredKind? then
+          modifyEnv fun env =>
+            let env := SplitModule.registerDeferredDecl env declName { kind, levelParams, type }
+            -- Matches the exported form of the eventual declaration; see `Lean.addDecl`.
+            if isPrivateName declName then env else recordOriginalConstKind env declName kind
         addDecl decl
 
         Term.applyAttributesAt declName modifiers.attrs AttributeApplicationTime.afterTypeChecking
@@ -141,6 +155,47 @@ def elabAxiom (modifiers : Modifiers) (stx : Syntax) : CommandElabM Unit := do
         withSaveInfoContext do  -- save new env with docstring and decl
           Term.addTermInfo' declId (← mkConstWithLevelParams declName) (isBinder := true)
         enableRealizationsForConst declName
+
+def elabAxiom (modifiers : Modifiers) (stx : Syntax) : CommandElabM Unit := do
+  -- leading_parser "axiom " >> declId >> declSig
+  let (binders, typeStx) := expandDeclSig stx[2]
+  elabAxiomCore modifiers stx stx[1] binders typeStx
+
+/-- Returns whether `decl` is a `def` or `theorem` without a value. -/
+private def isDeferredDecl (decl : Syntax) : Bool :=
+  (decl.isOfKind ``Parser.Command.definition || decl.isOfKind ``Parser.Command.theorem) &&
+    decl[3].isOfKind ``Parser.Command.deferredDeclVal
+
+/--
+Elaborates a `def` or `theorem` without a value in the public file of a split module as a
+placeholder axiom.
+-/
+private def elabDeferredDecl (modifiers : Modifiers) (decl : Syntax) : CommandElabM Unit := do
+  let privateFile := privateFileOfPublicFile (← getFileName)
+  let isModule := (← getEnv).header.isModule
+  unless isModule && (← privateFile.pathExists) do
+    -- Keep the error of the parser for an incomplete declaration
+    let note := if isModule then
+      m!"\n\nNote: The body may only be omitted if the module has a private file \
+        '{privateFile}' that supplies it."
+    else m!""
+    throwErrorAt decl m!"declaration has no body; expected ':=', 'where' or '|'{note}"
+  let (binders, typeStx?) :=
+    if decl.isOfKind ``Parser.Command.theorem then
+      if decl[2].isOfKind ``Parser.Command.typelessDeclSig then
+        (decl[2][0], none)
+      else
+        let (binders, type) := expandDeclSig decl[2]
+        (binders, some type)
+    else
+      expandOptDeclSig decl[2]
+  let some typeStx := typeStx?
+    | throwErrorAt decl "declaration without a body must have a type"
+  let kind :=
+    if decl.isOfKind ``Parser.Command.theorem then .thm
+    else if modifiers.recKind matches .partial then .opaque
+    else .defn
+  elabAxiomCore modifiers decl decl[1] binders typeStx (deferredKind? := some kind)
 open Lean.Parser.Command.InternalSyntax in
 /--
 Macro that expands a declaration with a complex name into an explicit `namespace` block.
@@ -163,7 +218,12 @@ def elabDeclaration : CommandElab := fun stx => do
   let modifiers : TSyntax ``Parser.Command.declModifiers := ⟨stx[0]⟩
   let decl     := stx[1]
   let declKind := decl.getKind
-  if isDefLike decl then
+  if isDeferredDecl decl then withoutCommandIncrementality true do
+    withInitQuotContext (getDeclName? stx |>.map hash) do
+    let modifiers ← elabModifiers modifiers
+    withExporting (isExporting := modifiers.isInferredPublic (← getEnv)) do
+      elabDeferredDecl modifiers decl
+  else if isDefLike decl then
     -- only case implementing incrementality currently
     elabMutualDef #[stx]
   else withoutCommandIncrementality true do

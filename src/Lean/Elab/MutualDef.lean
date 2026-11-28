@@ -254,15 +254,41 @@ private def elabHeaders (views : Array DefView) (expandedDeclIds : Array ExpandD
         withReuseContext view.headerRef do
         withDeprecationContextFromAttrs view.modifiers.attrs do
         applyAttributesAt declName view.modifiers.attrs .beforeElaboration
-        withDeclName declName <| withAutoBoundImplicit <| withLevelNames levelNames <|
-          elabBindersEx view.binders.getArgs fun xs => do
+        withDeclName declName <| withAutoBoundImplicit <| withLevelNames levelNames do
+        let deferred? := SplitModule.findSupplied? (← getEnv) declName
+        let binders ← match view.type?, deferred? with
+          | none, some deferred => typelessBinders deferred.type view.binders.getArgs
+          | _, _ => pure view.binders.getArgs
+          elabBindersEx binders fun xs => do
             let refForElabFunType := view.value
-            let mut type ← match view.type? with
-              | some typeStx =>
+            let mut type ← match view.type?, deferred? with
+              | some typeStx, _ =>
                 let type ← elabType typeStx
                 registerFailedToInferDefTypeInfo type view
                 pure type
-              | none =>
+              | none, some deferred =>
+                -- A typeless declaration of the private file of a split module takes its type from
+                -- the public file. Its leading section variables are those of the current scope.
+                let mut type := deferred.type
+                for x in ← typelessSectionVars type do
+                  let .forallE _ dom body _ := type | unreachable!
+                  unless (← isDefEq (← inferType x) dom) do
+                    throwErrorAt view.declId "type mismatch of section variable `{x}`: \
+                      expected{indentExpr dom}"
+                  type := body.instantiate1 x
+                for (id, x) in xs do
+                  let .forallE n dom body _ ← whnf type
+                    | throwErrorAt id "too many binders for the declared type{indentExpr deferred.type}"
+                  -- The parameters of the body are named after the declared type
+                  if id.isIdent && id.getId != n && !n.hasMacroScopes then
+                    throwErrorAt id "binder `{id.getId}` must be named `{n}` as in the public file"
+                  unless (← isDefEq (← inferType x) dom) do
+                    throwErrorAt id "binder type mismatch: expected{indentExpr dom}"
+                  type := body.instantiate1 x
+                pure type
+              | none, none =>
+                if view.kind.isTheorem then
+                  throwErrorAt view.declId "theorem must have a type"
                 let hole := mkHole refForElabFunType
                 let type ← elabType hole
                 trace[Elab.definition] ">> type: {type}\n{type.mvarId!}"
@@ -325,6 +351,64 @@ private def elabHeaders (views : Array DefView) (expandedDeclIds : Array ExpandD
       headers := headers.push newHeader
     return headers
 where
+  /--
+  Returns the section variables of the current scope that correspond to the leading parameters of
+  the declared type `type` of a typeless declaration: those with the same name, where anonymous
+  instance-implicit variables are matched in order.
+  -/
+  typelessSectionVars (type : Expr) : TermElabM (Array Expr) := do
+    let lctx ← getLCtx
+    -- (keyed by unique ids)
+    let mut vars := (← read).sectionFVars.valuesArray.filterMap fun x =>
+      lctx.find? x.fvarId! |>.map fun d => (d.userName, x, d.index)
+    vars := vars.qsort (·.2.2 < ·.2.2)
+    let mut result := #[]
+    let mut type := type
+    while true do
+      let .forallE n _ body _ := type | break
+      let some i := vars.findIdx? fun (n', _) =>
+          n' == n || (n'.hasMacroScopes && n.hasMacroScopes && n'.eraseMacroScopes == n.eraseMacroScopes)
+        | break
+      result := result.push vars[i]!.2.1
+      vars := vars.eraseIdx! i
+      type := body
+    return result
+  /--
+  Inserts binders for the implicit parameters of the declared type `type` of a typeless
+  declaration that `binders` skip before an explicit or instance-implicit binder, as in an
+  application. Leading parameters that are section variables are skipped as well.
+  -/
+  typelessBinders (type : Expr) (binders : Array Syntax) : TermElabM (Array Syntax) := do
+    let mut declared := #[]
+    let mut type := type
+    for _ in ← typelessSectionVars type do
+      let .forallE _ _ body _ := type | unreachable!
+      type := body
+    while true do
+      let .forallE n _ body bi := type | break
+      declared := declared.push (n, bi)
+      type := body
+    let mut result : Array Syntax := #[]
+    let mut i := 0
+    for b in binders do
+      let (insertBefore, count) :=
+        if b.isOfKind ``Parser.Term.explicitBinder then (true, b[1].getNumArgs)
+        else if b.isOfKind ``Parser.Term.implicitBinder ||
+            b.isOfKind ``Parser.Term.strictImplicitBinder then (false, b[1].getNumArgs)
+        else (true, 1)  -- identifier, hole, or instance-implicit binder
+      if insertBefore then
+        while h : i < declared.size do
+          let (n, bi) := declared[i]
+          if bi.isImplicit then
+            result := result.push (← `(Parser.Term.bracketedBinderF| {$(mkIdent n)})).raw
+          else if bi.isStrictImplicit then
+            result := result.push (← `(Parser.Term.bracketedBinderF| ⦃$(mkIdent n)⦄)).raw
+          else
+            break
+          i := i + 1
+      result := result.push b
+      i := i + count
+    return result
   getBodyTerm? (stx : Syntax) : Option Syntax := do
     -- TODO: does not work with partial syntax
     --| `(Parser.Command.declVal| := $body $_suffix:suffix) => body
@@ -443,7 +527,7 @@ private def declValToWhereFinally (declVal : Syntax) : TermElabM WhereFinallyVie
 
 /--
 Runs `k` with a restricted local context where only section variables from `vars` are included that
-* are directly referenced in any `headers`,
+* are directly referenced in any of `types`,
 * are included in `sc.includedVars` (via the `include` command),
 * are directly referenced in any variable included by these rules, OR
 * are instance-implicit variables that only reference section variables included by these rules AND
@@ -452,7 +536,7 @@ Runs `k` with a restricted local context where only section variables from `vars
 
 If `check` is false, no exceptions will be produced.
 -/
-private def withHeaderSecVars {α} (vars : Array Expr) (sc : Command.Scope) (headers : Array DefViewElabHeader)
+def withSecVarsUsedBy {α} (vars : Array Expr) (sc : Command.Scope) (types : Array Expr)
     (k : Array Expr → TermElabM α) (check := true) : TermElabM α := do
   let mut revSectionFVars : Std.HashMap FVarId Name := {}
   for (uid, var) in (← read).sectionFVars do
@@ -463,7 +547,7 @@ private def withHeaderSecVars {α} (vars : Array Expr) (sc : Command.Scope) (hea
 where
   collectUsed revSectionFVars : StateRefT CollectFVars.State MetaM Unit := do
     -- directly referenced in headers
-    headers.forM (·.type.collectFVars)
+    types.forM (·.collectFVars)
     -- included by `include`
     for var in vars do
       if let some uid := revSectionFVars[var.fvarId!]? then
@@ -488,6 +572,12 @@ where
         modify (·.add ldecl.fvarId)
   getFVars (e : Expr) : MetaM (Array FVarId) :=
     (·.2.fvarIds) <$> e.collectFVars.run {}
+
+/-- `withSecVarsUsedBy` for the types of `headers`. -/
+private def withHeaderSecVars {α} (vars : Array Expr) (sc : Command.Scope)
+    (headers : Array DefViewElabHeader) (k : Array Expr → TermElabM α) (check := true) :
+    TermElabM α :=
+  withSecVarsUsedBy vars sc (headers.map (·.type)) k check
 
 register_builtin_option deprecated.oldSectionVars : Bool := {
   defValue := false
@@ -1204,11 +1294,43 @@ def elabMutualDef (vars : Array Expr) (sc : Command.Scope) (views : Array DefVie
   else
     go
 where
+  /--
+  If `header` supplies a deferred declaration of a split module, checks it against the declared
+  signature, replaces its type by the declared one, and marks the declaration as supplied.
+  -/
+  adaptDeferredHeader (header : DefViewElabHeader) : TermElabM DefViewElabHeader := do
+    let some deferred := SplitModule.findSupplied? (← getEnv) header.declName
+      | return header
+    let expectedKind : DefKind := if deferred.kind matches .thm then .theorem else .def
+    if header.kind != expectedKind then
+      throwErrorAt header.declId "'{header.declName}' is declared as a \
+        {if deferred.kind matches .thm then "theorem" else "definition"} in the public file"
+    -- the section variables of a theorem; see `elabAxiomCore`
+    let usedVars ← withSecVarsUsedBy vars sc #[header.type] (check := false) pure
+    let type ← mkForallFVars usedVars header.type
+    unless (← isDefEq type deferred.type) do
+      throwErrorAt header.declId "type mismatch: '{header.declName}' has type{indentExpr type}\n\
+        but is declared with type{indentExpr deferred.type}"
+    modifyEnv (SplitModule.setDeferredDeclState · header.declName .filled)
+    return { header with type := ← instantiateForall deferred.type usedVars }
   go := do
     let bodyPromises ← views.mapM fun _ => IO.Promise.new
     let tacPromises ← views.mapM fun _ => IO.Promise.new
+    for view in views do
+      if view.value.isOfKind ``Parser.Command.deferredDeclVal then
+        throwErrorAt view.ref "declarations without a body cannot be part of a `mutual` block"
     let expandedDeclIds ← views.mapM fun view => withRef view.headerRef do
-      Term.expandDeclId (← getCurrNamespace) (← getLevelNames) view.declId view.modifiers
+      let declId ← Term.expandDeclId (← getCurrNamespace) (← getLevelNames) view.declId view.modifiers
+      if let some deferred := SplitModule.findSupplied? (← getEnv) declId.declName then
+        if view.type?.isSome then
+          -- Not needed for elaboration; would rename auto-bound universe parameters
+          return declId
+        -- Make the universe parameters of the declared type available
+        -- (level names in scope are listed newest first)
+        let levelNames := deferred.levelParams.foldl (init := declId.levelNames) fun ns n =>
+          if ns.contains n then ns else n :: ns
+        return { declId with levelNames }
+      return declId
     for view in views, declId in expandedDeclIds do
       -- Add tags early so elaboration can access them
       match view.modifiers.computeKind with
@@ -1224,6 +1346,7 @@ where
     withSaveInfoContext do  -- save adjusted env in info tree
     let headers ← elabHeaders views expandedDeclIds bodyPromises tacPromises
     let headers ← levelMVarToParamHeaders views headers
+    let headers ← headers.mapM adaptDeferredHeader
     for header in headers do
       let info : DeclValueInfo := { header with isProof := (← isProp header.type) }
       pushInfoLeaf <| .ofCustomInfo { stx := header.value, value := .mk info }

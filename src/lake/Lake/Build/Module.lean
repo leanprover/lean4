@@ -53,12 +53,24 @@ def Module.recFetchInput (mod : Module) : FetchM (Job ModuleInput) := Job.async 
   -- and the modification time read would not be caught by the check in `buildLean`.
   let mtime ← getMTime path
   let contents ← IO.FS.readFile path
-  let trace := {caption := path.toString, mtime, hash := .ofText contents}
+  let mut trace := {caption := path.toString, mtime, hash := .ofText contents}
+  let mut header ← Lean.parseImports' contents path.toString
+  -- A split module is elaborated from both files; its imports are those of both.
+  let privatePath := privateFileOfPublicFile path
+  let privatePath? ← if ← privatePath.pathExists then pure (some privatePath) else pure none
+  if let some privatePath := privatePath? then
+    let privateMTime ← getMTime privatePath
+    let privateContents ← IO.FS.readFile privatePath
+    let privateTrace : BuildTrace :=
+      {caption := privatePath.toString, mtime := privateMTime, hash := .ofText privateContents}
+    trace := trace.mix privateTrace
+    let privateHeader ← Lean.parseImports' privateContents privatePath.toString
+    header := {header with
+      imports := header.imports ++ privateHeader.imports.filter (!header.imports.contains ·)}
   setTrace trace
-  let header ← Lean.parseImports' contents path.toString
   let imports ← header.imports.mapM fun imp => do
     return ⟨imp, (← findModule? imp.module)⟩
-  return {path, header, imports, trace}
+  return {path, privatePath?, header, imports, trace}
 
 /-- The `ModuleFacetConfig` for the builtin `inputFacet`. -/
 public def Module.inputFacetConfig : ModuleFacetConfig inputFacet :=
@@ -303,6 +315,7 @@ because it loads IR from private imports.
 -/
 partial def fetchTransImportArts
   (directImports : Array ModuleImport) (directArts : NameMap ImportArtifacts) (level : OLeanLevel)
+  (fastSplitImports := false)
 : FetchM (NameMap ImportArtifacts) := do
   let snap ← getBuildStore
   let q ← directImports.foldrM (init := #[]) fun imp q => do
@@ -310,9 +323,14 @@ partial def fetchTransImportArts
     let input ← (← snap.fetch mod.input).await
     let importAll := strictOr (level == .private) imp.importAll
     return enqueue importAll imp.isMeta input q
-  walk snap directArts {} {} q
+  walk snap directArts {} {} {} q
 where
-  walk (snap : BuildStore)  s (allVisited metaVisited : NameSet) (q : Array TransImportEntry) := do
+  /-
+  `publicVisited`: modules whose entry holds only the `.olean` of a split module (see
+  `fastSplitImports`), which a newly-required dimension must widen.
+  -/
+  walk (snap : BuildStore)  s (allVisited metaVisited publicVisited : NameSet)
+      (q : Array TransImportEntry) := do
     if h : 0 < q.size then
       let {mod, importAll, needsMeta} := q.back
       let q := q.pop
@@ -331,18 +349,27 @@ where
       -- Re-process an existing entry only to widen a module-system entry (`.server` present) with a
       -- newly-required dimension. Otherwise, leave it untouched (nothing new, or a non-module entry).
       if let some arts := existing? then
-        unless arts.oleanServer?.isSome && (doAll || doMeta) do
-          return ← walk snap s allVisited metaVisited q
+        unless (arts.oleanServer?.isSome || publicVisited.contains mod.name) && (doAll || doMeta) do
+          return ← walk snap s allVisited metaVisited publicVisited q
       let allVisited := if importAll then allVisited.insert mod.name else allVisited
       let metaVisited := if needsMeta then metaVisited.insert mod.name else metaVisited
       -- Widest level seen so far, never below an existing entry's (no demotion).
       let wantAll := allVisited.contains mod.name || existing?.any (·.oleanPrivate?.isSome)
-      let info ← (← snap.fetch mod.metaExportInfo).await
-      let s := s.insert mod.name (if wantAll then info.allArts else info.arts)
       let input ← (← snap.fetch mod.input).await
+      -- An `.exported` import of a split module only needs its `.olean`, which is available before
+      -- the rest of its build.
+      let isPublic := fastSplitImports && level == .exported && !wantAll &&
+        !metaVisited.contains mod.name && input.privatePath?.isSome
+      let (s, publicVisited) ← if isPublic then
+        let info ← (← snap.fetch mod.exportInfo).await
+        pure (s.insert mod.name info.arts, publicVisited.insert mod.name)
+      else
+        let info ← (← snap.fetch mod.metaExportInfo).await
+        pure (s.insert mod.name (if wantAll then info.allArts else info.arts),
+          publicVisited.erase mod.name)
       -- `import all`/`meta import` are transitive. Propagate both flags to children.
       let q := enqueue importAll needsMeta input q
-      walk snap s allVisited metaVisited q
+      walk snap s allVisited metaVisited publicVisited q
     else
       return s
   enqueue importAll needsMeta input q :=
@@ -467,6 +494,29 @@ def ModuleImportInfo.addImport
   else
     info
 
+/--
+Like `addImport` for an `import` of a module from a module with the module system enabled, but only
+updates `directArts`, `trace`, and `transTrace`, which elaborating the importer needs.
+-/
+def ModuleImportInfo.addPublicImport
+  (info : ModuleImportInfo) (imp : Import) (expInfo : ModuleExportInfo)
+: ModuleImportInfo :=
+  let info :=
+    if !info.directArts.contains imp.module then  -- do not demote `import all`
+      {info with directArts := info.directArts.insert imp.module expInfo.arts}
+    else
+      info
+  let trace := info.trace.mix expInfo.transTrace |>.mix expInfo.artsTrace.withoutInputs
+  let info := {info with trace}
+  if imp.isExported then
+    let transTrace := info.transTrace
+      |>.mix expInfo.transTrace
+      |>.mix expInfo.artsTrace.withoutInputs
+      |>.withoutInputs
+    {info with transTrace}
+  else
+    info
+
 def Package.discriminant (self : Package) :=
   if self.version == {} then
     self.prettyName
@@ -476,7 +526,7 @@ def Package.discriminant (self : Package) :=
 set_option linter.unusedVariables.funArgs false in
 def fetchImportInfo
   (fileName : String) (pkgName modName : Name) (header : ModuleHeader)
-  (allowNonModules : Bool := false)
+  (allowNonModules : Bool := false) (fastSplitImports := false)
 : FetchM (Job ModuleImportInfo) := do
   let nonModule := !header.isModule
   let info := ModuleImportInfo.nil modName
@@ -505,6 +555,13 @@ def fetchImportInfo
       --   logError s!"{fileName}: cannot `import all` \
       --     the module `{imp.module}` from the package `{mod.pkg.discriminant}`"
       --   return .error
+      if fastSplitImports && !nonModule && !imp.importAll && !imp.isMeta then
+        -- (like `recFetchInput`; avoids failing here on a bad import)
+        if ← (privateFileOfPublicFile mod.leanFile).pathExists then
+          -- Elaborating the importer only needs the `.olean` of the split module, which is
+          -- available before the rest of its build.
+          let expJob ← mod.exportInfo.fetch
+          return s.zipWith (sync := true) (·.addPublicImport imp ·) expJob
       let importJob ← mod.fetchExportInfo
       return s.zipWith (sync := true) (·.addImport nonModule imp ·) importJob
     else
@@ -564,17 +621,40 @@ def noIRSigError :=
 def noCError :=
   "No `.c` generated. This may be a bug in Lean or Lake."
 
+/--
+Returns the promise of the `.olean` of the split module `mod` in this build (see
+`BuildContext.publicOLeanPromises?`), if enabled.
+-/
+def Module.publicOLeanPromise? [Monad m] [MonadBuild m] [MonadLiftT BaseIO m] (mod : Module) :
+    m (Option (IO.Promise (Option Artifact))) := do
+  let some ref := (← getBuildContext).publicOLeanPromises? | return none
+  liftM (m := BaseIO) do
+    let p ← IO.Promise.new
+    ref.modifyGet fun ps => match ps[mod.oleanFile]? with
+      | some p => (some p, ps)
+      | none => (some p, ps.insert mod.oleanFile p)
+
 /-- Computes the import artifacts and transitive import trace of a module's imports. -/
 def Module.computeExportInfo (mod : Module) : FetchM (Job ModuleExportInfo) := do
-  (← mod.elabArts.fetch).mapM (sync := true) fun arts => do
+  let elabJob ← mod.elabArts.fetch
+  let mut oleanJob := elabJob.map (sync := true) (·.olean)
+  -- (like `recFetchInput`)
+  if ← (privateFileOfPublicFile mod.leanFile).pathExists then
+    if let some p ← mod.publicOLeanPromise? then
+      -- Importers can proceed once the public file of a split module is elaborated
+      discard <| BaseIO.mapTask (t := elabJob.task) fun _ => p.resolve none
+      oleanJob := Job.ofTask <| p.result!.map (sync := true) fun
+        | some olean => .ok olean {}
+        | none => .error 0 {}
+  oleanJob.mapM (sync := true) fun olean => do
     let input ← (← mod.input.fetch).await
-    let importInfo ← (← mod.importInfo.fetch).await
+    let presetup ← (← mod.presetup.fetch).await
     let artsTrace := BuildTrace.nil s!"{mod.name}:importArts"
     return {
       srcTrace := input.trace
-      arts := ⟨#[#[arts.olean.path]]⟩
-      artsTrace := artsTrace.mix arts.olean.trace
-      transTrace := importInfo.transTrace
+      arts := ⟨#[#[olean.path]]⟩
+      artsTrace := artsTrace.mix olean.trace
+      transTrace := presetup.importTransTrace
     }
 
 /-- The `ModuleFacetConfig` for the builtin `exportInfoFacet`. -/
@@ -671,7 +751,11 @@ def Module.recFetchPreSetup (mod : Module) : FetchM (Job ModulePreSetup) := ensu
   precompiled imports so that errors in the import block of transitive imports
   will not kill this job before the direct imports are built.
   -/
-  let impInfoJob ← mod.importInfo.fetch
+  -- Unlike the `importInfo` facet, plain imports of split modules do not wait for their private file
+  let impInfoJob ← do
+    let header ← (← mod.header.fetch).await
+    fetchImportInfo mod.relLeanFile.toString mod.pkg.keyName mod.name header
+      (allowNonModules := mod.allowNonModules) (fastSplitImports := true)
 
   /-
   Remark: It should be possible to avoid transitive imports here when the module
@@ -728,7 +812,11 @@ def Module.recFetchPreSetup (mod : Module) : FetchM (Job ModulePreSetup) := ensu
     | some true => addTrace depTrace; addTrace nilLibTrace
     let {dynlibs, plugins} ← computeModuleDeps impLibs externLibs dynlibs plugins
     let extra := (← getLeanOptOverrides).find? mod.pkg.baseName |>.getD {}
-    let leanOptions := mod.leanOptions ++ extra
+    let mut leanOptions := mod.leanOptions ++ extra
+    if input.privatePath?.isSome then
+      -- Lean postpones code generation of split modules
+      leanOptions := {leanOptions with
+        values := leanOptions.values.insert `compiler.postponeCompile (.ofBool true)}
     addLeanTrace
     addTrace input.trace
     addTrace <| traceOptions leanOptions "options"
@@ -739,11 +827,12 @@ def Module.recFetchPreSetup (mod : Module) : FetchM (Job ModulePreSetup) := ensu
     return {
       trace := ← getTrace
       srcFile := input.path
+      privateSrcFile? := input.privatePath?
       srcMTime := input.trace.mtime
       isModule := input.header.isModule
       directImports := input.imports
       directImportArts := info.directArts
-      irSigTrace := info.irSigTrace
+      importTransTrace := info.transTrace
       dynlibs, plugins, leanOptions
     }
 where
@@ -770,9 +859,15 @@ public def Module.depHashFacetConfig : ModuleFacetConfig depHashFacet :=
 public def Module.depsFacetConfig : ModuleFacetConfig depsFacet :=
   mkFacetJobConfig fun mod => (·.toOpaque) <$> mod.presetup.fetch
 
-def mkModuleSetup (mod : Module) (presetup : ModulePreSetup) : FetchM ModuleSetup := do
-  let importArts ← fetchTransImportArts presetup.directImports presetup.directImportArts
-    (importLevel presetup.isModule (inServer := false))
+/--
+Computes the setup for elaborating the module. `directArts?` overrides the artifacts of direct
+imports in `presetup`, which for split modules may only cover their `.olean`.
+-/
+def mkModuleSetup (mod : Module) (presetup : ModulePreSetup)
+    (directArts? : Option (NameMap ImportArtifacts) := none) : FetchM ModuleSetup := do
+  let importArts ← fetchTransImportArts presetup.directImports
+    (directArts?.getD presetup.directImportArts)
+    (importLevel presetup.isModule (inServer := false)) (fastSplitImports := directArts?.isNone)
   return {
     name := mod.name
     isModule := presetup.isModule
@@ -1182,9 +1277,22 @@ def Module.buildLean
   let setup ← mkModuleSetup mod presetup
   let arts := mod.mkArtifacts presetup.srcFile presetup.isModule
   mod.clearOutputArtifacts
-  compileLeanModule presetup.srcFile relSrcFile setup mod.setupFile arts args
-    (← getLeanPath) (← getLean)
-  unless presetup.srcMTime == (← getMTime presetup.srcFile) do
+  if let some privateSrcFile := presetup.privateSrcFile? then
+    -- The public file produces the `.olean`, the private file all other artifacts.
+    compileLeanModule presetup.srcFile relSrcFile setup mod.setupFile
+      {olean? := arts.olean?, ilean? := arts.ilean?} args (← getLeanPath) (← getLean)
+    if let some p ← mod.publicOLeanPromise? then
+      -- Unblock importers of the `.olean`
+      p.resolve (some (← computeArtifact mod.oleanFile "olean"))
+    compileLeanModule privateSrcFile (relPathFrom mod.pkg.dir privateSrcFile) setup mod.setupFile
+      {arts with ilean? := mod.privateIleanFile} args (← getLeanPath) (← getLean)
+  else
+    compileLeanModule presetup.srcFile relSrcFile setup mod.setupFile arts args
+      (← getLeanPath) (← getLean)
+  let mut srcMTime ← getMTime presetup.srcFile
+  if let some privateSrcFile := presetup.privateSrcFile? then
+    srcMTime := max srcMTime (← getMTime privateSrcFile)
+  unless presetup.srcMTime == srcMTime do
     error s!"module source file:\
       \n   {presetup.srcFile}\
       \nchanged since build began; rerun the build"
@@ -1220,6 +1328,9 @@ def Module.recBuildElabArts (mod : Module) : FetchM (Job ModuleOutputArtifacts) 
     setTrace presetup.trace
     let arts ← fetchCore presetup
     let arts ← adjustMTime arts mod.traceFile
+    if presetup.privateSrcFile?.isSome then
+      if let some p ← mod.publicOLeanPromise? then
+        p.resolve (some arts.olean)
     return arts
 where
   fetchFromCache? presetup savedTrace restoreAll : JobM ModuleFetchState := do
@@ -1386,11 +1497,13 @@ def Module.recBuildIRArts (mod : Module) : FetchM (Job ModuleOutputArtifacts) :=
     unless elabArts.c?.isNone do
       let elabArts ← trackOutputsIfEnabled elabArts
       return elabArts
+    -- `leanir` needs the IR of all imports, so it uses the complete import info
+    let importInfo ← (← mod.importInfo.fetch).await
     let depTrace := BuildTrace.nil s!"{mod.name} (leanir)"
-      |>.mix (← importAllTrace elabArts) |>.mix presetup.irSigTrace
+      |>.mix (← importAllTrace elabArts) |>.mix importInfo.irSigTrace
     let upToDate ← buildUnlessUpToDate? (oldTrace := presetup.srcMTime) mod.irFile depTrace mod.irTraceFile do
       createParentDirs mod.irSetupFile
-      let irSetup ← mkModuleSetup mod presetup
+      let irSetup ← mkModuleSetup mod presetup (directArts? := importInfo.directArts)
       IO.FS.writeFile mod.irSetupFile (toJson irSetup).pretty
       mod.clearIROutputArtifacts
       compileLeanIR mod.irSetupFile mod.irFile mod.cFile (← getLeanPath) (← getLeanir)

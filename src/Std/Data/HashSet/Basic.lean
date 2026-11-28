@@ -75,6 +75,20 @@ instance [BEq α] [Hashable α] : Inhabited (HashSet α) where
   default := ∅
 
 /--
+Marks a hash set as linear, which is a no-op logically.
+
+At runtime the bucket array backing the set is first made unique, copying it if the reference is not
+already unique, and then marked. If the environment variable `LEAN_ABORT_ON_NONLINEAR` is set,
+every non-linear use from that point on causes a panic instead of a silent copy.
+
+To debug where the non-linearity is coming from you can set a breakpoint on `lean_internal_panic`.
+-/
+@[never_extract, inline] def markLinear (m : HashSet α) : HashSet α :=
+  ⟨m.inner.markLinear⟩
+
+@[simp, grind =] theorem markLinear_eq {m : HashSet α} : m.markLinear = m := rfl
+
+/--
 Two hash sets are equivalent in the sense of `Equiv` iff all their values are equal.
 -/
 structure Equiv (m₁ m₂ : HashSet α) where

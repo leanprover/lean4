@@ -426,6 +426,25 @@ static object * mk_compacted_region(b_obj_arg ofname, object * root,
     return r;
 }
 
+// Releases the memory of a loaded compacted region, which is either a file mapping or a `malloc`ed
+// copy of the file.
+static void release_region_buffer(char * buffer, size_t size, bool is_mmap) {
+    if (is_mmap) {
+#if defined(__has_feature)
+#if __has_feature(address_sanitizer)
+        __lsan_unregister_root_region(buffer, size);
+#endif
+#endif
+#ifdef LEAN_WINDOWS
+        lean_always_assert(UnmapViewOfFile(buffer));
+#else
+        lean_always_assert(munmap(buffer, size) == 0);
+#endif
+    } else {
+        free_sized(buffer, size);
+    }
+}
+
 // Implements `Lean.CompactedRegion.read`. Loads a compacted region from disk. `odep_regions`
 // carries `CompactedRegion`s whose address ranges must be known to resolve cross-region pointers
 // in this file. Returns `(α × CompactedRegion)`, where `α` is the type the Lean caller asks the
@@ -578,48 +597,53 @@ extern "C" LEAN_EXPORT object * lean_compacted_region_read(b_obj_arg ofname, b_o
 #endif
         }
 
-        std::vector<std::pair<size_t, ptrdiff_t>> lib_relocs;
-        std::vector<size_t> closure_offsets;
-        // The checks below only validate the section framing against the file size, which detects
-        // truncated files. The compacted data itself is trusted.
-        char const * p = buffer + sizeof(olean_header);
-        char const * end = buffer + size;
-        size_t data_size;
-        read_bytes(p, end, &data_size, sizeof(data_size));
-        if (data_size > static_cast<size_t>(end - p))
-            throw exception("unexpected end of file");
-        size_t data_section_off = sizeof(olean_header) + sizeof(size_t);
-        size_t data_section_sz = data_size;
-        p += data_size;
-        uint32_t num_closure_offsets;
-        read_bytes(p, end, &num_closure_offsets, sizeof(num_closure_offsets));
-        if (num_closure_offsets > 0) {
-            if (num_closure_offsets > static_cast<size_t>(end - p) / sizeof(uint64_t))
+        try {
+            std::vector<std::pair<size_t, ptrdiff_t>> lib_relocs;
+            std::vector<size_t> closure_offsets;
+            // The checks below only validate the section framing against the file size, which detects
+            // truncated files. The compacted data itself is trusted.
+            char const * p = buffer + sizeof(olean_header);
+            char const * end = buffer + size;
+            size_t data_size;
+            read_bytes(p, end, &data_size, sizeof(data_size));
+            if (data_size > static_cast<size_t>(end - p))
                 throw exception("unexpected end of file");
-            closure_offsets.reserve(num_closure_offsets);
-            for (uint32_t i = 0; i < num_closure_offsets; i++) {
-                uint64_t off;
-                read_bytes(p, end, &off, sizeof(off));
-                if (data_size < sizeof(void*) || off > data_size - sizeof(void*))
-                    throw exception("closure offset out of bounds");
-                closure_offsets.push_back(static_cast<size_t>(off));
+            size_t data_section_off = sizeof(olean_header) + sizeof(size_t);
+            size_t data_section_sz = data_size;
+            p += data_size;
+            uint32_t num_closure_offsets;
+            read_bytes(p, end, &num_closure_offsets, sizeof(num_closure_offsets));
+            if (num_closure_offsets > 0) {
+                if (num_closure_offsets > static_cast<size_t>(end - p) / sizeof(uint64_t))
+                    throw exception("unexpected end of file");
+                closure_offsets.reserve(num_closure_offsets);
+                for (uint32_t i = 0; i < num_closure_offsets; i++) {
+                    uint64_t off;
+                    read_bytes(p, end, &off, sizeof(off));
+                    if (data_size < sizeof(void*) || off > data_size - sizeof(void*))
+                        throw exception("closure offset out of bounds");
+                    closure_offsets.push_back(static_cast<size_t>(off));
+                }
+                lib_relocs = read_lib_table_from_buffer(p, end);
             }
-            lib_relocs = read_lib_table_from_buffer(p, end);
-        }
 
-        region_reader reader(
-            data_section_sz, buffer + data_section_off,
-            base_addr + data_section_off,
-            std::move(dep_regions),
-            std::move(lib_relocs), std::move(closure_offsets));
-        object * mod = reader.read();
-        object * pair = alloc_cnstr(0, 2, 0);
-        cnstr_set(pair, 0, mod);
-        // The Lean region is framed by its whole mapping (`buffer`, `base_addr` = the mapped-at
-        // logical address, `size` = the file size), not the inner data section.
-        cnstr_set(pair, 1, mk_compacted_region(ofname, mod,
-            buffer, reinterpret_cast<size_t>(base_addr), size, is_mmap));
-        return io_result_mk_ok(pair);
+            region_reader reader(
+                data_section_sz, buffer + data_section_off,
+                base_addr + data_section_off,
+                std::move(dep_regions),
+                std::move(lib_relocs), std::move(closure_offsets));
+            object * mod = reader.read();
+            object * pair = alloc_cnstr(0, 2, 0);
+            cnstr_set(pair, 0, mod);
+            // The Lean region is framed by its whole mapping (`buffer`, `base_addr` = the mapped-at
+            // logical address, `size` = the file size), not the inner data section.
+            cnstr_set(pair, 1, mk_compacted_region(ofname, mod,
+                buffer, reinterpret_cast<size_t>(base_addr), size, is_mmap));
+            return io_result_mk_ok(pair);
+        } catch (...) {
+            release_region_buffer(buffer, size, is_mmap);
+            throw;
+        }
     } catch (exception & ex) {
         return io_result_mk_error((sstream() << "failed to read '" << olean_fn << "': " << ex.what()).str());
     }
@@ -635,20 +659,7 @@ extern "C" LEAN_EXPORT obj_res lean_compacted_region_free(obj_arg region) {
     // refcount-free buffer object, so it needs no decrement.
     lean_ctor_set(region, 1, lean_box(0));
     lean_dec_ref(region);
-    if (is_mmap) {
-#if defined(__has_feature)
-#if __has_feature(address_sanitizer)
-        __lsan_unregister_root_region(buffer, full_sz);
-#endif
-#endif
-#ifdef LEAN_WINDOWS
-        lean_always_assert(UnmapViewOfFile(buffer));
-#else
-        lean_always_assert(munmap(buffer, full_sz) == 0);
-#endif
-    } else {
-        free_sized(buffer, full_sz);
-    }
+    release_region_buffer(buffer, full_sz, is_mmap);
     return lean_io_result_mk_ok(lean_box(0));
 }
 

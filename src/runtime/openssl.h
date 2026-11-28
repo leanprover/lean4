@@ -6,12 +6,19 @@ Author: Sofia Rodrigues
 #pragma once
 #include <lean/lean.h>
 
-#ifndef LEAN_EMSCRIPTEN
 namespace lean {
+#ifndef LEAN_EMSCRIPTEN
+// Initializes OpenSSL on first call and returns whether it is usable. Lazy, so programs without TLS
+// never load OpenSSL's providers. Every entry point that creates or uses OpenSSL objects must call this
+// first: on Windows it also arranges for the calling thread's OpenSSL state to be freed when the thread
+// exits.
+bool ensure_openssl_initialized();
+
 // A `std::unique_ptr` deleter calling `release`.
 template<auto release> struct released_by { void operator()(auto * p) const { release(p); } };
-}
 #endif
+}
 
+extern "C" LEAN_EXPORT lean_obj_res lean_openssl_pin_flags();
 extern "C" LEAN_EXPORT lean_obj_res lean_openssl_version(lean_obj_arg);
 extern "C" LEAN_EXPORT lean_obj_res lean_openssl_linked_version(lean_obj_arg);

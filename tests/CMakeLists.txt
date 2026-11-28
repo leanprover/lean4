@@ -34,6 +34,11 @@ string(APPEND TEST_VARS " SCRIPT_DIR='${MANGLED_SOURCE_DIR}/../script'")
 # Use the current stage's lean binary instead of whatever lake thinks we want
 string(APPEND TEST_VARS " PATH='${LEAN_BIN}':\"$PATH\"")
 
+# Set for toolchains that bundle their own dependencies, which read no OpenSSL configuration.
+if(LEAN_STANDALONE)
+  string(APPEND TEST_VARS " LEAN_STANDALONE='1'")
+endif()
+
 string(APPEND TEST_VARS " LEANC_OPTS='${LEANC_OPTS}'")
 
 # LEANC_OPTS in CXX is necessary for macOS c++ to find its headers

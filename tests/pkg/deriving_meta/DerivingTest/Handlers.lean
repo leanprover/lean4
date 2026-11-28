@@ -1,6 +1,7 @@
 module
 
 public meta import Lean.Elab.Deriving.Meta
+import all Lean.Elab.Deriving.Meta.Util
 
 public section
 
@@ -128,6 +129,48 @@ class Default (α : Sort u) where
   default : α
 
 /-!
+Two similarly named but differently behaving type classes
+-/
+
+class A.Similar (α : Type u) where
+  /-- We let this mean: the constructor index is even -/
+  something : α → Bool
+
+class B.Similar (α : Type u) where
+  /-- We let this mean: the constructor index is odd -/
+  something : α → Bool
+
+/-!
+We support dependent transformation type classes (here in the sense of the result type depending on
+the type parameter).
+-/
+
+class Transform (α : Type u) where
+  transform : α → α
+
+class IsInvolution (α : Type u) [Transform α] where
+  transform_transform (x : α) : Transform.transform (Transform.transform x) = x
+
+/-!
+A type class `abbrev`
+-/
+
+class ActualClass (n : Nat) (s : String) (α : Type u × Name) (i : outParam Nat) where
+  thing : α.1 → Nat
+
+abbrev AbbrevClass (α : Type u) [Bounds α] := ∀ n, ActualClass n "hi" (α, `foo) (Bounds.maximum α)
+
+/-!
+A transformation type class with more arguments
+-/
+
+class Flatten (α : Type u) where
+  flatten : α → List Nat → List Nat
+
+class LawfulFlatten (α : Type u) [Flatten α] where
+  flatten_append (x : α) (l l' : List Nat) : Flatten.flatten x (l ++ l') = Flatten.flatten x l ++ l'
+
+/-!
 Convenience type class whose deriving handler calls the deriving handler of all classes that don't
 have special assumptions about the type (i.e. work on almost every non-`Prop` inductive with
 sufficient existing instances).
@@ -137,11 +180,14 @@ automatically.
 -/
 
 class AllGeneralClasses (α : Type u)
-    extends FirstDiff α, CompareCtorIdx α, Bounds α, LawfulBounds α, ULiftCtorIdx α, Const α where
+    extends FirstDiff α, CompareCtorIdx α, Bounds α, LawfulBounds α, ULiftCtorIdx α, Const α,
+      toASimilar : A.Similar α, toBSimilar : B.Similar α, Transform α, Flatten α where
   -- we use `ToData` as the simplest class to test most error messages but with this as a parent,
   -- this is always an instance for `ToData α` so we'd never get the "missing instance" error
   -- message and only the "unsuitable instance" one
   toToData : ToData α
+  -- this is not a structure
+  toAbbrevClass : AbbrevClass α
 
 /-!
 Convenience type class for data classes not included in `AllGeneralClasses`, including `GenRandom`
@@ -151,15 +197,13 @@ which requires `Type` and no indices and `Default` which doesn't always behave w
 class OtherDataClasses (α : Type) extends GenRandom α, Default α where
 
 /-!
-Convenience type class for law type classes that are not included in `AllGeneralClasses`, including
-`IsSmallToData` which doesn't work for nested types or when the type is not actually "small"
-(i.e. `< 32` fields and constructors), and `ToDataDepLaw` which doesn't work for nested types
-because the deriving handler assumes that we're trying to prove "something interesting" recursively
-about `ToData` (which doesn't work because of the `partial`).
+Convenience type class for law type classes that are not included in `AllGeneralClasses` because
+they don't work for nested types.
 -/
 
 class OtherLawClasses (α : Type u)
-  extends AllGeneralClasses α, ToDataDepLaw α, IsSmallToData α where
+  extends AllGeneralClasses α, ToDataDepLaw α, IsSmallToData α, IsInvolution α,
+    LawfulFlatten α where
 
 /-!
 The deriving handlers
@@ -187,7 +231,7 @@ meta partial def deriveIsSmallToData :=
   mkInductiveDerivingHandler ``IsSmallToData do
     deriveLawClassUsingCtor fun
       | ctx, ``IsSmallToData.small =>
-        ctx.withUnfoldOnce <| .casesLaw fun ival cval fields ctorApp expectedType () => do
+        ctx.withUnfoldOnce <| .casesLaw fun _ival _cval _fields _ctorApp expectedType () => do
           let_expr Data.Small thing := expectedType
             | throwError "Unexpected goal for `IsSmallToData` deriving handler:\
                 {indentExpr expectedType}"
@@ -398,19 +442,19 @@ meta def deriveLawfulBounds : DerivingHandler :=
 
 private meta def deriveSecret : DerivingHandler :=
   mkInductiveDerivingHandler ``Secret do
-    makeInstancesUsingCtor fun
+    makeInstancesUsingCtor (nonRec := true) fun
       | ``Secret.secret => fun input => return .inline <| toExpr input.induct
       | _ => .unhandled
     return true
 
 meta def deriveULiftCtorIdx : DerivingHandler :=
   mkInductiveDerivingHandler ``ULiftCtorIdx do
-    deriveTransformationInstPerConstructor fun _ival cval _ _ =>
+    deriveTransformationInstPerConstructor (nonRec := true) fun _ival cval _ _ =>
       return mkApp2 (.const ``ULift.up [(← read).indLevel, 0]) Nat.mkType (toExpr cval.cidx)
 
 meta def deriveConst : DerivingHandler :=
   mkInductiveDerivingHandler ``Const do
-    deriveTransformationInstPerConstructor fun _ _ _ _ => do
+    deriveTransformationInstPerConstructor (nonRec := true) fun _ _ _ _ => do
       let e ← Term.elabTerm (← `(by let y : Nat := 5; exact y + 1)) (some Nat.mkType)
       Term.synthesizeSyntheticMVarsNoPostponing
       return e
@@ -543,6 +587,166 @@ meta def deriveDefault : DerivingHandler :=
       | _ => .unhandled
     return true
 
+meta def A.deriveSimilar : DerivingHandler :=
+  mkInductiveDerivingHandler ``Similar do
+    -- we notably don't mark this as `nonRec` to make it
+    -- generate instances for the whole mutual block
+    deriveTransformationInstPerConstructor fun _ival cval _fields _ctorApp => do
+      return toExpr <| cval.cidx % 2 == 0
+
+meta def B.deriveSimilar : DerivingHandler :=
+  mkInductiveDerivingHandler ``Similar do
+    -- we notably don't mark this as `nonRec` to make it
+    -- generate instances for the whole mutual block
+    deriveTransformationInstPerConstructor fun _ival cval _fields _ctorApp => do
+      return toExpr <| cval.cidx % 2 == 1
+
+meta def deriveTransform : DerivingHandler :=
+  mkInductiveDerivingHandler ``Transform do
+    deriveTransformationInstPerConstructor fun _ival cval fields _ => do
+      let mut newCtorApp := mkAppN (.const cval.name (← read).indLParams) (← read).indParams
+      let mut type ← inferType newCtorApp
+      for field in fields do
+        let .forallE _ _ b _ := type
+          | throwError "Internal error in deriving handler for `{.ofConstName ``Transform}`"
+        if b.hasLooseBVars then
+          -- don't break dependencies by transforming
+          newCtorApp := newCtorApp.app field
+          type := b.instantiate1 field
+        else
+          type := b
+          let ty ← inferType field
+          let some lvl ← getDecLevel? ty
+            | newCtorApp := newCtorApp.app field
+          let inst ← synthInstanceDeriving (.app (.const ``Transform [lvl]) ty)
+          newCtorApp := newCtorApp.app (mkApp3 (.const ``Transform.transform [lvl]) ty inst field)
+      return newCtorApp
+
+meta def deriveIsInvolution : DerivingHandler :=
+  mkInductiveDerivingHandler ``IsInvolution do
+    deriveLawClassUsingCtor fun
+      | ctx, ``IsInvolution.transform_transform =>
+        ctx.withUnfoldOnce <| .casesLaw fun _ival _cval _fields _ctorApp expectedType _ => do
+          let some (_, l, r) := expectedType.eq?
+            | throwError
+                "Unexpected goal in `IsInvolution` deriving handler:{indentExpr expectedType}"
+          let mut lhs := l.getAppFn
+          let mut rhs := r.getAppFn
+          let largs := l.getAppArgs
+          let rargs := r.getAppArgs
+          unless lhs == rhs && largs.size = rargs.size do
+            throwError "Unexpected goal in `IsInvolution` deriving handler, expected an equality \
+              of two applications of the same function with the same \
+              arity:{indentExpr expectedType}"
+          let mut type ← inferType lhs
+          let mut eq? : Option Expr := none
+          for larg in largs, rarg in rargs do
+            if larg == rarg then
+              if let some eq := eq? then
+                eq? ← mkCongrFun eq larg
+            else
+              let fail :=
+                throwError "Unexpected goal in `IsInvolution` deriving handler, expected left \
+                  argument to be a double application of `transform`:{indentExpr expectedType}"
+              let_expr c@Transform.transform α inst x := larg
+                | fail
+              let_expr c@Transform.transform _ inst' x' := x
+                | fail
+              unless ← isDefEq inst inst' do
+                fail
+              let lawInst ←
+                synthInstanceDeriving (mkApp2 (.const ``IsInvolution c.constLevels!) α inst)
+              let argEq :=
+                mkApp4 (.const ``IsInvolution.transform_transform c.constLevels!) α inst lawInst x'
+              if let some eq := eq? then
+                eq? ← mkCongr eq argEq
+              else
+                eq? ← mkCongrArg lhs argEq
+            lhs := lhs.app larg
+            rhs := rhs.app rarg
+          eq?.getDM (mkEqRefl l)
+      | _, _ => .unhandled
+    return true
+
+meta def deriveAbbrevClass : DerivingHandler :=
+  mkInductiveDerivingHandler ``AbbrevClass do
+    makeInstancesUsingCtor (nonRec := true) fun
+      | ``ActualClass.thing => fun input => do
+        assert! input.classParams[1]! == toExpr "hi"
+        let n := input.classParams[0]!
+        let max := input.classParams[3]!
+        let cont : FieldHelperProvider Unit :=
+          .cases fun _ival cval _fields _ctorApp () =>
+            return mkNatAdd max (mkNatMul n (toExpr cval.cidx))
+        -- `.cases` will get confused by the expected type ``(α, `foo).fst → Nat``
+        -- so clean up the expected type
+        cont { input with expectedType := ← mkArrow input.typeApp Nat.mkType }
+      | _ => .unhandled
+    return true
+
+meta def deriveFlatten : DerivingHandler :=
+  mkInductiveDerivingHandler ``Flatten do
+    deriveTransformationInstPerConstructor fun ival cval fields _ => do
+      withLocalDeclD `acc (.app (.const ``List [0]) Nat.mkType) fun accVar => do
+        let mut acc := accVar
+        for field in fields.reverse do
+          let ty ← inferType field
+          let some lvl ← getDecLevel? ty
+            | continue
+          let inst ← synthInstanceDeriving (.app (.const ``Flatten [lvl]) ty)
+          acc := mkApp4 (.const ``Flatten.flatten [lvl]) ty inst field acc
+        unless ival.ctors matches [_] do
+          acc := mkApp3 (.const ``List.cons [0]) Nat.mkType (toExpr cval.cidx) acc
+        mkLambdaFVars #[accVar] acc
+
+meta partial def deriveLawfulFlatten : DerivingHandler :=
+  mkInductiveDerivingHandler ``LawfulFlatten do
+    deriveLawClassUsingCtor fun
+      | ctx, ``LawfulFlatten.flatten_append =>
+        ctx.withUnfoldOnce <| .casesLaw fun _ _ _ _ expectedType () => do
+          forallBoundedTelescope expectedType (some 2) fun lists expectedType => do
+            let some (_, a, b) := expectedType.eq?
+              | unreachable!
+            let_expr HAppend.hAppend _ _ _ _ e l₂ := b
+              | unreachable!
+            let (res, proof) ← pushInAppend e l₂
+            unless ← isDefEq a res do
+              throwError "Failed to derive `LawfulFlatten`, got stuck at equality\
+                {indentExpr (← mkEq a res)}"
+            mkLambdaFVars lists proof
+      | _, _ => .unhandled
+    return true
+where
+  /-- Returns `(e', h : e' = e ++ l₂)` -/
+  pushInAppend (e l₂ : Expr) : DerivingM (Expr × Expr) := do
+    let accType := .app (.const ``List [0]) Nat.mkType
+    let fallback :=
+      return (mkListAppend e l₂, mkApp2 (.const ``rfl [1]) accType (mkListAppend e l₂))
+    let .app fn acc := e
+      | fallback
+    match_expr fn with
+    | c@Flatten.flatten α inst thing =>
+      let (e', h) ← pushInAppend acc l₂
+      let h := mkApp6 (.const ``congrArg [1, 1]) accType accType e' (mkListAppend acc l₂) fn h
+      let lawInst ← synthInstanceDeriving (mkApp2 (.const ``LawfulFlatten c.constLevels!) α inst)
+      -- `law : fn (acc ++ l₂) = fn acc ++ l₂`
+      let law :=
+        mkApp6 (.const ``LawfulFlatten.flatten_append c.constLevels!) α inst lawInst thing acc l₂
+      return (fn.app e', ← mkEqTrans h law)
+    | List.cons _ head =>
+      let (e', h) ← pushInAppend acc l₂
+      let h := mkApp6 (.const ``congrArg [1, 1]) accType accType e' (mkListAppend acc l₂) fn h
+      -- `law : fn (acc ++ l₂) = fn acc ++ l₂`
+      let law := mkApp4 (.const ``List.cons_append [0]) Nat.mkType head acc l₂
+      return (fn.app e', ← mkEqTrans h law)
+    | _ => fallback
+  mkListAppend (a b : Expr) : Expr :=
+    let accType := .app (.const ``List [0]) Nat.mkType
+    mkApp6 (.const ``HAppend.hAppend [0, 0, 0]) accType accType accType
+      (mkApp2 (.const ``instHAppendOfAppend [0]) accType
+        (.app (.const ``List.instAppend [0]) Nat.mkType))
+      a b
+
 /-!
 At the same time, this is also a good test for `.synthesize` and `derivePrerequisite`
 -/
@@ -558,7 +762,12 @@ meta def deriveAllGeneralClasses : DerivingHandler :=
         | ``toBounds
         | ``toLawfulBounds
         | ``toULiftCtorIdx
-        | ``toConst =>
+        | ``toConst
+        | ``toASimilar
+        | ``toBSimilar
+        | ``toTransform
+        | ``toAbbrevClass
+        | ``toFlatten =>
           .synthesize
         | _ => .unhandled
       return true
@@ -571,7 +780,12 @@ meta def deriveAllGeneralClasses : DerivingHandler :=
             derivePrerequisite ``Secret deriveSecret <| --
               derivePrerequisite ``ULiftCtorIdx deriveULiftCtorIdx <| --
                 derivePrerequisite ``Const deriveConst <| --
-                  inner
+                  derivePrerequisite ``A.Similar A.deriveSimilar <| --
+                    derivePrerequisite ``B.Similar B.deriveSimilar <| --
+                      derivePrerequisite ``Transform deriveTransform <| --
+                        derivePrerequisite ``AbbrevClass deriveAbbrevClass <| --
+                          derivePrerequisite ``Flatten deriveFlatten <| --
+                            inner
 
 open OtherDataClasses in
 meta def deriveOtherDataClasses : DerivingHandler :=
@@ -590,15 +804,20 @@ meta def deriveOtherLawClasses : DerivingHandler :=
   let inner : DerivingHandler :=
     mkInductiveDerivingHandler ``OtherLawClasses do
       makeInstancesUsingCtor (nonRec := true) fun
-        | ``toAllGeneralClasses => .synthesize
-        | ``toToDataDepLaw => .synthesize
-        | ``toIsSmallToData => .synthesize
+        | ``toAllGeneralClasses
+        | ``toToDataDepLaw
+        | ``toIsSmallToData
+        | ``toIsInvolution
+        | ``toLawfulFlatten =>
+          .synthesize
         | _ => .unhandled
       return true
   derivePrerequisite ``AllGeneralClasses deriveAllGeneralClasses <| --
     derivePrerequisite ``ToDataDepLaw deriveToDataDepLaw <| --
       derivePrerequisite ``IsSmallToData deriveIsSmallToData <| --
-        inner
+        derivePrerequisite ``IsInvolution deriveIsInvolution <| --
+          derivePrerequisite ``LawfulFlatten deriveLawfulFlatten <| --
+            inner
 
 meta initialize
   registerDerivingHandler ``ToData deriveToData
@@ -613,6 +832,13 @@ meta initialize
   registerDerivingHandler ``ToDataDepLaw deriveToDataDepLaw
   registerDerivingHandler ``GenRandom deriveGenRandom
   registerDerivingHandler ``Default deriveDefault
+  registerDerivingHandler ``A.Similar A.deriveSimilar
+  registerDerivingHandler ``B.Similar B.deriveSimilar
+  registerDerivingHandler ``Transform deriveTransform
+  registerDerivingHandler ``IsInvolution deriveIsInvolution
+  registerDerivingHandler ``AbbrevClass deriveAbbrevClass
+  registerDerivingHandler ``Flatten deriveFlatten
+  registerDerivingHandler ``LawfulFlatten deriveLawfulFlatten
   registerDerivingHandler ``AllGeneralClasses deriveAllGeneralClasses
   registerDerivingHandler ``OtherDataClasses deriveOtherDataClasses
   registerDerivingHandler ``OtherLawClasses deriveOtherLawClasses

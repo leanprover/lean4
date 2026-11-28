@@ -88,7 +88,7 @@ class Summary (α : Type u) where
 
 private def secretName : String := "secret"
 
-meta def summaryHandler (nameDecl : MetaM Name) : DerivingHandler :=
+meta def deriveSummary (nameDecl : MetaM Name) : DerivingHandler :=
   mkInductiveDerivingHandler ``Summary do
     makeInstancesUsingCtor fun
       | ``Summary.typeName =>
@@ -99,7 +99,7 @@ meta def summaryHandler (nameDecl : MetaM Name) : DerivingHandler :=
     return true
 
 meta def secretHandler : DerivingHandler :=
-  summaryHandler do return mkPrivateName (← getEnv) `secretName
+  deriveSummary do return mkPrivateName (← getEnv) `secretName
 
 @[expose] public section
 
@@ -113,3 +113,60 @@ error: Instance `instSummaryBool` failed to type check
 run_cmd secretHandler #[``Bool]
 
 end
+
+/-!
+You can only use recursion if you use the instance projection functions, wrappers don't work
+-/
+
+class BadRec (α : Type u) where
+  parity : α → Bool
+
+abbrev parity := @BadRec.parity
+
+meta def deriveBadRec : DerivingHandler :=
+  mkInductiveDerivingHandler ``BadRec do
+    deriveTransformationInstPerConstructor fun _ival cval fields _ctorApp => do
+      let mut parity := toExpr (cval.cidx % 2 == 1)
+      for field in fields do
+        if ← isProof field then
+          continue
+        let type ← inferType field
+        let some lvl ← getDecLevel? type
+          | throwError "Field type `{type}` has an unexpected level `{← getLevel field}`"
+        let inst ← synthInstanceDeriving (.app (.const ``BadRec [lvl]) type)
+        let b := mkApp3 (.const ``parity [lvl]) type inst field
+        parity := mkApp2 (.const ``Bool.xor []) parity b
+      return parity
+
+instance : BadRec Nat where
+  parity n := n % 2 == 1
+
+-- works for non-recursive inductives
+run_cmd deriveBadRec #[``Fin]
+
+-- but not for recursive ones
+/--
+error: fail to show termination for
+  instBadRecList.parity
+with errors
+failed to infer structural recursion:
+Not considering parameter α of instBadRecList.parity:
+  it is unchanged in the recursive calls
+Not considering parameter #2 of instBadRecList.parity:
+  it is unchanged in the recursive calls
+Cannot use parameter t:
+  insufficient number of parameters at recursive application ⏎
+    instBadRecList.parity α
+
+
+failed to prove termination, possible solutions:
+  - Use `have`-expressions to prove the remaining goals
+  - Use `termination_by` to specify a different well-founded relation
+  - Use `decreasing_by` to specify your own tactic for discharging this kind of goal
+α : Type u
+head : α
+tail a✝ : List α
+⊢ sizeOf a✝ < 1 + sizeOf tail
+-/
+#guard_msgs in
+run_cmd deriveBadRec #[``List]

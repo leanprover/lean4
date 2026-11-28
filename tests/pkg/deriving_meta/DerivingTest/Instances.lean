@@ -1,4 +1,5 @@
 module
+
 public import DerivingTest.Handlers
 
 /-!
@@ -103,11 +104,104 @@ instance : GenRandom String where
 
 deriving instance GenRandom for ByteArray
 
-instance : Default Nat where default := 0
-instance : Default Int where default := 0
-instance : Default UInt8 where default := 0
-instance : Default UInt16 where default := 0
-instance : Default UInt32 where default := 0
-instance : Default UInt64 where default := 0
-instance : Default USize where default := 0
-instance : Default String where default := ""
+instance : Default Nat where
+  default := 0
+
+instance : Default Int where
+  default := 0
+
+instance : Default UInt8 where
+  default := 0
+
+instance : Default UInt16 where
+  default := 0
+
+instance : Default UInt32 where
+  default := 0
+
+instance : Default UInt64 where
+  default := 0
+
+instance : Default USize where
+  default := 0
+
+instance : Default String where
+  default := ""
+
+instance : Transform Nat where
+  transform n := n ^^^ 1
+
+instance : IsInvolution Nat where
+  transform_transform := by simp [Transform.transform, Nat.xor_assoc]
+
+instance : Transform Int where
+  transform n := -n
+
+instance : IsInvolution Int where
+  transform_transform := by simp [Transform.transform]
+
+instance : Transform (Fin n) where
+  transform i := i.rev
+
+instance : IsInvolution (Fin n) where
+  transform_transform := by simp [Transform.transform]
+
+instance : Transform UInt8 where
+  transform n := ~~~n
+
+instance : IsInvolution UInt8 where
+  transform_transform := by simp [Transform.transform]
+
+instance : Transform UInt16 where
+  transform n := ~~~n
+
+instance : IsInvolution UInt16 where
+  transform_transform := by simp [Transform.transform]
+
+instance : Transform UInt32 where
+  transform n := ~~~n
+
+instance : IsInvolution UInt32 where
+  transform_transform := by simp [Transform.transform]
+
+instance : Transform UInt64 where
+  transform n := ~~~n
+
+instance : IsInvolution UInt64 where
+  transform_transform := by simp [Transform.transform]
+
+instance : Transform USize where
+  transform n := ~~~n
+
+instance : IsInvolution USize where
+  transform_transform := by simp [Transform.transform]
+
+instance : Transform String where
+  transform s := .ofList s.toList.reverse
+
+instance : IsInvolution String where
+  transform_transform := by simp [Transform.transform]
+
+instance [Transform α] : Transform (Array α) where
+  transform xs := xs.map Transform.transform |>.reverse
+
+instance [Transform α] [IsInvolution α] : IsInvolution (Array α) where
+  transform_transform xs := by
+    simp [Transform.transform, Function.comp_def, IsInvolution.transform_transform]
+
+instance : Flatten Nat where
+  flatten := List.cons
+
+instance [Flatten α] : Flatten (Array α) where
+  flatten xs acc := xs.size :: xs.foldr Flatten.flatten acc
+
+instance [Flatten α] [LawfulFlatten α] : LawfulFlatten (Array α) where
+  flatten_append xs l₁ l₂ := by
+    simp only [Flatten.flatten, List.cons_append, List.cons.injEq, true_and]
+    apply Array.foldr_hom (f := (· ++ l₂))
+    simp [LawfulFlatten.flatten_append]
+
+deriving instance LawfulFlatten for Nat
+
+deriving instance Flatten, LawfulFlatten for
+  Fin, BitVec, UInt8, UInt16, UInt32, UInt64, USize, ByteArray, String, Int

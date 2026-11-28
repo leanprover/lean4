@@ -1,6 +1,7 @@
 module
 
 public import DerivingTest.Instances
+meta import DerivingTest.Instances -- for the `#eval` tests
 public import Lean.Declaration
 import all DerivingTest.Handlers -- for the `Secret` type class
 
@@ -37,6 +38,12 @@ deriving instance IsSmallToData for Nat, Int, String, UInt8, UInt16, UInt32, UIn
 set_option warn.sorry false in
 instance : IsSmallToData Syntax := sorry
 
+set_option warn.sorry false in
+instance : IsInvolution Syntax := sorry
+
+set_option warn.sorry false in
+instance : LawfulFlatten Syntax := sorry
+
 deriving instance OtherLawClasses for
   List, String.Pos.Raw, Bool, Substring.Raw, SourceInfo, Name, Syntax.Preresolved, FVarId, MVarId,
   LevelMVarId, BinderInfo, Literal, Prod, DataValue, KVMap, Level, Expr, ConstantVal, AxiomVal,
@@ -57,6 +64,13 @@ info: some (DiffPath.ctor `Lean.Level.param 0 (DiffPath.ctor `Lean.Name.str 1 (D
 -/
 #guard_msgs in
 #eval firstDiff (Level.param `u) (Level.param `v)
+
+-- reduction works too and yields the same result
+/--
+info: some (DiffPath.ctor `Lean.Level.param 0 (DiffPath.ctor `Lean.Name.str 1 DiffPath.differentValue))
+-/
+#guard_msgs in
+#reduce firstDiff (Level.param `u) (Level.param `v)
 
 /-- info: 6 -/
 #guard_msgs in
@@ -82,6 +96,16 @@ info: some (DiffPath.ctor `Lean.Level.param 0 (DiffPath.ctor `Lean.Name.str 1 (D
 #guard_msgs in
 #eval Const.const (3, 5)
 
+/--
+info: Lean.Expr.app
+  (Lean.Expr.app
+    (Lean.Expr.app (Lean.Expr.const `taNfO.taNfo [Lean.Level.zero]) (Lean.Expr.const `taN []))
+    (Lean.Expr.lit (Lean.Literal.natVal 1)))
+  (Lean.Expr.app (Lean.Expr.const `taNtaNfOtsni []) (Lean.Expr.lit (Lean.Literal.natVal 1)))
+-/
+#guard_msgs in
+#eval Transform.transform (toExpr 0)
+
 /-- info: Lean.Expr.proj (Lean.Name.mkNum `«» 4) 0 (Lean.Expr.bvar 1) -/
 #guard_msgs in
 #eval show IO Expr from do
@@ -93,9 +117,33 @@ info: some (DiffPath.ctor `Lean.Level.param 0 (DiffPath.ctor `Lean.Name.str 1 (D
     catch _ =>
       pure ()
 
+/-- info: Literal.natVal 0 -/
+#guard_msgs in
+#eval (Default.default : Literal)
+
+/-- info: true -/
+#guard_msgs in
+#eval A.Similar.something (DataValue.ofString "hi")
+
+/-- info: false -/
+#guard_msgs in
+#eval B.Similar.something (DataValue.ofString "hi")
+
+/-- info: 407 -/
+#guard_msgs in
+#eval ActualClass.thing 100 "hi" (α := (Level, `foo)) (.param `u)
+
+/-- info: [9, 1, 2, 104, 105] -/
+#guard_msgs in
+#eval Flatten.flatten (toExpr "hi") []
+
 example (i : ConstantInfo) : Data.Small (ToData.convert i) := IsSmallToData.small i
 example (i : ConstantInfo) : Bounds.upper i ≤ Bounds.maximum ConstantInfo :=
   LawfulBounds.upper_le_maximum i
+example (i : ConstantInfo) : Transform.transform (Transform.transform i) = i :=
+  IsInvolution.transform_transform i
+example (i : ConstantInfo) : Flatten.flatten i l = Flatten.flatten i [] ++ l :=
+  LawfulFlatten.flatten_append i [] l
 
 /-!
 The instances for the private type class is private
@@ -187,6 +235,37 @@ info: @[instance_reducible, expose] def instDefaultMutual2 : {α β : Type} → 
 #print sig instDefaultMutual2
 
 /-!
+All helpers from `A.Similar` and `B.Similar` are distinct
+-/
+
+#eval do
+  -- check that all these exist using double backticks
+  -- each call generates instances for every inductive
+  -- because we (intentionally) set `nonRec := false`
+  let := [
+    -- helpers for `A.Similar (OtherMutual1 α)`
+    ``instSimilarOtherMutual1.something,
+    ``instSimilarOtherMutual2.something,
+    ``instSimilarOtherMutual1,
+
+    -- helpers for `B.Similar (OtherMutual1 α)`
+    ``instSimilarOtherMutual1_1.something,
+    ``instSimilarOtherMutual2.something_1,
+    ``instSimilarOtherMutual1_1,
+
+    -- helpers for `A.Similar (OtherMutual2 α)`
+    ``instSimilarOtherMutual1_2.something,
+    ``instSimilarOtherMutual2.something_2,
+    ``instSimilarOtherMutual2,
+
+    -- helpers for `B.Similar (OtherMutual2 α)`
+    ``instSimilarOtherMutual1_2.something_1,
+    ``instSimilarOtherMutual2_1.something,
+    ``instSimilarOtherMutual2_1
+  ]
+  assert! this.Nodup
+
+/-!
 The deriving handlers also work on indexed inductives
 -/
 
@@ -252,6 +331,43 @@ structure TestMoreParams (p : OuterParams) (β : Nat → Type) where
   val2 : p.Type2 3
   val3 : (p.Other 20).Type2 4
   val4 : β 3
+deriving AllGeneralClasses, OtherDataClasses, OtherLawClasses
+
+/-!
+The deriving handlers also work on reflexive inductives
+-/
+
+instance [ToData α] : ToData (Bool → α) where
+  convert f := ToData.convert (f false, f true)
+
+instance [FirstDiff α] : FirstDiff (Bool → α) where
+  firstDiff a b := FirstDiff.firstDiff (a false, a true) (b false, b true)
+
+instance {α β : Type _} [Transform α] : Transform (β → α) where
+  transform f := fun x => Transform.transform (f x)
+
+instance [GenRandom α] : GenRandom (Bool → α) where
+  random := do
+    let a ← GenRandom.random α
+    let b ← GenRandom.random α
+    return fun
+      | false => a
+      | true => b
+
+instance [Flatten α] : Flatten (Bool → α) where
+  flatten f := Flatten.flatten (f false, f true)
+
+inductive ReflexiveTest where
+  | base
+  | branch (f : Bool → ReflexiveTest)
+deriving AllGeneralClasses, OtherDataClasses
+
+/-!
+The deriving handlers also work on types with complex levels
+-/
+
+structure Test (α : Type u) (β : Type v) : Type (imax u v) where
+  val : β
 deriving AllGeneralClasses, OtherDataClasses, OtherLawClasses
 
 /-!
@@ -379,7 +495,18 @@ deriving ToData
 #eval ToData.convert { thing := .mk 1 : UsesSquash }
 
 /-!
-... and `private`
+Even if the `unsafe` only gets introduced in the backward redundancy check
+-/
+
+-- keep `[ToData (Squash α)]` until the redundancy check
+set_option deriving.reduceInstances false in
+structure UsesSquash' (α : Type) where
+  thing : Squash α
+  other : α
+deriving ToData
+
+/-!
+The deriving handler also properly propagates `private`
 -/
 
 private structure TestPrivate where
@@ -589,3 +716,22 @@ Hint: If you want to keep these hypotheses as-is, you can disable this error usi
 structure WrapInstancePrivate (α : Type) where
   thing : InstancePrivate α
 deriving @[expose] ToData
+
+/-!
+Test for `mkFreshRevertedMVarAt` (which is a function frequently used by the framework) in the
+presence of let declaration.
+-/
+
+run_meta
+  let lctx ← getLCtx
+  let linsts ← getLocalInstances
+  withLetDecl `m (mkConst ``Nat) (mkNatLit 0) (nondep := false) fun m => do
+    let eq ← mkEq m m
+    let e ← mkFreshRevertedMVarAt lctx linsts eq
+    guard (← isDefEq (← inferType e) eq)
+    check e
+  withLetDecl `m (mkConst ``Nat) (mkNatLit 0) (nondep := true) fun m => do
+    let eq ← mkEq m m
+    let e ← mkFreshRevertedMVarAt lctx linsts eq
+    guard (← isDefEq (← inferType e) eq)
+    check e

@@ -2990,7 +2990,7 @@ protected theorem dvd_eq_true_of_mod_eq_zero {a b : Int} (h : b % a == 0) : (a â
   simp [Int.dvd_of_emod_eq_zero, eq_of_beq h]
 
 protected theorem dvd_eq_false_of_mod_ne_zero {a b : Int} (h : b % a != 0) : (a âˆ£ b) = False := by
-  simp [eq_of_beq] at h
+  simp at h
   simp [Int.dvd_iff_emod_eq_zero, h]
 
 theorem ext_ediv_emod {n a b : Int} (h0 : a / n = b / n) (h1 : a % n = b % n) : a = b :=
